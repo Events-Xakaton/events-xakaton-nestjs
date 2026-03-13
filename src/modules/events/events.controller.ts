@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -44,7 +53,7 @@ export class EventsController {
   @Get()
   @ApiOperation({ summary: 'Список активных событий (upcoming + ongoing)' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: [EventListItemResDto],
     description: 'Список событий',
   })
@@ -59,11 +68,14 @@ export class EventsController {
     summary: 'Случайное событие, в котором пользователь не участвует',
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: IdResDto,
     description: 'ID случайного события',
   })
-  @ApiResponse({ status: 404, description: 'Нет подходящих событий' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Нет подходящих событий',
+  })
   random(
     @Req() req: Request & { telegramUserId?: string },
   ): Promise<GeneralApiResponseDto<IdResDto>> {
@@ -74,11 +86,14 @@ export class EventsController {
   @ApiOperation({ summary: 'Детали события' })
   @ApiParam({ name: 'eventId', description: 'UUID события' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: EventDetailResDto,
     description: 'Детали события',
   })
-  @ApiResponse({ status: 404, description: 'Событие не найдено' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Событие не найдено',
+  })
   getOne(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
@@ -92,7 +107,7 @@ export class EventsController {
   @ApiOperation({ summary: 'Список участников события' })
   @ApiParam({ name: 'eventId', description: 'UUID события' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: [EventParticipantResDto],
     description: 'Список участников',
   })
@@ -108,12 +123,12 @@ export class EventsController {
   @Post()
   @ApiOperation({ summary: 'Создать событие' })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     type: IdResDto,
     description: 'ID созданного события',
   })
   @ApiResponse({
-    status: 403,
+    status: HttpStatus.FORBIDDEN,
     description: 'Нет прав создавать события в клубе',
   })
   create(
@@ -129,12 +144,18 @@ export class EventsController {
   @ApiOperation({ summary: 'Записаться на событие' })
   @ApiParam({ name: 'eventId', description: 'UUID события' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: StatusResDto,
     description: 'Успешная запись на событие',
   })
-  @ApiResponse({ status: 400, description: 'Нет мест или неверный статус' })
-  @ApiResponse({ status: 404, description: 'Событие не найдено' })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Нет мест или неверный статус',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Событие не найдено',
+  })
   join(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
@@ -148,12 +169,18 @@ export class EventsController {
   @ApiOperation({ summary: 'Отменить участие в событии' })
   @ApiParam({ name: 'eventId', description: 'UUID события' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: StatusResDto,
     description: 'Участие отменено',
   })
-  @ApiResponse({ status: 400, description: 'Не является участником' })
-  @ApiResponse({ status: 404, description: 'Событие не найдено' })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Не является участником',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Событие не найдено',
+  })
   unjoin(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
@@ -166,12 +193,19 @@ export class EventsController {
   @Post(':eventId/feedback')
   @ApiOperation({ summary: 'Оставить отзыв о событии' })
   @ApiParam({ name: 'eventId', description: 'UUID события' })
-  @ApiResponse({ status: 200, type: StatusResDto, description: 'Отзыв принят' })
   @ApiResponse({
-    status: 400,
+    status: HttpStatus.OK,
+    type: StatusResDto,
+    description: 'Отзыв принят',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
     description: 'Окно отзыва закрыто или отзыв уже оставлен',
   })
-  @ApiResponse({ status: 404, description: 'Событие не найдено' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Событие не найдено',
+  })
   feedback(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
@@ -186,12 +220,18 @@ export class EventsController {
   @ApiOperation({ summary: 'Обновить событие' })
   @ApiParam({ name: 'eventId', description: 'UUID события' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: StatusResDto,
     description: 'Событие обновлено',
   })
-  @ApiResponse({ status: 403, description: 'Недостаточно прав' })
-  @ApiResponse({ status: 404, description: 'Событие не найдено' })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Недостаточно прав',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Событие не найдено',
+  })
   update(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
@@ -206,12 +246,18 @@ export class EventsController {
   @ApiOperation({ summary: 'Отменить событие' })
   @ApiParam({ name: 'eventId', description: 'UUID события' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: StatusResDto,
     description: 'Событие отменено',
   })
-  @ApiResponse({ status: 403, description: 'Недостаточно прав' })
-  @ApiResponse({ status: 404, description: 'Событие не найдено' })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Недостаточно прав',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Событие не найдено',
+  })
   cancel(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,

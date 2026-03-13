@@ -4,6 +4,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions } from '@shared/constants';
+import { ClubMembershipRole, ClubMembershipStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -39,7 +40,7 @@ export class LeaveClubHandler implements ICommandHandler<LeaveClubCommand> {
     }
 
     // Владелец не может покинуть собственный клуб — нужно сначала передать права
-    if (membership.role === 'owner') {
+    if ((membership.role as ClubMembershipRole) === ClubMembershipRole.Owner) {
       throw new AppException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'Владелец клуба не может покинуть свой клуб',
@@ -48,7 +49,7 @@ export class LeaveClubHandler implements ICommandHandler<LeaveClubCommand> {
 
     await this.prisma.clubMembership.update({
       where: { clubId_userId: { clubId, userId: user.id } },
-      data: { status: 'left' },
+      data: { status: ClubMembershipStatus.Left },
     });
 
     await this.pointsService.rollbackByReference(
@@ -67,7 +68,7 @@ export class LeaveClubHandler implements ICommandHandler<LeaveClubCommand> {
       HttpStatus.OK,
       HttpStatusDescriptions[HttpStatus.OK],
       {
-        status: 'left',
+        status: ClubMembershipStatus.Left,
       },
     );
   }

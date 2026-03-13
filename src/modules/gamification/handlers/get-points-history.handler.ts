@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -26,7 +26,7 @@ export class GetPointsHistoryHandler implements IQueryHandler<GetPointsHistoryQu
     const history = await this.prisma.pointsLedger.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
-      take: 100,
+      take: PAGINATION.POINTS_HISTORY_LIMIT,
       select: { id: true, ruleCode: true, deltaPoints: true, createdAt: true },
     });
 

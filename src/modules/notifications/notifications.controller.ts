@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
@@ -26,7 +34,7 @@ export class NotificationsController {
   @Throttle({ default: { limit: 1500, ttl: 60_000 } })
   @ApiOperation({ summary: 'Список уведомлений с cursor-пагинацией' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: NotificationsPageResDto,
     description: 'Страница уведомлений',
   })
@@ -43,11 +51,14 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Пометить уведомление как прочитанное' })
   @ApiParam({ name: 'notificationId', description: 'UUID уведомления' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: OkStatusResDto,
     description: 'Уведомление помечено прочитанным',
   })
-  @ApiResponse({ status: 404, description: 'Уведомление не найдено' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Уведомление не найдено',
+  })
   async markRead(
     @Req() req: Request & { telegramUserId?: string },
     @Param('notificationId') notificationId: string,

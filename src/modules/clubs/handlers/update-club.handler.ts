@@ -2,7 +2,6 @@ import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
-import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
@@ -38,7 +37,7 @@ export class UpdateClubHandler implements ICommandHandler<UpdateClubCommand> {
       });
     }
 
-    const canManage = await this.checkCanManage(
+    const canManage = await this.userContextService.canManageClub(
       user.id,
       clubId,
       club.creatorUserId,
@@ -97,25 +96,5 @@ export class UpdateClubHandler implements ICommandHandler<UpdateClubCommand> {
         status: 'updated',
       },
     );
-  }
-
-  private async checkCanManage(
-    userId: string,
-    clubId: string,
-    creatorUserId: string,
-  ): Promise<boolean> {
-    if (creatorUserId === userId) return true;
-
-    const [isPlatformAdmin, isClubAdmin] = await Promise.all([
-      this.userContextService.hasRole(userId, AppRole.PlatformAdmin),
-      this.userContextService.hasRole(userId, AppRole.ClubAdmin),
-    ]);
-    if (isPlatformAdmin || isClubAdmin) return true;
-
-    const membership = await this.prisma.clubMembership.findUnique({
-      where: { clubId_userId: { clubId, userId } },
-      select: { role: true },
-    });
-    return membership?.role === 'owner' || membership?.role === 'admin';
   }
 }

@@ -1,8 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { AppRole } from '@shared/auth';
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
+import { ClubMembershipRole, ClubMembershipStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -24,18 +24,13 @@ export class ListEventAuthoringClubsHandler implements IQueryHandler<ListEventAu
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
 
-    const [isPlatformAdmin, isClubAdmin] = await Promise.all([
-      this.userContextService.hasRole(user.id, AppRole.PlatformAdmin),
-      this.userContextService.hasRole(user.id, AppRole.ClubAdmin),
-    ]);
-
     // Администраторы платформы видят все клубы
-    if (isPlatformAdmin || isClubAdmin) {
+    if (await this.userContextService.isGlobalAdmin(user.id)) {
       const clubs = await this.prisma.club.findMany({
         where: { isDeleted: false },
         select: { id: true, title: true, creatorUserId: true },
         orderBy: { title: 'asc' },
-        take: 200,
+        take: PAGINATION.CLUB_AUTHORING_LIMIT,
       });
 
       const items = clubs.map(
@@ -43,7 +38,10 @@ export class ListEventAuthoringClubsHandler implements IQueryHandler<ListEventAu
           new ClubAuthoringItemResDto({
             id: club.id,
             title: club.title,
-            role: club.creatorUserId === user.id ? 'owner' : 'admin',
+            role:
+              club.creatorUserId === user.id
+                ? ClubMembershipRole.Owner
+                : ClubMembershipRole.Admin,
           }),
       );
 
@@ -58,15 +56,21 @@ export class ListEventAuthoringClubsHandler implements IQueryHandler<ListEventAu
     const memberships = await this.prisma.clubMembership.findMany({
       where: {
         userId: user.id,
-        status: 'joined',
-        role: { in: ['owner', 'admin', 'event_manager'] },
+        status: ClubMembershipStatus.Joined,
+        role: {
+          in: [
+            ClubMembershipRole.Owner,
+            ClubMembershipRole.Admin,
+            ClubMembershipRole.EventManager,
+          ],
+        },
         club: { isDeleted: false },
       },
       include: {
         club: { select: { id: true, title: true } },
       },
       orderBy: { club: { title: 'asc' } },
-      take: 200,
+      take: PAGINATION.CLUB_AUTHORING_LIMIT,
     });
 
     const items = memberships.map(

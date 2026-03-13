@@ -1,7 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
+import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -30,11 +31,11 @@ export class ListEventsHandler implements IQueryHandler<ListEventsQuery> {
       orderBy: [{ startsAtUtc: 'asc' }],
       include: {
         participations: {
-          where: { status: 'joined' },
+          where: { status: EventParticipationStatus.Joined },
           select: { userId: true },
         },
       },
-      take: 50,
+      take: PAGINATION.EVENTS_LIST_LIMIT,
     });
 
     const items = events
@@ -62,7 +63,10 @@ export class ListEventsHandler implements IQueryHandler<ListEventsQuery> {
         });
       })
       // Показываем только активные события
-      .filter((e) => e.status === 'upcoming' || e.status === 'ongoing');
+      .filter(
+        (e) =>
+          e.status === EventStatus.Upcoming || e.status === EventStatus.Ongoing,
+      );
 
     return new GeneralApiResponseDto(
       HttpStatus.OK,

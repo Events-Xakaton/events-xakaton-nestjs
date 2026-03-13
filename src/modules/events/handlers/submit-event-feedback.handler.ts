@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, POINTS } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -64,7 +64,7 @@ export class SubmitEventFeedbackHandler implements ICommandHandler<SubmitEventFe
     await this.pointsService.award({
       userId: user.id,
       ruleCode: 'attendance_feedback',
-      deltaPoints: 4,
+      deltaPoints: POINTS.ATTENDANCE_FEEDBACK,
       referenceId: `attendance_${eventId}_${user.id}`,
       eventId,
     });

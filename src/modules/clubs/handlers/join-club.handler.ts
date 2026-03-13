@@ -5,6 +5,7 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions, POINTS } from '@shared/constants';
+import { ClubMembershipRole, ClubMembershipStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -48,8 +49,16 @@ export class JoinClubHandler implements ICommandHandler<JoinClubCommand> {
 
     await this.prisma.clubMembership.upsert({
       where: { clubId_userId: { clubId, userId: user.id } },
-      update: { status: 'joined', role: existing?.role ?? 'member' },
-      create: { clubId, userId: user.id, status: 'joined', role: 'member' },
+      update: {
+        status: ClubMembershipStatus.Joined,
+        role: existing?.role ?? ClubMembershipRole.Member,
+      },
+      create: {
+        clubId,
+        userId: user.id,
+        status: ClubMembershipStatus.Joined,
+        role: ClubMembershipRole.Member,
+      },
     });
 
     await this.pointsService.award({
@@ -94,7 +103,7 @@ export class JoinClubHandler implements ICommandHandler<JoinClubCommand> {
       HttpStatus.OK,
       HttpStatusDescriptions[HttpStatus.OK],
       {
-        status: 'joined',
+        status: ClubMembershipStatus.Joined,
       },
     );
   }

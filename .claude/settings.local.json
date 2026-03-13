@@ -59,7 +59,10 @@
       "Bash(node -e \"console.log\\(require\\('./node_modules/helmet/package.json'\\).version\\)\" 2>/dev/null || echo \"not installed\"\nnode -e \"console.log\\(require\\('./node_modules/compression/package.json'\\).version\\)\" 2>/dev/null || echo \"not installed\")",
       "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && npx tsc --noEmit 2>&1 | head -60)",
       "Bash(cd \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs\" && npx tsc --noEmit 2>&1 | head -30)",
-      "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && grep -A 30 '\"paths\"' tsconfig.json)"
+      "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && grep -A 30 '\"paths\"' tsconfig.json)",
+      "Bash(sed -n '100,145p' \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs/src/modules/clubs/handlers/delete-club.handler.ts\" && echo \"===\" && sed -n '100,130p' \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs/src/modules/clubs/handlers/update-club.handler.ts\" && echo \"===\" && sed -n '75,100p' \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs/src/modules/clubs/handlers/get-club.handler.ts\")",
+      "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && grep -A3 '\"baseUrl\"' tsconfig.json)",
+      "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && npm run lint 2>&1 | grep -v \"^>\" | grep -v \"^$\")"
     ]
   }
 }

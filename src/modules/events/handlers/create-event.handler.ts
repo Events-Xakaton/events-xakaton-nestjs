@@ -3,8 +3,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
-import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions, PAGINATION, POINTS } from '@shared/constants';
+import { EventStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -12,6 +12,7 @@ import { IdResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { CreateEventCommand } from '../commands';
+import { EventStatusService } from '../event-status.service';
 
 @CommandHandler(CreateEventCommand)
 export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
@@ -20,6 +21,7 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
     private readonly userContextService: UserContextService,
     private readonly pointsService: PointsService,
     private readonly analyticsService: AnalyticsService,
+    private readonly eventStatusService: EventStatusService,
   ) {}
 
   async execute(
@@ -31,12 +33,7 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
 
     const startsAt = new Date(dto.startsAtUtc);
     const endsAt = new Date(dto.endsAtUtc);
-    if (endsAt.getTime() <= startsAt.getTime()) {
-      throw new AppException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Время окончания события должно быть позже начала',
-      });
-    }
+    this.eventStatusService.assertEndsAfterStarts(startsAt, endsAt);
 
     if (dto.clubId) {
       const club = await this.prisma.club.findFirst({
@@ -50,7 +47,11 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
         });
       }
       if (
-        !(await this.canCreateClubEvent(user.id, club.id, club.creatorUserId))
+        !(await this.userContextService.canCreateClubEvent(
+          user.id,
+          club.id,
+          club.creatorUserId,
+        ))
       ) {
         throw new AppException({
           statusCode: HttpStatus.FORBIDDEN,
@@ -78,7 +79,7 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
         endsAtUtc: endsAt,
         coverSeed: dto.coverSeed,
         maxParticipants: dto.maxParticipants,
-        status: 'upcoming',
+        status: EventStatus.Upcoming,
         tags: { create: tags.map((tag) => ({ tag })) },
       },
       select: { id: true },
@@ -105,31 +106,6 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
       {
         id: event.id,
       },
-    );
-  }
-
-  private async canCreateClubEvent(
-    userId: string,
-    clubId: string,
-    clubCreatorUserId: string,
-  ): Promise<boolean> {
-    if (clubCreatorUserId === userId) return true;
-
-    const [isPlatformAdmin, isClubAdmin, membership] = await Promise.all([
-      this.userContextService.hasRole(userId, AppRole.PlatformAdmin),
-      this.userContextService.hasRole(userId, AppRole.ClubAdmin),
-      this.prisma.clubMembership.findUnique({
-        where: { clubId_userId: { clubId, userId } },
-        select: { role: true, status: true },
-      }),
-    ]);
-    if (isPlatformAdmin || isClubAdmin) return true;
-
-    return (
-      membership?.status === 'joined' &&
-      (membership.role === 'owner' ||
-        membership.role === 'admin' ||
-        membership.role === 'event_manager')
     );
   }
 }

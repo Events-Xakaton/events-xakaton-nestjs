@@ -2,6 +2,7 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 import { AppRole } from '@shared/auth';
+import { ClubMembershipRole, ClubMembershipStatus } from '@shared/domain';
 import { PrismaService } from '@shared/prisma';
 
 /**
@@ -37,6 +38,114 @@ export class UserContextService {
     await this.ensureMemberRole(user.id);
 
     return user;
+  }
+
+  /**
+   * Проверяет, может ли пользователь управлять клубом (редактировать, удалять).
+   * Разрешено: создателю клуба, глобальным администраторам, owner/admin участникам клуба.
+   */
+  async canManageClub(
+    userId: string,
+    clubId: string,
+    creatorUserId: string,
+  ): Promise<boolean> {
+    if (creatorUserId === userId) return true;
+    if (await this.isGlobalAdmin(userId)) return true;
+
+    const membership = await this.prisma.clubMembership.findUnique({
+      where: { clubId_userId: { clubId, userId } },
+      select: { role: true },
+    });
+    return (
+      (membership?.role as ClubMembershipRole) === ClubMembershipRole.Owner ||
+      (membership?.role as ClubMembershipRole) === ClubMembershipRole.Admin
+    );
+  }
+
+  /**
+   * Проверяет, может ли пользователь управлять событием клуба (изменять, отменять).
+   * Разрешено: глобальным администраторам, owner/admin/event_manager участникам клуба.
+   * Создатель события проверяется на стороне вызывающего кода до вызова этого метода.
+   */
+  async canManageClubEvent(
+    userId: string,
+    clubId: string | null,
+  ): Promise<boolean> {
+    if (await this.isGlobalAdmin(userId)) return true;
+    if (!clubId) return false;
+
+    const membership = await this.prisma.clubMembership.findUnique({
+      where: { clubId_userId: { clubId, userId } },
+      select: { role: true, status: true },
+    });
+    const status = membership?.status as ClubMembershipStatus | undefined;
+    const role = membership?.role as ClubMembershipRole | undefined;
+    return (
+      status === ClubMembershipStatus.Joined &&
+      (role === ClubMembershipRole.Owner ||
+        role === ClubMembershipRole.Admin ||
+        role === ClubMembershipRole.EventManager)
+    );
+  }
+
+  /**
+   * Проверяет, может ли пользователь создавать события в клубе.
+   * Разрешено: создателю клуба, глобальным администраторам, owner/admin/event_manager участникам.
+   */
+  async canCreateClubEvent(
+    userId: string,
+    clubId: string,
+    clubCreatorUserId: string,
+  ): Promise<boolean> {
+    if (clubCreatorUserId === userId) return true;
+
+    // Параллельно проверяем роли и членство для минимизации задержки
+    const [isAdmin, membership] = await Promise.all([
+      this.isGlobalAdmin(userId),
+      this.prisma.clubMembership.findUnique({
+        where: { clubId_userId: { clubId, userId } },
+        select: { role: true, status: true },
+      }),
+    ]);
+    if (isAdmin) return true;
+
+    const status = membership?.status as ClubMembershipStatus | undefined;
+    const role = membership?.role as ClubMembershipRole | undefined;
+    return (
+      status === ClubMembershipStatus.Joined &&
+      (role === ClubMembershipRole.Owner ||
+        role === ClubMembershipRole.Admin ||
+        role === ClubMembershipRole.EventManager)
+    );
+  }
+
+  /**
+   * Возвращает множество ID пользователей из candidateIds, на которых подписан followerUserId.
+   * Используется для вычисления поля followedByMe в списках участников/членов клуба.
+   */
+  async getFollowedSet(
+    followerUserId: string,
+    candidateIds: string[],
+  ): Promise<Set<string>> {
+    if (!candidateIds.length) return new Set();
+
+    const following = await this.prisma.connection.findMany({
+      where: { followerUserId, followedUserId: { in: candidateIds } },
+      select: { followedUserId: true },
+    });
+    return new Set(following.map((f) => f.followedUserId));
+  }
+
+  /**
+   * Проверяет, является ли пользователь глобальным администратором платформы.
+   * Возвращает true если у него есть роль PlatformAdmin или ClubAdmin.
+   */
+  async isGlobalAdmin(userId: string): Promise<boolean> {
+    const [isPlatformAdmin, isClubAdmin] = await Promise.all([
+      this.hasRole(userId, AppRole.PlatformAdmin),
+      this.hasRole(userId, AppRole.ClubAdmin),
+    ]);
+    return isPlatformAdmin || isClubAdmin;
   }
 
   /**

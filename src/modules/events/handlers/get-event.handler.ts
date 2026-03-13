@@ -3,6 +3,11 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
+import {
+  ClubMembershipRole,
+  ClubMembershipStatus,
+  EventParticipationStatus,
+} from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -34,7 +39,7 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
         club: { select: { id: true, title: true } },
         tags: { select: { tag: true } },
         participations: {
-          where: { status: 'joined' },
+          where: { status: EventParticipationStatus.Joined },
           select: { userId: true },
         },
       },
@@ -107,11 +112,13 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
       where: { clubId_userId: { clubId, userId } },
       select: { role: true, status: true },
     });
+    const status = membership?.status as ClubMembershipStatus | undefined;
+    const role = membership?.role as ClubMembershipRole | undefined;
     return (
-      membership?.status === 'joined' &&
-      (membership.role === 'owner' ||
-        membership.role === 'admin' ||
-        membership.role === 'event_manager')
+      status === ClubMembershipStatus.Joined &&
+      (role === ClubMembershipRole.Owner ||
+        role === ClubMembershipRole.Admin ||
+        role === ClubMembershipRole.EventManager)
     );
   }
 }

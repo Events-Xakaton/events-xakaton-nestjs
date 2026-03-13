@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -29,7 +29,7 @@ export class ListFollowingHandler implements IQueryHandler<ListFollowingQuery> {
       include: {
         followed: { select: { telegramUserId: true, fullName: true } },
       },
-      take: 200,
+      take: PAGINATION.FOLLOWING_LIST_LIMIT,
     });
 
     const items = rows.map(

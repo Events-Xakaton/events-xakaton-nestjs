@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { EventStatus } from '@shared/domain';
+
 export class EventDetailResDto {
   @ApiProperty() readonly id: string;
   @ApiProperty() readonly title: string;
   @ApiProperty() readonly description: string;
   @ApiProperty() readonly locationOrLink: string;
-  @ApiProperty() readonly status: string;
+  @ApiProperty({ enum: EventStatus }) readonly status: EventStatus;
   @ApiProperty() readonly startsAtUtc: Date;
   @ApiProperty() readonly endsAtUtc: Date;
   @ApiProperty({ nullable: true }) readonly maxParticipants: number | null;
@@ -25,7 +27,7 @@ export class EventDetailResDto {
     title: string;
     description: string;
     locationOrLink: string;
-    status: string;
+    status: EventStatus;
     startsAtUtc: Date;
     endsAtUtc: Date;
     maxParticipants: number | null;

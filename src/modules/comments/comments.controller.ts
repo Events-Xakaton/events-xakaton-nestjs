@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   Post,
   Req,
@@ -42,7 +43,7 @@ export class CommentsController {
   })
   @ApiParam({ name: 'entityId', description: 'UUID сущности' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: [CommentItemResDto],
     description: 'Список комментариев',
   })
@@ -56,11 +57,14 @@ export class CommentsController {
   @Post()
   @ApiOperation({ summary: 'Создать комментарий' })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     type: IdResDto,
     description: 'ID созданного комментария',
   })
-  @ApiResponse({ status: 404, description: 'Сущность не найдена' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Сущность не найдена',
+  })
   async create(
     @Req() req: Request & { telegramUserId?: string },
     @Body() dto: CreateCommentReqDto,
@@ -74,12 +78,18 @@ export class CommentsController {
   @ApiOperation({ summary: 'Редактировать комментарий (только автор)' })
   @ApiParam({ name: 'commentId', description: 'UUID комментария' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: StatusResDto,
     description: 'Комментарий обновлён',
   })
-  @ApiResponse({ status: 403, description: 'Не автор комментария' })
-  @ApiResponse({ status: 404, description: 'Комментарий не найден' })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Не автор комментария',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Комментарий не найден',
+  })
   async edit(
     @Req() req: Request & { telegramUserId?: string },
     @Param('commentId') commentId: string,
@@ -94,12 +104,18 @@ export class CommentsController {
   @ApiOperation({ summary: 'Удалить комментарий (только автор)' })
   @ApiParam({ name: 'commentId', description: 'UUID комментария' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: StatusResDto,
     description: 'Комментарий удалён',
   })
-  @ApiResponse({ status: 403, description: 'Не автор комментария' })
-  @ApiResponse({ status: 404, description: 'Комментарий не найден' })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Не автор комментария',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Комментарий не найден',
+  })
   async remove(
     @Req() req: Request & { telegramUserId?: string },
     @Param('commentId') commentId: string,

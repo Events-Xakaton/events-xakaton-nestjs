@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
+import { CommentEntityService } from './comment-entity.service';
 import { CommentsController } from './comments.controller';
 import {
   CreateCommentHandler,
@@ -19,6 +20,6 @@ const handlers = [
 @Module({
   imports: [CqrsModule],
   controllers: [CommentsController],
-  providers: handlers,
+  providers: [...handlers, CommentEntityService],
 })
 export class CommentsModule {}

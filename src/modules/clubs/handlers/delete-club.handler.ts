@@ -3,8 +3,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
-import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
+import { ClubMembershipStatus, EventStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -51,7 +51,7 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
       );
     }
 
-    const canManage = await this.checkCanManage(
+    const canManage = await this.userContextService.canManageClub(
       user.id,
       clubId,
       club.creatorUserId,
@@ -69,7 +69,7 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
         this.prisma.clubMembership.count({
           where: {
             clubId,
-            status: 'joined',
+            status: ClubMembershipStatus.Joined,
             userId: { not: club.creatorUserId },
           },
         }),
@@ -85,7 +85,11 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
       // Все активные события клуба отменяются вместе с ним
       await tx.event.updateMany({
         where: { clubId, isDeleted: false },
-        data: { isDeleted: true, deletedAt: new Date(), status: 'cancelled' },
+        data: {
+          isDeleted: true,
+          deletedAt: new Date(),
+          status: EventStatus.Cancelled,
+        },
       });
     });
 
@@ -111,25 +115,5 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
         status: 'deleted',
       },
     );
-  }
-
-  private async checkCanManage(
-    userId: string,
-    clubId: string,
-    creatorUserId: string,
-  ): Promise<boolean> {
-    if (creatorUserId === userId) return true;
-
-    const [isPlatformAdmin, isClubAdmin] = await Promise.all([
-      this.userContextService.hasRole(userId, AppRole.PlatformAdmin),
-      this.userContextService.hasRole(userId, AppRole.ClubAdmin),
-    ]);
-    if (isPlatformAdmin || isClubAdmin) return true;
-
-    const membership = await this.prisma.clubMembership.findUnique({
-      where: { clubId_userId: { clubId, userId } },
-      select: { role: true },
-    });
-    return membership?.role === 'owner' || membership?.role === 'admin';
   }
 }

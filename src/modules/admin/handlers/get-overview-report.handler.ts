@@ -2,6 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { HttpStatusDescriptions } from '@shared/constants';
+import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 
@@ -40,10 +41,10 @@ export class GetOverviewReportHandler implements IQueryHandler<GetOverviewReport
 
     const [eventsUpcoming, eventsOngoing, eventsPast, eventsCancelled] =
       await Promise.all([
-        this.prisma.event.count({ where: { status: 'upcoming' } }),
-        this.prisma.event.count({ where: { status: 'ongoing' } }),
-        this.prisma.event.count({ where: { status: 'past' } }),
-        this.prisma.event.count({ where: { status: 'cancelled' } }),
+        this.prisma.event.count({ where: { status: EventStatus.Upcoming } }),
+        this.prisma.event.count({ where: { status: EventStatus.Ongoing } }),
+        this.prisma.event.count({ where: { status: EventStatus.Past } }),
+        this.prisma.event.count({ where: { status: EventStatus.Cancelled } }),
       ]);
 
     const [
@@ -54,7 +55,10 @@ export class GetOverviewReportHandler implements IQueryHandler<GetOverviewReport
       awardedRaw,
     ] = await Promise.all([
       this.prisma.eventParticipation.count({
-        where: { status: 'joined', joinedAt: { gte: fromUtc, lte: toUtc } },
+        where: {
+          status: EventParticipationStatus.Joined,
+          joinedAt: { gte: fromUtc, lte: toUtc },
+        },
       }),
       this.prisma.eventFeedback.count({
         where: { submittedAt: { gte: fromUtc, lte: toUtc } },

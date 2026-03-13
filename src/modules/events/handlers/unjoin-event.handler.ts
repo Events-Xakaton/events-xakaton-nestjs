@@ -5,6 +5,7 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions } from '@shared/constants';
+import { EventParticipationStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -42,19 +43,10 @@ export class UnjoinEventHandler implements ICommandHandler<UnjoinEventCommand> {
 
     await this.prisma.eventParticipation.update({
       where: { eventId_userId: { eventId, userId: user.id } },
-      data: { status: 'left' },
+      data: { status: EventParticipationStatus.Left },
     });
 
-    await this.pointsService.rollbackByReference(
-      user.id,
-      `event_join_${eventId}_${user.id}`,
-      'event_join_rollback',
-    );
-    await this.pointsService.rollbackByReference(
-      user.id,
-      `attendance_${eventId}_${user.id}`,
-      'attendance_rollback',
-    );
+    await this.pointsService.rollbackEventParticipation(user.id, eventId);
     await this.reminderScheduler.cancelStartReminder(eventId, user.id);
 
     void this.analyticsService.track({
@@ -67,7 +59,7 @@ export class UnjoinEventHandler implements ICommandHandler<UnjoinEventCommand> {
       HttpStatus.OK,
       HttpStatusDescriptions[HttpStatus.OK],
       {
-        status: 'left',
+        status: EventParticipationStatus.Left,
       },
     );
   }

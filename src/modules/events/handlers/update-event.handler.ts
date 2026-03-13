@@ -4,8 +4,13 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { QueueService } from '@jobs/queue.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
-import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
+import {
+  ClubMembershipRole,
+  ClubMembershipStatus,
+  EventParticipationStatus,
+  EventStatus,
+} from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -37,7 +42,7 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
       where: { id: eventId },
       include: {
         participations: {
-          where: { status: 'joined' },
+          where: { status: EventParticipationStatus.Joined },
           select: { userId: true },
         },
       },
@@ -50,7 +55,10 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
     }
 
     if (event.creatorUserId !== user.id) {
-      const canManage = await this.checkCanManage(user.id, event.clubId);
+      const canManage = await this.userContextService.canManageClubEvent(
+        user.id,
+        event.clubId,
+      );
       if (!canManage) {
         throw new AppException({
           statusCode: HttpStatus.FORBIDDEN,
@@ -64,7 +72,7 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
       startsAtUtc: event.startsAtUtc,
       endsAtUtc: event.endsAtUtc,
     });
-    if (computedStatus === 'past') {
+    if (computedStatus === EventStatus.Past) {
       throw new AppException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'Прошедшее событие нельзя редактировать',
@@ -75,12 +83,7 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
       ? new Date(dto.startsAtUtc)
       : event.startsAtUtc;
     const nextEnds = dto.endsAtUtc ? new Date(dto.endsAtUtc) : event.endsAtUtc;
-    if (nextEnds.getTime() <= nextStarts.getTime()) {
-      throw new AppException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Время окончания события должно быть позже начала',
-      });
-    }
+    this.eventStatusService.assertEndsAfterStarts(nextStarts, nextEnds);
 
     let nextClubId: string | null | undefined;
     if (Object.prototype.hasOwnProperty.call(dto, 'clubId')) {
@@ -193,29 +196,6 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
     );
   }
 
-  private async checkCanManage(
-    userId: string,
-    clubId: string | null,
-  ): Promise<boolean> {
-    const [isPlatformAdmin, isClubAdmin] = await Promise.all([
-      this.userContextService.hasRole(userId, AppRole.PlatformAdmin),
-      this.userContextService.hasRole(userId, AppRole.ClubAdmin),
-    ]);
-    if (isPlatformAdmin || isClubAdmin) return true;
-    if (!clubId) return false;
-
-    const membership = await this.prisma.clubMembership.findUnique({
-      where: { clubId_userId: { clubId, userId } },
-      select: { role: true, status: true },
-    });
-    return (
-      membership?.status === 'joined' &&
-      (membership.role === 'owner' ||
-        membership.role === 'admin' ||
-        membership.role === 'event_manager')
-    );
-  }
-
   private async hasClubOwnerRights(
     userId: string,
     clubId: string,
@@ -231,6 +211,11 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
       where: { clubId_userId: { clubId, userId } },
       select: { role: true, status: true },
     });
-    return membership?.status === 'joined' && membership.role === 'owner';
+    const status = membership?.status as ClubMembershipStatus | undefined;
+    const role = membership?.role as ClubMembershipRole | undefined;
+    return (
+      status === ClubMembershipStatus.Joined &&
+      role === ClubMembershipRole.Owner
+    );
   }
 }

@@ -4,8 +4,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
 import { PointsService } from '@points/points.service';
-import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
+import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -37,7 +37,7 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
       where: { id: eventId },
       include: {
         participations: {
-          where: { status: 'joined' },
+          where: { status: EventParticipationStatus.Joined },
           select: { userId: true },
         },
       },
@@ -50,7 +50,10 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
     }
 
     if (event.creatorUserId !== user.id) {
-      const canManage = await this.checkCanManage(user.id, event.clubId);
+      const canManage = await this.userContextService.canManageClubEvent(
+        user.id,
+        event.clubId,
+      );
       if (!canManage) {
         throw new AppException({
           statusCode: HttpStatus.FORBIDDEN,
@@ -65,19 +68,19 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
       startsAtUtc: event.startsAtUtc,
       endsAtUtc: event.endsAtUtc,
     });
-    if (computedStatus === 'cancelled') {
+    if (computedStatus === EventStatus.Cancelled) {
       return new GeneralApiResponseDto(
         HttpStatus.OK,
         HttpStatusDescriptions[HttpStatus.OK],
         {
-          status: 'cancelled',
+          status: EventStatus.Cancelled,
         },
       );
     }
 
     await this.prisma.event.update({
       where: { id: eventId },
-      data: { status: 'cancelled' },
+      data: { status: EventStatus.Cancelled },
     });
 
     // Откатываем очки организатора
@@ -93,15 +96,9 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
         eventId,
         participant.userId,
       );
-      await this.pointsService.rollbackByReference(
+      await this.pointsService.rollbackEventParticipation(
         participant.userId,
-        `event_join_${eventId}_${participant.userId}`,
-        'event_join_rollback',
-      );
-      await this.pointsService.rollbackByReference(
-        participant.userId,
-        `attendance_${eventId}_${participant.userId}`,
-        'attendance_rollback',
+        eventId,
       );
     }
 
@@ -115,31 +112,8 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
       HttpStatus.OK,
       HttpStatusDescriptions[HttpStatus.OK],
       {
-        status: 'cancelled',
+        status: EventStatus.Cancelled,
       },
-    );
-  }
-
-  private async checkCanManage(
-    userId: string,
-    clubId: string | null,
-  ): Promise<boolean> {
-    const [isPlatformAdmin, isClubAdmin] = await Promise.all([
-      this.userContextService.hasRole(userId, AppRole.PlatformAdmin),
-      this.userContextService.hasRole(userId, AppRole.ClubAdmin),
-    ]);
-    if (isPlatformAdmin || isClubAdmin) return true;
-    if (!clubId) return false;
-
-    const membership = await this.prisma.clubMembership.findUnique({
-      where: { clubId_userId: { clubId, userId } },
-      select: { role: true, status: true },
-    });
-    return (
-      membership?.status === 'joined' &&
-      (membership.role === 'owner' ||
-        membership.role === 'admin' ||
-        membership.role === 'event_manager')
     );
   }
 }

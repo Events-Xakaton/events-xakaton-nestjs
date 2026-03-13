@@ -2,14 +2,16 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
 
+import { EventStatus } from '@shared/domain';
+
 export class ListClubEventsReqDto {
   @ApiPropertyOptional({
-    enum: ['upcoming', 'ongoing', 'past'],
-    default: 'upcoming',
+    enum: [EventStatus.Upcoming, EventStatus.Ongoing, EventStatus.Past],
+    default: EventStatus.Upcoming,
   })
   @IsOptional()
-  @IsIn(['upcoming', 'ongoing', 'past'])
-  bucket?: 'upcoming' | 'ongoing' | 'past';
+  @IsIn([EventStatus.Upcoming, EventStatus.Ongoing, EventStatus.Past])
+  bucket?: EventStatus.Upcoming | EventStatus.Ongoing | EventStatus.Past;
 
   @ApiPropertyOptional({ default: 1, minimum: 1 })
   @IsOptional()

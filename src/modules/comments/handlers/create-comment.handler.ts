@@ -9,12 +9,14 @@ import { IdResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { CreateCommentCommand } from '../commands';
+import { CommentEntityService } from '../comment-entity.service';
 
 @CommandHandler(CreateCommentCommand)
 export class CreateCommentHandler implements ICommandHandler<CreateCommentCommand> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userContextService: UserContextService,
+    private readonly commentEntityService: CommentEntityService,
   ) {}
 
   async execute(
@@ -32,7 +34,10 @@ export class CreateCommentHandler implements ICommandHandler<CreateCommentComman
       });
     }
 
-    await this.checkEntityWritable(dto.entityType, dto.entityId);
+    await this.commentEntityService.checkEntityWritable(
+      dto.entityType,
+      dto.entityId,
+    );
 
     // Защита от двойного нажатия: дубль в течение 30 сек не допускается
     const threshold = new Date(Date.now() - 30 * 1000);
@@ -71,40 +76,5 @@ export class CreateCommentHandler implements ICommandHandler<CreateCommentComman
         id: comment.id,
       },
     );
-  }
-
-  private async checkEntityWritable(
-    entityType: 'club' | 'event',
-    entityId: string,
-  ): Promise<void> {
-    if (entityType === 'club') {
-      const club = await this.prisma.club.findFirst({
-        where: { id: entityId, isDeleted: false },
-        select: { id: true },
-      });
-      if (!club) {
-        throw new AppException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'Клуб не найден',
-        });
-      }
-      return;
-    }
-    const event = await this.prisma.event.findFirst({
-      where: { id: entityId, isDeleted: false },
-      select: { id: true, status: true },
-    });
-    if (!event) {
-      throw new AppException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Событие не найдено',
-      });
-    }
-    if (event.status === 'cancelled') {
-      throw new AppException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Комментарии для отмененных событий недоступны',
-      });
-    }
   }
 }

@@ -1,7 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
+import { EventParticipationStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -36,7 +37,7 @@ export class ListEventParticipantsHandler implements IQueryHandler<ListEventPart
     }
 
     const participants = await this.prisma.eventParticipation.findMany({
-      where: { eventId, status: 'joined' },
+      where: { eventId, status: EventParticipationStatus.Joined },
       include: {
         user: {
           select: {
@@ -48,20 +49,14 @@ export class ListEventParticipantsHandler implements IQueryHandler<ListEventPart
         },
       },
       orderBy: { joinedAt: 'asc' },
-      take: 300,
+      take: PAGINATION.EVENT_PARTICIPANTS_LIMIT,
     });
 
     const participantIds = participants.map((p) => p.user.id);
-    const following = participantIds.length
-      ? await this.prisma.connection.findMany({
-          where: {
-            followerUserId: user.id,
-            followedUserId: { in: participantIds },
-          },
-          select: { followedUserId: true },
-        })
-      : [];
-    const followedSet = new Set(following.map((f) => f.followedUserId));
+    const followedSet = await this.userContextService.getFollowedSet(
+      user.id,
+      participantIds,
+    );
 
     const items = participants.map(
       (p) =>

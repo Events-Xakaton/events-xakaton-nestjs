@@ -1,8 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
+import { ClubMembershipRole, ClubMembershipStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -31,7 +31,7 @@ export class GetClubHandler implements IQueryHandler<GetClubQuery> {
         creator: { select: { telegramUserId: true, fullName: true } },
         tags: { select: { tag: true } },
         memberships: {
-          where: { status: 'joined' },
+          where: { status: ClubMembershipStatus.Joined },
           select: { userId: true },
         },
       },
@@ -48,7 +48,7 @@ export class GetClubHandler implements IQueryHandler<GetClubQuery> {
       select: { status: true, role: true },
     });
 
-    const joinedByMe = myMembership?.status === 'joined';
+    const joinedByMe = myMembership?.status === ClubMembershipStatus.Joined;
     const canManage = await this.checkCanManage(
       user.id,
       club.creatorUserId,
@@ -81,13 +81,11 @@ export class GetClubHandler implements IQueryHandler<GetClubQuery> {
     membershipRole?: string,
   ): Promise<boolean> {
     if (creatorUserId === userId) return true;
+    if (await this.userContextService.isGlobalAdmin(userId)) return true;
 
-    const [isPlatformAdmin, isClubAdmin] = await Promise.all([
-      this.userContextService.hasRole(userId, AppRole.PlatformAdmin),
-      this.userContextService.hasRole(userId, AppRole.ClubAdmin),
-    ]);
-    if (isPlatformAdmin || isClubAdmin) return true;
-
-    return membershipRole === 'owner' || membershipRole === 'admin';
+    return (
+      membershipRole === ClubMembershipRole.Owner ||
+      membershipRole === ClubMembershipRole.Admin
+    );
   }
 }

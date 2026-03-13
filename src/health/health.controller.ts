@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('health')
@@ -10,7 +10,7 @@ export class HealthController {
    */
   @Get()
   @ApiOperation({ summary: 'Проверка состояния сервиса' })
-  @ApiResponse({ status: 200, description: 'Сервис работает' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Сервис работает' })
   getHealth(): { status: 'ok'; timestamp: string } {
     return {
       status: 'ok',

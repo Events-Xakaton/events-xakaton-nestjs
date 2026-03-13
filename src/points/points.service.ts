@@ -59,6 +59,28 @@ export class PointsService {
    * @param referenceId
    * @param rollbackRuleCode - код правила для записи отката (event_join_rollback и т.д.)
    */
+  /**
+   * Откатывает очки за участие в событии (event_join + attendance).
+   * Переиспользуется в UnjoinEventHandler и CancelEventHandler.
+   */
+  async rollbackEventParticipation(
+    userId: string,
+    eventId: string,
+  ): Promise<void> {
+    await Promise.all([
+      this.rollbackByReference(
+        userId,
+        `event_join_${eventId}_${userId}`,
+        'event_join_rollback',
+      ),
+      this.rollbackByReference(
+        userId,
+        `attendance_${eventId}_${userId}`,
+        'attendance_rollback',
+      ),
+    ]);
+  }
+
   async rollbackByReference(
     userId: string,
     referenceId: string,

@@ -6,6 +6,7 @@ import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.ser
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions, POINTS } from '@shared/constants';
+import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -38,7 +39,7 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
       where: { id: eventId, isDeleted: false },
       include: {
         participations: {
-          where: { status: 'joined' },
+          where: { status: EventParticipationStatus.Joined },
           select: { userId: true },
         },
       },
@@ -55,7 +56,10 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
       startsAtUtc: event.startsAtUtc,
       endsAtUtc: event.endsAtUtc,
     });
-    if (computedStatus === 'past' || computedStatus === 'cancelled') {
+    if (
+      computedStatus === EventStatus.Past ||
+      computedStatus === EventStatus.Cancelled
+    ) {
       throw new AppException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'Нельзя записаться на событие в текущем статусе',
@@ -73,8 +77,12 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
 
     await this.prisma.eventParticipation.upsert({
       where: { eventId_userId: { eventId, userId: user.id } },
-      update: { status: 'joined' },
-      create: { eventId, userId: user.id, status: 'joined' },
+      update: { status: EventParticipationStatus.Joined },
+      create: {
+        eventId,
+        userId: user.id,
+        status: EventParticipationStatus.Joined,
+      },
     });
 
     await this.pointsService.award({
@@ -117,7 +125,7 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
       HttpStatus.OK,
       HttpStatusDescriptions[HttpStatus.OK],
       {
-        status: 'joined',
+        status: EventParticipationStatus.Joined,
       },
     );
   }

@@ -1,7 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
+import { ClubMembershipStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -28,11 +29,11 @@ export class ListClubsHandler implements IQueryHandler<ListClubsQuery> {
       orderBy: { createdAt: 'desc' },
       include: {
         memberships: {
-          where: { status: 'joined' },
+          where: { status: ClubMembershipStatus.Joined },
           select: { userId: true },
         },
       },
-      take: 50,
+      take: PAGINATION.CLUBS_LIST_LIMIT,
     });
 
     const items = clubs.map(

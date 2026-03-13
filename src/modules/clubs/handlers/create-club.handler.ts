@@ -4,6 +4,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions, PAGINATION, POINTS } from '@shared/constants';
+import { ClubMembershipRole, ClubMembershipStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -47,7 +48,11 @@ export class CreateClubHandler implements ICommandHandler<CreateClubCommand> {
         tags: { create: tags.map((tag) => ({ tag })) },
         // Создатель автоматически становится владельцем
         memberships: {
-          create: { userId: user.id, status: 'joined', role: 'owner' },
+          create: {
+            userId: user.id,
+            status: ClubMembershipStatus.Joined,
+            role: ClubMembershipRole.Owner,
+          },
         },
       },
       select: { id: true },

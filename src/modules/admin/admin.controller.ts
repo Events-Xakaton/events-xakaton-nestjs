@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -25,12 +33,18 @@ export class AdminController {
   @ApiOperation({ summary: 'Назначить роль пользователю' })
   @ApiParam({ name: 'telegramUserId', description: 'Telegram ID пользователя' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: OkStatusResDto,
     description: 'Роль назначена',
   })
-  @ApiResponse({ status: 403, description: 'Только PlatformAdmin' })
-  @ApiResponse({ status: 404, description: 'Пользователь не найден' })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Только PlatformAdmin',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Пользователь не найден',
+  })
   async assignRole(
     @Param('telegramUserId') telegramUserId: string,
     @Body() dto: AssignRoleDto,
@@ -44,11 +58,14 @@ export class AdminController {
   @ApiOperation({ summary: 'Профиль пользователя с ролями' })
   @ApiParam({ name: 'telegramUserId', description: 'Telegram ID пользователя' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: AdminUserResDto,
     description: 'Данные пользователя',
   })
-  @ApiResponse({ status: 404, description: 'Пользователь не найден' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Пользователь не найден',
+  })
   async getUser(
     @Param('telegramUserId') telegramUserId: string,
   ): Promise<GeneralApiResponseDto<AdminUserResDto>> {
@@ -58,7 +75,7 @@ export class AdminController {
   @Get('reports/overview')
   @ApiOperation({ summary: 'Сводный отчёт по платформе' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     type: OverviewReportResDto,
     description: 'Сводный отчёт',
   })

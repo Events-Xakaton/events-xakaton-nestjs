@@ -1,7 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
+import { ClubMembershipStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -36,7 +37,7 @@ export class ListClubMembersHandler implements IQueryHandler<ListClubMembersQuer
     }
 
     const members = await this.prisma.clubMembership.findMany({
-      where: { clubId, status: 'joined' },
+      where: { clubId, status: ClubMembershipStatus.Joined },
       include: {
         user: {
           select: {
@@ -49,17 +50,14 @@ export class ListClubMembersHandler implements IQueryHandler<ListClubMembersQuer
       },
       // owner/admin первые, затем по дате вступления
       orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }],
-      take: 300,
+      take: PAGINATION.CLUB_MEMBERS_LIMIT,
     });
 
     const memberIds = members.map((m) => m.user.id);
-    const following = memberIds.length
-      ? await this.prisma.connection.findMany({
-          where: { followerUserId: user.id, followedUserId: { in: memberIds } },
-          select: { followedUserId: true },
-        })
-      : [];
-    const followedSet = new Set(following.map((f) => f.followedUserId));
+    const followedSet = await this.userContextService.getFollowedSet(
+      user.id,
+      memberIds,
+    );
 
     const items = members.map(
       (m) =>

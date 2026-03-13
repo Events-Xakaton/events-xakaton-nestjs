@@ -3,6 +3,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { HttpStatusDescriptions } from '@shared/constants';
+import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -31,9 +32,11 @@ export class GetRandomEventHandler implements IQueryHandler<GetRandomEventQuery>
     const events = await this.prisma.event.findMany({
       where: {
         isDeleted: false,
-        status: { not: 'cancelled' },
+        status: { not: EventStatus.Cancelled },
         creatorUserId: { not: user.id },
-        participations: { none: { userId: user.id, status: 'joined' } },
+        participations: {
+          none: { userId: user.id, status: EventParticipationStatus.Joined },
+        },
       },
       select: { id: true, status: true, startsAtUtc: true, endsAtUtc: true },
     });
@@ -44,7 +47,7 @@ export class GetRandomEventHandler implements IQueryHandler<GetRandomEventQuery>
           status: e.status,
           startsAtUtc: e.startsAtUtc,
           endsAtUtc: e.endsAtUtc,
-        }) === 'upcoming',
+        }) === EventStatus.Upcoming,
     );
 
     if (eligible.length === 0) {

@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -65,7 +65,7 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
       points: row.points,
     }));
 
-    const top = ranked.slice(0, 10);
+    const top = ranked.slice(0, PAGINATION.LEADERBOARD_TOP_SIZE);
 
     let currentUser: LeaderboardEntryResDto | null = null;
     if (user) {

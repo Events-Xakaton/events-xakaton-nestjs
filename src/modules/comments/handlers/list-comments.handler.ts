@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 
@@ -21,7 +21,7 @@ export class ListCommentsHandler implements IQueryHandler<ListCommentsQuery> {
       where: { entityType, entityId, isDeleted: false },
       orderBy: { createdAt: 'asc' },
       include: { author: { select: { telegramUserId: true, fullName: true } } },
-      take: 500,
+      take: PAGINATION.COMMENTS_LIST_LIMIT,
     });
 
     const items = comments.map(

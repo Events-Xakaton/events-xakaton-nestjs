@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -27,7 +27,7 @@ export class ListNotificationsHandler implements IQueryHandler<ListNotifications
     const user = await this.userContextService.requireUserByTelegram(
       query.telegramUserId,
     );
-    const limit = query.dto.limit ?? 20;
+    const limit = query.dto.limit ?? PAGINATION.NOTIFICATIONS_DEFAULT_LIMIT;
     const cursorDate = query.dto.cursor ? new Date(query.dto.cursor) : null;
 
     const notifications = await this.prisma.notification.findMany({

@@ -1,12 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { EventStatus } from '@shared/domain';
+
 import { ClubEventItemResDto } from './club-event-item.res.dto';
 
 export class ClubEventsPageResDto {
-  @ApiProperty({ enum: ['upcoming', 'ongoing', 'past'] }) readonly bucket:
-    | 'upcoming'
-    | 'ongoing'
-    | 'past';
+  @ApiProperty({
+    enum: [EventStatus.Upcoming, EventStatus.Ongoing, EventStatus.Past],
+  })
+  readonly bucket:
+    | EventStatus.Upcoming
+    | EventStatus.Ongoing
+    | EventStatus.Past;
   @ApiProperty() readonly page: number;
   @ApiProperty() readonly limit: number;
   @ApiProperty() readonly hasMore: boolean;
@@ -15,7 +20,7 @@ export class ClubEventsPageResDto {
   readonly items: ClubEventItemResDto[];
 
   constructor(data: {
-    bucket: 'upcoming' | 'ongoing' | 'past';
+    bucket: EventStatus.Upcoming | EventStatus.Ongoing | EventStatus.Past;
     page: number;
     limit: number;
     hasMore: boolean;
