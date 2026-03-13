@@ -1,0 +1,15 @@
+{
+  "tsconfig": "tsconfig.json",
+  "output": "docs",
+  "theme": "material",
+  "name": "Tribe Events API",
+  "disablePrivate": true,
+  "disableInternal": true,
+  "disableLifeCycleHooks": true,
+  "hideGenerator": true,
+  "exclude": [
+    "**/*.spec.ts",
+    "src/prisma/migrations/**",
+    "src/prisma/seed.ts"
+  ]
+}

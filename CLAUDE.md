@@ -20,6 +20,8 @@ npm run prisma:generate  # регенерация Prisma Client
 npm run prisma:migrate   # создать и применить миграцию (dev)
 npm run prisma:deploy    # применить миграции (prod/CI)
 npm run seed             # наполнить БД тестовыми данными
+npm run docs             # сгенерировать Compodoc-документацию в docs/
+npm run docs:serve       # сгенерировать и открыть на http://localhost:8080
 ```
 
 Swagger UI: `http://localhost:4000/api/docs` (только не-production).
@@ -117,16 +119,16 @@ await this.pointsService.award({
 await this.pointsService.rollback({ userId: user.id, ruleCode: 'event_join', referenceId: eventId });
 ```
 
-**Правила начисления (hardcoded в GetPointsRulesHandler):**
+**Правила начисления** определены в `src/shared/constants/points.constants.ts` (`POINTS`) и возвращаются из `GetPointsRulesHandler`:
 
-| ruleCode | points |
-|---|---|
-| club_create | 10 |
-| event_create | 8 |
-| club_join | 3 |
-| event_join | 1 |
-| attendance_feedback | 4 |
-| club_new_member_bonus | 1 |
+| ruleCode | константа | points |
+|---|---|---|
+| club_create | `POINTS.CLUB_CREATE` | 10 |
+| event_create | `POINTS.EVENT_CREATE` | 8 |
+| club_join | `POINTS.CLUB_JOIN` | 3 |
+| event_join | `POINTS.EVENT_JOIN` | 1 |
+| attendance_feedback | `POINTS.ATTENDANCE_FEEDBACK` | 4 |
+| club_new_member_bonus | `POINTS.CLUB_NEW_MEMBER_BONUS` | 1 |
 
 ### QueueService (`src/jobs/queue.service.ts`)
 
@@ -260,7 +262,25 @@ status === 'cancelled'  → cancelled (приоритет)
 
 ---
 
-## 9. Что не трогать без явного запроса
+## 9. Константы
+
+Магические числа выносятся в именованные константы — не хардкодятся в хэндлерах.
+
+| Файл | Экспорт | Содержит |
+|---|---|---|
+| `src/shared/constants/points.constants.ts` | `POINTS` | Значения очков для каждого ruleCode |
+| `src/shared/constants/pagination.constants.ts` | `PAGINATION` | Лимиты выборок по всем модулям |
+| `src/modules/auth/auth.constants.ts` | `OTP_TTL_SEC` | TTL OTP-кода (600 с = 10 мин); должен совпадать с `OTP_TTL_MINUTES * 60` в `verification.service.ts` |
+
+### Swagger / Response DTO
+
+- В `@ApiResponse` всегда указывай `status: HttpStatus.XXX` (enum из `@nestjs/common`), не числом.
+- Response DTO — классы (не `type`-алиасы) с `@ApiProperty()` на каждом поле.
+- Поля без конструктора объявляются через `declare`: `declare id: string;` — это решает `strictPropertyInitialization` без присвоения `undefined`.
+
+---
+
+## 10. Что не трогать без явного запроса
 
 - `src/shared/` — изменяй только при необходимости; паттерны стабилизированы.
 - `src/modules/notifications/notifications.service.ts` — `createInAppNotification` и `cleanupExpired` используются в других модулях; сервис сохранён намеренно рядом с CQRS-хэндлерами.
