@@ -1,5 +1,4 @@
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -7,7 +6,8 @@ import axios, {
 } from 'axios';
 import axiosRetry from 'axios-retry';
 
-import { MetricsService } from '../observability/metrics.service';
+import { MetricsService } from '@observability/metrics.service';
+import { AppConfigService, EnvVariableName } from '@shared/config';
 
 // Расширяем тип конфига axios чтобы хранить metadata для метрик
 declare module 'axios' {
@@ -37,13 +37,16 @@ export class ReddyHttpClient {
   private readonly isMockMode: boolean;
 
   constructor(
-    @Inject(ConfigService) private readonly configService: ConfigService,
+    @Inject(AppConfigService)
+    private readonly appConfigService: AppConfigService,
     @Optional()
     @Inject(MetricsService)
     private readonly metricsService?: MetricsService,
   ) {
-    const baseUrlRaw = this.configService.get<string>('REDDY_BOT_BASE_URL');
-    const token = this.configService.get<string>('REDDY_BOT_TOKEN');
+    const baseUrlRaw = this.appConfigService.get(
+      EnvVariableName.REDDY_BOT_BASE_URL,
+    );
+    const token = this.appConfigService.get(EnvVariableName.REDDY_BOT_TOKEN);
 
     this.isMockMode = !baseUrlRaw || !token || token === 'change_me';
 

@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bullmq';
+
+import { AppConfigService, EnvVariableName } from '@shared/config';
 
 import { QueueName } from '../queue.types';
 
@@ -16,9 +17,10 @@ export class JobsConnectionService {
   private readonly connection: { host: string; port: number };
 
   constructor(
-    @Inject(ConfigService) private readonly configService: ConfigService,
+    @Inject(AppConfigService)
+    private readonly appConfigService: AppConfigService,
   ) {
-    const redisUrl = this.configService.get<string>('REDIS_URL');
+    const redisUrl = this.appConfigService.get(EnvVariableName.REDIS_URL);
     const parsedUrl = new URL(redisUrl ?? 'redis://localhost:6379');
     this.connection = {
       host: parsedUrl.hostname,

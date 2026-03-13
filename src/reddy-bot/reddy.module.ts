@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
-import { JobsModule } from '../jobs/jobs.module';
+import { JobsModule } from '@jobs/jobs.module';
+
 import { OtpSendWorker } from './otp-send.worker';
 import { ReddyHttpClient } from './reddy-http.client';
 import { ReddyClient } from './reddy.client';

@@ -11,8 +11,9 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { Roles } from '../../shared/auth/roles.decorator';
-import { GeneralApiResponseDto } from '../../shared/dto';
+import { AppRole, Roles } from '@shared/auth';
+import { GeneralApiResponseDto } from '@shared/dto';
+
 import {
   CreateCommentCommand,
   DeleteCommentCommand,
@@ -23,7 +24,7 @@ import { CommentItemResDto } from './dto/response';
 import { ListCommentsQuery } from './queries';
 
 @ApiTags('comments')
-@Roles('Member')
+@Roles(AppRole.Member)
 @Controller('comments')
 export class CommentsController {
   constructor(

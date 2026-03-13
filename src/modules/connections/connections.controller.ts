@@ -3,14 +3,15 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { Roles } from '../../shared/auth/roles.decorator';
-import { GeneralApiResponseDto } from '../../shared/dto';
+import { AppRole, Roles } from '@shared/auth';
+import { GeneralApiResponseDto } from '@shared/dto';
+
 import { FollowCommand, UnfollowCommand } from './commands';
 import { FollowingItemResDto } from './dto/response';
 import { ListFollowingQuery } from './queries';
 
 @ApiTags('connections')
-@Roles('Member')
+@Roles(AppRole.Member)
 @Controller('connections')
 export class ConnectionsController {
   constructor(

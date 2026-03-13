@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import { AnalyticsModule } from '../../analytics/analytics.module';
-import { JobsModule } from '../../jobs/jobs.module';
-import { ReddyModule } from '../../reddy-bot/reddy.module';
+import { AnalyticsModule } from '@analytics/analytics.module';
+import { JobsModule } from '@jobs/jobs.module';
+import { ReddyModule } from '@reddy/reddy.module';
+
 import { AuthController } from './auth.controller';
 import {
   RequestCodeHandler,

@@ -4,8 +4,9 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 
-import { Roles } from '../../shared/auth/roles.decorator';
-import { GeneralApiResponseDto } from '../../shared/dto';
+import { Roles } from '@shared/auth/roles.decorator';
+import { GeneralApiResponseDto } from '@shared/dto';
+
 import { MarkNotificationReadCommand } from './commands';
 import { ListNotificationsDto } from './dto/list-notifications.dto';
 import { ListNotificationsQuery } from './queries';

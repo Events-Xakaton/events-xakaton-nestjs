@@ -1,8 +1,9 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '../../../shared/constants';
-import { GeneralApiResponseDto } from '../../../shared/dto';
+import { HttpStatusDescriptions } from '@shared/constants';
+import { GeneralApiResponseDto } from '@shared/dto';
+
 import { GetPointsRulesQuery } from '../queries';
 
 @QueryHandler(GetPointsRulesQuery)

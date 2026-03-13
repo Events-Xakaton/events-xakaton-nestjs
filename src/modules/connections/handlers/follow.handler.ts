@@ -1,12 +1,13 @@
 import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { AnalyticsService } from '../../../analytics/analytics.service';
-import { HttpStatusDescriptions } from '../../../shared/constants';
-import { GeneralApiResponseDto } from '../../../shared/dto';
-import { PrismaService } from '../../../shared/prisma';
-import { UserContextService } from '../../../shared/user-context';
-import { NotificationsService } from '../../notifications/notifications.service';
+import { AnalyticsService } from '@analytics/analytics.service';
+import { NotificationsService } from '@modules/notifications/notifications.service';
+import { HttpStatusDescriptions } from '@shared/constants';
+import { GeneralApiResponseDto } from '@shared/dto';
+import { PrismaService } from '@shared/prisma';
+import { UserContextService } from '@shared/user-context';
+
 import { FollowCommand } from '../commands';
 
 @CommandHandler(FollowCommand)

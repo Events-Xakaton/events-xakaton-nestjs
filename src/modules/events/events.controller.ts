@@ -3,8 +3,9 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { Roles } from '../../shared/auth';
-import { GeneralApiResponseDto } from '../../shared/dto';
+import { AppRole, Roles } from '@shared/auth';
+import { GeneralApiResponseDto } from '@shared/dto';
+
 import {
   CancelEventCommand,
   CreateEventCommand,

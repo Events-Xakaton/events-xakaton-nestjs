@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import { AnalyticsModule } from '../../analytics/analytics.module';
+import { AnalyticsModule } from '@analytics/analytics.module';
+
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ConnectionsController } from './connections.controller';
 import {

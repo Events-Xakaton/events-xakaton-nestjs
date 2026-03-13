@@ -6,7 +6,8 @@ import {
 } from '@nestjs/common';
 import { Worker } from 'bullmq';
 
-import { NotificationsService } from '../../modules/notifications/notifications.service';
+import { NotificationsService } from '@modules/notifications/notifications.service';
+
 import { ReminderJobPayload } from '../queue.types';
 import { BaseWorker } from '../workers/base.worker';
 

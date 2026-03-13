@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 
-import { JobsConnectionService } from '../../jobs/queues/jobs-connection.service';
+import { JobsConnectionService } from '@jobs/queues/jobs-connection.service';
 
 /**
  * Регистрирует повторяющееся задание очистки старых уведомлений при старте модуля.

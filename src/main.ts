@@ -1,12 +1,16 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import compression from 'compression';
+import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import 'reflect-metadata';
 
+import { EnvVariableName } from '@shared/config';
+import { TransformResponseInterceptor } from '@shared/interceptors';
+import { initOtel } from '@shared/observability';
+
 import { AppModule } from './app.module';
-import { TransformResponseInterceptor } from './shared/interceptors';
-import { initOtel } from './shared/observability';
 
 async function bootstrap(): Promise<void> {
   // Инициализируем OTel первым — до NestFactory.create(), чтобы
@@ -19,6 +23,13 @@ async function bootstrap(): Promise<void> {
 
   // Заменяем встроенный NestJS-логгер на Pino (pino-pretty в dev, JSON в prod)
   app.useLogger(app.get(Logger));
+
+  // Добавляет HTTP security headers: X-Content-Type-Options, X-Frame-Options,
+  // Strict-Transport-Security, X-XSS-Protection и др.
+  app.use(helmet());
+
+  // Сжатие ответов gzip/deflate — снижает трафик для крупных payload (лидерборд, списки)
+  app.use(compression());
 
   app.enableCors({
     origin: true,
@@ -38,11 +49,8 @@ async function bootstrap(): Promise<void> {
   // TransformResponseInterceptor не зависит от DI — регистрируем здесь
   app.useGlobalInterceptors(new TransformResponseInterceptor());
 
-  // GeneralExceptionFilter зарегистрирован через APP_FILTER в AppModule —
-  // только так PinoLogger может быть инжектирован в него
-
   // Swagger/OpenAPI — доступен по /api/docs в development
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env[EnvVariableName.NODE_ENV] !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('Tribe Events API')
       .setDescription(
@@ -59,12 +67,23 @@ async function bootstrap(): Promise<void> {
       )
       .build();
 
-    const document = SwaggerModule.createDocument(app, config);
+    const document = SwaggerModule.createDocument(app, config, {
+      // Короткие operationId для генерации TypeScript-клиентов: createEvent вместо EventsController_createEvent
+      operationIdFactory: (_controllerKey: string, methodKey: string) =>
+        methodKey,
+    });
     SwaggerModule.setup('api/docs', app, document);
   }
 
-  const port = process.env.PORT ? Number(process.env.PORT) : 4000;
-  await app.listen(port);
+  // enableShutdownHooks позволяет NestJS перехватывать SIGTERM/SIGINT и корректно
+  // вызывать onModuleDestroy у воркеров BullMQ, закрывать Prisma и Redis-соединения
+  app.enableShutdownHooks();
+
+  const port = process.env[EnvVariableName.PORT]
+    ? Number(process.env[EnvVariableName.PORT])
+    : 4000;
+  // '0.0.0.0' — слушаем на всех интерфейсах, иначе в Docker сервис недоступен снаружи контейнера
+  await app.listen(port, '0.0.0.0');
 }
 
 void bootstrap();

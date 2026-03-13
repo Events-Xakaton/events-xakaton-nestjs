@@ -1,9 +1,10 @@
 import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '../../../shared/constants';
-import { GeneralApiResponseDto } from '../../../shared/dto';
-import { UserContextService } from '../../../shared/user-context';
+import { HttpStatusDescriptions } from '@shared/constants';
+import { GeneralApiResponseDto } from '@shared/dto';
+import { UserContextService } from '@shared/user-context';
+
 import { AssignRoleCommand } from '../commands';
 
 @CommandHandler(AssignRoleCommand)

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { PrismaService } from '../shared/prisma/prisma.service';
+import { PrismaService } from '@shared/prisma';
 
 type AwardParams = {
   userId: string;
@@ -55,6 +55,8 @@ export class PointsService {
    * Создаёт отрицательную запись (сумма всех строк с этим referenceId * -1).
    * Идемпотентен: если откат уже выполнен — ничего не делает.
    *
+   * @param userId
+   * @param referenceId
    * @param rollbackRuleCode - код правила для записи отката (event_join_rollback и т.д.)
    */
   async rollbackByReference(

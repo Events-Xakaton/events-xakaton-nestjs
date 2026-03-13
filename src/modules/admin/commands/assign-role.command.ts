@@ -1,4 +1,4 @@
-import { AppRole } from '../../../shared/auth';
+import { AppRole } from '@shared/auth';
 
 export class AssignRoleCommand {
   constructor(

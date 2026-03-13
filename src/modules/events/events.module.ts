@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import { AnalyticsModule } from '../../analytics/analytics.module';
-import { JobsModule } from '../../jobs/jobs.module';
-import { EventChangedWorker } from '../../jobs/workers/event-changed.worker';
-import { ReddyModule } from '../../reddy-bot/reddy.module';
+import { AnalyticsModule } from '@analytics/analytics.module';
+import { JobsModule } from '@jobs/jobs.module';
+import { EventChangedWorker } from '@jobs/workers/event-changed.worker';
+import { ReddyModule } from '@reddy/reddy.module';
+
 import { NotificationsModule } from '../notifications/notifications.module';
 import { EventStatusService } from './event-status.service';
 import { EventsController } from './events.controller';

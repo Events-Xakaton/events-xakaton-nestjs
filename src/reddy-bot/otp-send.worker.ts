@@ -7,8 +7,9 @@ import {
 } from '@nestjs/common';
 import { Worker } from 'bullmq';
 
-import { OtpSendJobPayload } from '../jobs/queue.types';
-import { BaseWorker } from '../jobs/workers/base.worker';
+import { OtpSendJobPayload } from '@jobs/queue.types';
+import { BaseWorker } from '@jobs/workers';
+
 import { ReddySendService } from './reddy.send.service';
 
 /**

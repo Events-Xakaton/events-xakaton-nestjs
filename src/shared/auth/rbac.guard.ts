@@ -8,8 +8,9 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
-import { PrismaService } from '../prisma/prisma.service';
-import { type AppRole, ROLES_KEY } from './roles.decorator';
+import { PrismaService } from '@shared/prisma';
+
+import { AppRole, ROLES_KEY } from './roles.decorator';
 
 /**
  * Guard для проверки RBAC-прав.
@@ -56,7 +57,7 @@ export class RbacGuard implements CanActivate {
     if (!user) {
       // Роль Member — базовая для любого существующего пользователя; новый пользователь
       // создаётся через UserContextService при первом запросе к защищённому эндпоинту
-      if (requiredRoles.every((role) => role === 'Member')) {
+      if (requiredRoles.every((role) => role === AppRole.Member)) {
         return true;
       }
       throw new ForbiddenException('Пользователь не найден');
@@ -74,7 +75,7 @@ export class RbacGuard implements CanActivate {
 
     const hasRole = requiredRoles.some((role) => {
       // Member — базовая роль; любой существующий пользователь считается Member
-      if (role === 'Member') {
+      if (role === AppRole.Member) {
         return true;
       }
       return userRoles.has(role);

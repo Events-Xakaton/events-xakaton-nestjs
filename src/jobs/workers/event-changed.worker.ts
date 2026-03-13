@@ -6,9 +6,10 @@ import {
 } from '@nestjs/common';
 import { Worker } from 'bullmq';
 
-import { NotificationsService } from '../../modules/notifications/notifications.service';
-import { ReddySendService } from '../../reddy-bot/reddy.send.service';
-import { PrismaService } from '../../shared/prisma/prisma.service';
+import { NotificationsService } from '@modules/notifications/notifications.service';
+import { ReddySendService } from '@reddy/reddy.send.service';
+import { PrismaService } from '@shared/prisma/prisma.service';
+
 import { EventChangedJobPayload } from '../queue.types';
 import { BaseWorker } from './base.worker';
 

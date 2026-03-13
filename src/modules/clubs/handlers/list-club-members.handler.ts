@@ -1,10 +1,11 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '../../../shared/constants';
-import { GeneralApiResponseDto } from '../../../shared/dto';
-import { PrismaService } from '../../../shared/prisma';
-import { UserContextService } from '../../../shared/user-context';
+import { HttpStatusDescriptions } from '@shared/constants';
+import { GeneralApiResponseDto } from '@shared/dto';
+import { PrismaService } from '@shared/prisma';
+import { UserContextService } from '@shared/user-context';
+
 import { ClubMemberResDto } from '../dto/response';
 import { ListClubMembersQuery } from '../queries';
 

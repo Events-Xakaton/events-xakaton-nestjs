@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 
-import { RedisService } from '../redis/redis.service';
+import { RedisService } from '@shared/redis';
 
 const IDEMPOTENCY_TTL_SECONDS = 60 * 10; // 10 минут
 const IDEMPOTENCY_HEADER = 'idempotency-key';

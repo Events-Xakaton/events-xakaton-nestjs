@@ -3,8 +3,9 @@ import { QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { Roles } from '../../shared/auth/roles.decorator';
-import { GeneralApiResponseDto } from '../../shared/dto';
+import { Roles } from '@shared/auth/roles.decorator';
+import { GeneralApiResponseDto } from '@shared/dto';
+
 import { LeaderboardQueryDto } from './dto/leaderboard-query.dto';
 import {
   GetLeaderboardQuery,

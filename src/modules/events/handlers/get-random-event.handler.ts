@@ -1,11 +1,12 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { AnalyticsService } from '../../../analytics/analytics.service';
-import { HttpStatusDescriptions } from '../../../shared/constants';
-import { GeneralApiResponseDto } from '../../../shared/dto';
-import { PrismaService } from '../../../shared/prisma';
-import { UserContextService } from '../../../shared/user-context';
+import { AnalyticsService } from '@analytics/analytics.service';
+import { HttpStatusDescriptions } from '@shared/constants';
+import { GeneralApiResponseDto } from '@shared/dto';
+import { PrismaService } from '@shared/prisma';
+import { UserContextService } from '@shared/user-context';
+
 import { EventStatusService } from '../event-status.service';
 import { GetRandomEventQuery } from '../queries';
 

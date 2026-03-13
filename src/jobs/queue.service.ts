@@ -1,5 +1,6 @@
 import { Inject, Injectable, OnModuleDestroy, Optional } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+
+import { AppConfigService, EnvVariableName } from '@shared/config';
 
 import { MetricsService } from '../observability/metrics.service';
 import { QueueJobPayload, QueueName } from './queue.types';
@@ -17,7 +18,8 @@ import { JobsConnectionService } from './queues/jobs-connection.service';
 @Injectable()
 export class QueueService implements OnModuleDestroy {
   constructor(
-    @Inject(ConfigService) private readonly configService: ConfigService,
+    @Inject(AppConfigService)
+    private readonly appConfigService: AppConfigService,
     @Inject(JobsConnectionService)
     private readonly connectionService: JobsConnectionService,
     @Optional()
@@ -95,7 +97,7 @@ export class QueueService implements OnModuleDestroy {
   }
 
   getDeadLetterQueueName(): QueueName {
-    const value = this.configService.get<string>('DLQ_NAME');
+    const value = this.appConfigService.get(EnvVariableName.DLQ_NAME);
     return (value as QueueName) || 'dead-letter';
   }
 

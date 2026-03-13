@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@shared/*": ["shared/*"],
+      "@modules/*": ["modules/*"],
+      "@jobs/*": ["jobs/*"],
+      "@analytics/*": ["analytics/*"],
+      "@reddy/*": ["reddy-bot/*"],
+      "@points/*": ["points/*"],
+      "@observability/*": ["observability/*"],
+      "@health/*": ["health/*"]
+    },
+    "incremental": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

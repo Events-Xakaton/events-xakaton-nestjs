@@ -1,10 +1,11 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { AppRole } from '../../../shared/auth';
-import { HttpStatusDescriptions } from '../../../shared/constants';
-import { GeneralApiResponseDto } from '../../../shared/dto';
-import { PrismaService } from '../../../shared/prisma';
+import { AppRole } from '@shared/auth';
+import { HttpStatusDescriptions } from '@shared/constants';
+import { GeneralApiResponseDto } from '@shared/dto';
+import { PrismaService } from '@shared/prisma';
+
 import { GetAdminUserQuery } from '../queries';
 
 type AdminUserResDto = {

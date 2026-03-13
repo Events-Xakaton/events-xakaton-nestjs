@@ -1,11 +1,12 @@
 import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { AnalyticsService } from '../../../analytics/analytics.service';
-import { QueueService } from '../../../jobs/queue.service';
-import { HttpStatusDescriptions } from '../../../shared/constants';
-import { GeneralApiResponseDto } from '../../../shared/dto';
-import { UserContextService } from '../../../shared/user-context';
+import { AnalyticsService } from '@analytics/analytics.service';
+import { QueueService } from '@jobs/queue.service';
+import { HttpStatusDescriptions } from '@shared/constants';
+import { GeneralApiResponseDto } from '@shared/dto';
+import { UserContextService } from '@shared/user-context';
+
 import { RequestCodeCommand } from '../commands';
 import { ReddyIdentityService } from '../reddy-identity.service';
 import { VerificationService } from '../verification.service';

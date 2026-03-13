@@ -4,11 +4,11 @@ import {
   NestMiddleware,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { parse, validate } from '@tma.js/init-data-node';
 import { NextFunction, Request, Response } from 'express';
 
-import { PrismaService } from '../prisma/prisma.service';
+import { AppConfigService, EnvVariableName } from '@shared/config';
+import { PrismaService } from '@shared/prisma';
 
 /**
  * Middleware для валидации Telegram initData.
@@ -22,7 +22,8 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class TelegramInitDataMiddleware implements NestMiddleware {
   constructor(
-    @Inject(ConfigService) private readonly configService: ConfigService,
+    @Inject(AppConfigService)
+    private readonly appConfigService: AppConfigService,
     @Inject(PrismaService) private readonly prisma: PrismaService,
   ) {}
 
@@ -43,7 +44,8 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
       return;
     }
 
-    const nodeEnv = this.configService.get<string>('NODE_ENV') ?? 'development';
+    const nodeEnv =
+      this.appConfigService.get(EnvVariableName.NODE_ENV) ?? 'development';
     const initData = req.header('x-telegram-init-data');
 
     if (!initData) {
@@ -60,7 +62,9 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
       throw new UnauthorizedException('Отсутствуют данные Telegram initData');
     }
 
-    const botToken = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+    const botToken = this.appConfigService.get(
+      EnvVariableName.TELEGRAM_BOT_TOKEN,
+    );
     if (!botToken) {
       throw new UnauthorizedException('Токен Telegram-бота не настроен');
     }

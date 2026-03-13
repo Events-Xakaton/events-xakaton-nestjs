@@ -4,10 +4,18 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
+
+import {
+  AppConfigModule,
+  AppConfigService,
+  EnvVariableName,
+} from '@shared/config';
+import { RequestContextMiddleware } from '@shared/observability';
+import { PrismaModule } from '@shared/prisma';
 
 import { AnalyticsModule } from './analytics/analytics.module';
 import { HealthModule } from './health/health.module';
@@ -26,8 +34,6 @@ import { ReddyModule } from './reddy-bot/reddy.module';
 import { RbacGuard, TelegramInitDataMiddleware } from './shared/auth';
 import { GeneralExceptionFilter } from './shared/filters';
 import { IdempotencyMiddleware } from './shared/idempotency';
-import { RequestContextMiddleware } from './shared/observability';
-import { PrismaModule } from './shared/prisma';
 import { AppThrottlerGuard } from './shared/rate-limit';
 import { RedisModule } from './shared/redis';
 import { UserContextModule } from './shared/user-context';
@@ -38,15 +44,16 @@ import { UserContextModule } from './shared/user-context';
       isGlobal: true,
       cache: true,
     }),
+    AppConfigModule,
     LoggerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      imports: [AppConfigModule],
+      inject: [AppConfigService],
+      useFactory: (config: AppConfigService) => ({
         pinoHttp: {
-          level: config.get<string>('LOG_LEVEL', 'info'),
+          level: config.get(EnvVariableName.LOG_LEVEL) ?? 'info',
           // pino-pretty для разработки; в продакшене — структурированный JSON
           transport:
-            config.get('NODE_ENV') !== 'production'
+            config.get(EnvVariableName.NODE_ENV) !== 'production'
               ? {
                   target: 'pino-pretty',
                   options: {

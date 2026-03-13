@@ -10,7 +10,8 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { GeneralApiResponseDto } from '../../shared/dto';
+import { GeneralApiResponseDto } from '@shared/dto';
+
 import {
   RequestCodeCommand,
   ReverifyCommand,

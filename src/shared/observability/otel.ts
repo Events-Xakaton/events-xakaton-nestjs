@@ -3,6 +3,8 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 
+import { EnvVariableName } from '@shared/config';
+
 /**
  * Инициализирует OpenTelemetry SDK.
  *
@@ -14,7 +16,9 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
  * По умолчанию отключён (OTEL_ENABLED=false).
  */
 export function initOtel(): void {
-  const explicitFlag = (process.env.OTEL_ENABLED ?? '').toLowerCase();
+  const explicitFlag = (
+    process.env[EnvVariableName.OTEL_ENABLED] ?? ''
+  ).toLowerCase();
 
   if (explicitFlag === 'false' || explicitFlag === '0') {
     return;
@@ -23,24 +27,28 @@ export function initOtel(): void {
   const enabled =
     explicitFlag === 'true' ||
     explicitFlag === '1' ||
-    Boolean(process.env.OTEL_EXPORTER_OTLP_ENDPOINT);
+    Boolean(process.env[EnvVariableName.OTEL_EXPORTER_OTLP_ENDPOINT]);
 
   if (!enabled) {
     return;
   }
 
-  if ((process.env.OTEL_LOG_LEVEL ?? '').toLowerCase() === 'debug') {
+  if (
+    (process.env[EnvVariableName.OTEL_LOG_LEVEL] ?? '').toLowerCase() ===
+    'debug'
+  ) {
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
   }
 
   const exporter = new OTLPTraceExporter({
     url:
-      process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT ||
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+      process.env[EnvVariableName.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT] ||
+      process.env[EnvVariableName.OTEL_EXPORTER_OTLP_ENDPOINT],
   });
 
   const sdk = new NodeSDK({
-    serviceName: process.env.OTEL_SERVICE_NAME || 'tribe-events-backend',
+    serviceName:
+      process.env[EnvVariableName.OTEL_SERVICE_NAME] || 'tribe-events-backend',
     traceExporter: exporter,
     instrumentations: [getNodeAutoInstrumentations()],
   });

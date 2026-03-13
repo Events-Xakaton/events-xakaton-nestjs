@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { ReddyClient } from '../../reddy-bot/reddy.client';
+import { ReddyClient } from '@reddy/reddy.client';
 
 /** TTL кэша идентификаторов Reddy в памяти процесса */
 const REDDY_IDENTITY_CACHE_TTL_MS = 5 * 60 * 1000;

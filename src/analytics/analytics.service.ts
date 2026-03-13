@@ -1,9 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { EntityType, EventStatus, Prisma, RoleCode } from '@prisma/client';
 import { Request } from 'express';
 
-import { PrismaService } from '../shared/prisma/prisma.service';
+import { AppConfigService, EnvVariableName } from '@shared/config';
+import { PrismaService } from '@shared/prisma';
 
 export interface TrackEventInput {
   eventName: string;
@@ -29,7 +29,8 @@ export class AnalyticsService {
 
   constructor(
     @Inject(PrismaService) private readonly prismaService: PrismaService,
-    @Inject(ConfigService) private readonly configService: ConfigService,
+    @Inject(AppConfigService)
+    private readonly appConfigService: AppConfigService,
   ) {}
 
   /**
@@ -48,14 +49,15 @@ export class AnalyticsService {
           eventStatus: input.eventStatus,
           roleCode: input.roleCode,
           endpoint:
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- точно знаем, что является строкой
             (input.req?.route?.path as string | undefined) ?? input.req?.path,
           clientVersion:
             typeof input.req?.header('x-client-version') === 'string'
               ? input.req?.header('x-client-version')
               : undefined,
           environment:
-            this.configService.get<string>('NODE_ENV') ?? 'development',
+            this.appConfigService.get(EnvVariableName.NODE_ENV) ??
+            'development',
           contextJson: input.context as Prisma.InputJsonValue | undefined,
         },
       });

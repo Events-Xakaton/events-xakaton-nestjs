@@ -8,7 +8,7 @@ import {
 import { createHash } from 'crypto';
 import * as speakeasy from 'speakeasy';
 
-import { PrismaService } from '../../shared/prisma/prisma.service';
+import { PrismaService } from '@shared/prisma/prisma.service';
 
 const OTP_LENGTH = 6;
 const OTP_TTL_MINUTES = 10;

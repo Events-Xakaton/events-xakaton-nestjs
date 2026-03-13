@@ -1,9 +1,10 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '../../../shared/constants';
-import { GeneralApiResponseDto } from '../../../shared/dto';
-import { PrismaService } from '../../../shared/prisma';
+import { HttpStatusDescriptions } from '@shared/constants';
+import { GeneralApiResponseDto } from '@shared/dto';
+import { PrismaService } from '@shared/prisma';
+
 import { GetOverviewReportQuery } from '../queries';
 
 type OverviewReportResDto = {

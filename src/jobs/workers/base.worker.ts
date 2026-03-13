@@ -1,9 +1,10 @@
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { Queue, Worker } from 'bullmq';
 
-import { MetricsService } from '../../observability/metrics.service';
+import { JobsConnectionService } from '@jobs/queues';
+import { MetricsService } from '@observability/metrics.service';
+
 import { QueueName } from '../queue.types';
-import { JobsConnectionService } from '../queues/jobs-connection.service';
 
 /**
  * Базовый фабричный класс для BullMQ workers.

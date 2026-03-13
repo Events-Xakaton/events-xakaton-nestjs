@@ -13,8 +13,9 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { Roles } from '../../shared/auth';
-import { GeneralApiResponseDto } from '../../shared/dto';
+import { AppRole, Roles } from '@shared/auth';
+import { GeneralApiResponseDto } from '@shared/dto';
+
 import {
   CreateClubCommand,
   DeleteClubCommand,
@@ -43,7 +44,7 @@ import {
 } from './queries';
 
 @ApiTags('clubs')
-@Roles('Member')
+@Roles(AppRole.Member)
 @Controller('clubs')
 export class ClubsController {
   constructor(

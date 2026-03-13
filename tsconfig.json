@@ -9,7 +9,17 @@
     "target": "es2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": "./src",
+    "paths": {
+      "@shared/*": ["shared/*"],
+      "@modules/*": ["modules/*"],
+      "@jobs/*": ["jobs/*"],
+      "@analytics/*": ["analytics/*"],
+      "@reddy/*": ["reddy-bot/*"],
+      "@points/*": ["points/*"],
+      "@observability/*": ["observability/*"],
+      "@health/*": ["health/*"]
+    },
     "incremental": true,
     "strict": true,
     "noImplicitAny": true,

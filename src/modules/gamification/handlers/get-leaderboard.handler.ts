@@ -1,11 +1,12 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '../../../shared/constants';
-import { GeneralApiResponseDto } from '../../../shared/dto';
-import { PrismaService } from '../../../shared/prisma';
-import { UserContextService } from '../../../shared/user-context';
-import { getPeriodRange } from '../../../shared/utils/period-range';
+import { HttpStatusDescriptions } from '@shared/constants';
+import { GeneralApiResponseDto } from '@shared/dto';
+import { PrismaService } from '@shared/prisma';
+import { UserContextService } from '@shared/user-context';
+import { getPeriodRange } from '@shared/utils/period-range';
+
 import { GetLeaderboardQuery } from '../queries';
 
 type LeaderboardEntry = {

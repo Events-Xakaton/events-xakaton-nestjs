@@ -2,8 +2,9 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { AppRole, Roles } from '../../shared/auth';
-import { GeneralApiResponseDto } from '../../shared/dto';
+import { AppRole, Roles } from '@shared/auth';
+import { GeneralApiResponseDto } from '@shared/dto';
+
 import { AssignRoleCommand } from './commands';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { ReportRangeDto } from './dto/report-range.dto';

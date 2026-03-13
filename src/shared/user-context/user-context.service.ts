@@ -1,7 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
-import { AppRole } from '../auth/roles.decorator';
+import { AppRole } from '@shared/auth';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
@@ -87,9 +87,9 @@ export class UserContextService {
 
   /** Обеспечивает наличие записи Role=Member у пользователя */
   private async ensureMemberRole(userId: string): Promise<void> {
-    await this.ensureRoleExists('Member');
+    await this.ensureRoleExists(AppRole.Member);
     const memberRole = await this.prisma.role.findUnique({
-      where: { code: 'Member' },
+      where: { code: AppRole.Member },
       select: { id: true },
     });
     if (!memberRole) {

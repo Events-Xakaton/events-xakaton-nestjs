@@ -1,7 +1,8 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
-import { PrismaService } from '../../shared/prisma/prisma.service';
-import { UserContextService } from '../../shared/user-context/user-context.service';
+import { PrismaService } from '@shared/prisma/prisma.service';
+import { UserContextService } from '@shared/user-context/user-context.service';
+
 import { ListNotificationsDto } from './dto/list-notifications.dto';
 
 export type ApiNotificationType = 'event_changed' | 'member_joined';

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import { JobsModule } from '../../jobs/jobs.module';
-import { ReminderWorker } from '../../jobs/reminders/reminder.worker';
-import { RetentionCleanupWorker } from '../../jobs/workers/retention-cleanup.worker';
+import { JobsModule } from '@jobs/jobs.module';
+import { ReminderWorker } from '@jobs/reminders/reminder.worker';
+import { RetentionCleanupWorker } from '@jobs/workers/retention-cleanup.worker';
+
 import {
   ListNotificationsHandler,
   MarkNotificationReadHandler,

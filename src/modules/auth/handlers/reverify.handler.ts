@@ -1,10 +1,11 @@
 import { HttpStatus } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { AnalyticsService } from '../../../analytics/analytics.service';
-import { HttpStatusDescriptions } from '../../../shared/constants';
-import { GeneralApiResponseDto } from '../../../shared/dto';
-import { PrismaService } from '../../../shared/prisma';
+import { AnalyticsService } from '@analytics/analytics.service';
+import { HttpStatusDescriptions } from '@shared/constants';
+import { GeneralApiResponseDto } from '@shared/dto';
+import { PrismaService } from '@shared/prisma';
+
 import { RequestCodeCommand, ReverifyCommand } from '../commands';
 
 @CommandHandler(ReverifyCommand)
