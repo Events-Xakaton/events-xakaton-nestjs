@@ -3,7 +3,7 @@ import { QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { Roles } from '@shared/auth/roles.decorator';
+import { AppRole, Roles } from '@shared/auth';
 import { GeneralApiResponseDto } from '@shared/dto';
 
 import { LeaderboardQueryDto } from './dto/leaderboard-query.dto';
@@ -35,7 +35,7 @@ export class GamificationController {
   }
 
   @Get('points/history')
-  @Roles('Member')
+  @Roles(AppRole.Member)
   @ApiOperation({ summary: 'История начислений очков текущего пользователя' })
   async getHistory(@Req() req: Request & { telegramUserId?: string }): Promise<
     GeneralApiResponseDto<
@@ -51,7 +51,7 @@ export class GamificationController {
   }
 
   @Get('points/balance')
-  @Roles('Member')
+  @Roles(AppRole.Member)
   @ApiOperation({ summary: 'Баланс очков: lifetime, weekly, monthly' })
   async getBalance(
     @Req() req: Request & { telegramUserId?: string },
@@ -62,7 +62,7 @@ export class GamificationController {
   }
 
   @Get('leaderboard')
-  @Roles('Member')
+  @Roles(AppRole.Member)
   @ApiOperation({ summary: 'Лидерборд за период (weekly/monthly)' })
   async getLeaderboard(
     @Req() req: Request & { telegramUserId?: string },

@@ -32,7 +32,7 @@ import {
 } from './queries';
 
 @ApiTags('events')
-@Roles('Member')
+@Roles(AppRole.Member)
 @Controller('events')
 export class EventsController {
   constructor(

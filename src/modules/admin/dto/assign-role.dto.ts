@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn } from 'class-validator';
+import { IsEnum } from 'class-validator';
+
+import { AppRole } from '@shared/auth';
 
 export class AssignRoleDto {
   @ApiProperty({
     description: 'Роль',
-    enum: ['Member', 'ClubAdmin', 'PlatformAdmin'],
+    enum: AppRole,
   })
-  @IsIn(['Member', 'ClubAdmin', 'PlatformAdmin'])
-  role!: 'Member' | 'ClubAdmin' | 'PlatformAdmin';
+  @IsEnum(AppRole)
+  role!: AppRole;
 }

@@ -1,6 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
+import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
@@ -83,8 +84,8 @@ export class GetClubHandler implements IQueryHandler<GetClubQuery> {
     if (creatorUserId === userId) return true;
 
     const [isPlatformAdmin, isClubAdmin] = await Promise.all([
-      this.userContextService.hasRole(userId, 'PlatformAdmin'),
-      this.userContextService.hasRole(userId, 'ClubAdmin'),
+      this.userContextService.hasRole(userId, AppRole.PlatformAdmin),
+      this.userContextService.hasRole(userId, AppRole.ClubAdmin),
     ]);
     if (isPlatformAdmin || isClubAdmin) return true;
 

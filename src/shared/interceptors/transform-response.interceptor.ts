@@ -8,7 +8,7 @@ import {
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { GeneralApiResponseDto } from '../dto/general-api-response.dto';
+import { GeneralApiResponseDto } from '@shared/dto';
 
 /**
  * Глобальный интерцептор преобразования ответов.

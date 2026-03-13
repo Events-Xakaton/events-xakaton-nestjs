@@ -1,6 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
+import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
@@ -24,8 +25,8 @@ export class ListEventAuthoringClubsHandler implements IQueryHandler<ListEventAu
       await this.userContextService.requireUserByTelegram(telegramUserId);
 
     const [isPlatformAdmin, isClubAdmin] = await Promise.all([
-      this.userContextService.hasRole(user.id, 'PlatformAdmin'),
-      this.userContextService.hasRole(user.id, 'ClubAdmin'),
+      this.userContextService.hasRole(user.id, AppRole.PlatformAdmin),
+      this.userContextService.hasRole(user.id, AppRole.ClubAdmin),
     ]);
 
     // Администраторы платформы видят все клубы

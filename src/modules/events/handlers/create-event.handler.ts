@@ -3,6 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
+import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
@@ -121,8 +122,8 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
     if (clubCreatorUserId === userId) return true;
 
     const [isPlatformAdmin, isClubAdmin, membership] = await Promise.all([
-      this.userContextService.hasRole(userId, 'PlatformAdmin'),
-      this.userContextService.hasRole(userId, 'ClubAdmin'),
+      this.userContextService.hasRole(userId, AppRole.PlatformAdmin),
+      this.userContextService.hasRole(userId, AppRole.ClubAdmin),
       this.prisma.clubMembership.findUnique({
         where: { clubId_userId: { clubId, userId } },
         select: { role: true, status: true },

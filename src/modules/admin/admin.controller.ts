@@ -11,7 +11,7 @@ import { ReportRangeDto } from './dto/report-range.dto';
 import { GetAdminUserQuery, GetOverviewReportQuery } from './queries';
 
 @ApiTags('admin')
-@Roles('PlatformAdmin')
+@Roles(AppRole.PlatformAdmin)
 @Controller('admin')
 export class AdminController {
   constructor(

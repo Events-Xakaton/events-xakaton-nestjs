@@ -4,6 +4,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
 import { PointsService } from '@points/points.service';
+import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
@@ -126,8 +127,8 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
     clubId: string | null,
   ): Promise<boolean> {
     const [isPlatformAdmin, isClubAdmin] = await Promise.all([
-      this.userContextService.hasRole(userId, 'PlatformAdmin'),
-      this.userContextService.hasRole(userId, 'ClubAdmin'),
+      this.userContextService.hasRole(userId, AppRole.PlatformAdmin),
+      this.userContextService.hasRole(userId, AppRole.ClubAdmin),
     ]);
     if (isPlatformAdmin || isClubAdmin) return true;
     if (!clubId) return false;

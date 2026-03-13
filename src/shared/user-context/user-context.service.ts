@@ -2,7 +2,7 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 import { AppRole } from '@shared/auth';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '@shared/prisma';
 
 /**
  * Сервис для работы с контекстом пользователя.

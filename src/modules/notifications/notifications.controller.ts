@@ -4,7 +4,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 
-import { Roles } from '@shared/auth/roles.decorator';
+import { AppRole, Roles } from '@shared/auth';
 import { GeneralApiResponseDto } from '@shared/dto';
 
 import { MarkNotificationReadCommand } from './commands';
@@ -15,7 +15,7 @@ type ApiNotificationType = 'event_changed' | 'member_joined';
 type ApiNotificationTargetType = 'club' | 'event';
 
 @ApiTags('notifications')
-@Roles('Member')
+@Roles(AppRole.Member)
 @Controller('notifications')
 export class NotificationsController {
   constructor(
