@@ -1,0 +1,127 @@
+import { HttpStatus } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import { AnalyticsService } from '../../../analytics/analytics.service';
+import { ReminderSchedulerService } from '../../../jobs/reminders/reminder.scheduler.service';
+import { PointsService } from '../../../points/points.service';
+import { HttpStatusDescriptions } from '../../../shared/constants';
+import { GeneralApiResponseDto } from '../../../shared/dto';
+import { PrismaService } from '../../../shared/prisma';
+import { UserContextService } from '../../../shared/user-context';
+import { NotificationsService } from '../../notifications/notifications.service';
+import { JoinEventCommand } from '../commands';
+import { EventStatusService } from '../event-status.service';
+
+@CommandHandler(JoinEventCommand)
+export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userContextService: UserContextService,
+    private readonly pointsService: PointsService,
+    private readonly notificationsService: NotificationsService,
+    private readonly analyticsService: AnalyticsService,
+    private readonly eventStatusService: EventStatusService,
+    private readonly reminderScheduler: ReminderSchedulerService,
+  ) {}
+
+  async execute(
+    command: JoinEventCommand,
+  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+    const { telegramUserId, eventId } = command;
+    const user =
+      await this.userContextService.requireUserByTelegram(telegramUserId);
+
+    const event = await this.prisma.event.findFirst({
+      where: { id: eventId, isDeleted: false },
+      include: {
+        participations: {
+          where: { status: 'joined' },
+          select: { userId: true },
+        },
+      },
+    });
+    if (!event) {
+      return new GeneralApiResponseDto(
+        HttpStatus.NOT_FOUND,
+        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
+        null as never,
+        { message: 'Событие не найдено' },
+      );
+    }
+
+    const computedStatus = this.eventStatusService.calculate({
+      status: event.status,
+      startsAtUtc: event.startsAtUtc,
+      endsAtUtc: event.endsAtUtc,
+    });
+    if (computedStatus === 'past' || computedStatus === 'cancelled') {
+      return new GeneralApiResponseDto(
+        HttpStatus.BAD_REQUEST,
+        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
+        null as never,
+        { message: 'Нельзя записаться на событие в текущем статусе' },
+      );
+    }
+    if (
+      typeof event.maxParticipants === 'number' &&
+      event.participations.length >= event.maxParticipants
+    ) {
+      return new GeneralApiResponseDto(
+        HttpStatus.BAD_REQUEST,
+        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
+        null as never,
+        { message: 'Свободных мест нет' },
+      );
+    }
+
+    await this.prisma.eventParticipation.upsert({
+      where: { eventId_userId: { eventId, userId: user.id } },
+      update: { status: 'joined' },
+      create: { eventId, userId: user.id, status: 'joined' },
+    });
+
+    await this.pointsService.award({
+      userId: user.id,
+      ruleCode: 'event_join',
+      deltaPoints: 1,
+      referenceId: `event_join_${eventId}_${user.id}`,
+      eventId,
+    });
+
+    await this.reminderScheduler.scheduleStartReminder({
+      eventId,
+      userId: user.id,
+      eventTitle: event.title,
+      startsAtUtc: event.startsAtUtc,
+    });
+
+    if (event.creatorUserId !== user.id) {
+      const actor = await this.prisma.user.findUnique({
+        where: { id: user.id },
+        select: { fullName: true },
+      });
+      void this.notificationsService.createInAppNotification({
+        userId: event.creatorUserId,
+        type: 'new_follower',
+        title: 'Новый участник',
+        body: `Новый участник: **${actor?.fullName ?? 'Пользователь'}** в **${event.title}**`,
+        targetType: 'event',
+        targetId: eventId,
+      });
+    }
+
+    void this.analyticsService.track({
+      eventName: 'event.join',
+      entityType: 'event',
+      entityId: eventId,
+    });
+
+    return new GeneralApiResponseDto(
+      HttpStatus.OK,
+      HttpStatusDescriptions[HttpStatus.OK],
+      {
+        status: 'joined',
+      },
+    );
+  }
+}

@@ -1,0 +1,307 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleCode {
+  Member
+  ClubAdmin
+  PlatformAdmin
+}
+
+enum VerificationStatus {
+  active
+  verified
+  expired
+  blocked
+}
+
+enum MembershipStatus {
+  joined
+  left
+}
+
+enum ClubMemberRole {
+  owner
+  admin
+  event_manager
+  member
+}
+
+enum EventStatus {
+  upcoming
+  ongoing
+  past
+  cancelled
+}
+
+enum EntityType {
+  club
+  event
+}
+
+enum NotificationType {
+  new_follower
+  event_changed
+  reminder
+  start_reminder
+}
+
+model User {
+  id                String                 @id @default(uuid())
+  telegramUserId    BigInt                 @unique
+  telegramUsername  String?
+  fullName          String
+  avatarUrl         String?
+  timezone          String                 @default("UTC+2")
+  isVerified        Boolean                @default(false)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  identityBinding   IdentityBinding?
+  roles             UserRole[]
+  clubsCreated      Club[]                 @relation("ClubCreator")
+  eventsCreated     Event[]                @relation("EventCreator")
+  clubMemberships   ClubMembership[]
+  eventParticipates EventParticipation[]
+  followers         Connection[]           @relation("UserFollowers")
+  following         Connection[]           @relation("UserFollowing")
+  comments          Comment[]              @relation("CommentAuthor")
+}
+
+model IdentityBinding {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  reddyUserKey String   @unique
+  reddyUserId  String?  @unique
+  verifiedAt   DateTime
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationSession {
+  id           String             @id @default(uuid())
+  userId       String
+  reddyUserKey String
+  otpCodeHash  String
+  expiresAt    DateTime
+  attemptsLeft Int
+  resendLeft   Int
+  cooldownUntil DateTime?
+  status       VerificationStatus @default(active)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([userId, status])
+  @@index([expiresAt])
+}
+
+model Role {
+  id    String    @id @default(uuid())
+  code  RoleCode  @unique
+  users UserRole[]
+}
+
+model UserRole {
+  userId    String
+  roleId    String
+  grantedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model Club {
+  id            String           @id @default(uuid())
+  creatorUserId String
+  title         String
+  description   String
+  categoryCode  String
+  coverUrl      String?
+  coverSeed     String?
+  isDeleted     Boolean          @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  creator       User             @relation("ClubCreator", fields: [creatorUserId], references: [id], onDelete: Restrict)
+  tags          ClubTag[]
+  memberships   ClubMembership[]
+  events        Event[]
+
+  @@index([creatorUserId])
+  @@index([categoryCode])
+  @@index([isDeleted])
+}
+
+model ClubTag {
+  clubId String
+  tag    String
+  club   Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@id([clubId, tag])
+}
+
+model ClubMembership {
+  clubId    String
+  userId    String
+  joinedAt  DateTime         @default(now())
+  status    MembershipStatus @default(joined)
+  role      ClubMemberRole   @default(member)
+  club      Club             @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([clubId, userId])
+  @@index([userId, status])
+  @@index([clubId, role, status])
+}
+
+model Event {
+  id              String         @id @default(uuid())
+  clubId          String?
+  creatorUserId   String
+  title           String
+  description     String
+  locationOrLink  String
+  startsAtUtc     DateTime
+  endsAtUtc       DateTime
+  coverSeed       String?
+  maxParticipants Int?
+  status          EventStatus    @default(upcoming)
+  isDeleted       Boolean        @default(false)
+  deletedAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  club            Club?          @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  creator         User           @relation("EventCreator", fields: [creatorUserId], references: [id], onDelete: Restrict)
+  tags            EventTag[]
+  participations  EventParticipation[]
+
+  @@index([clubId])
+  @@index([clubId, startsAtUtc])
+  @@index([clubId, endsAtUtc])
+  @@index([creatorUserId])
+  @@index([status, startsAtUtc])
+  @@index([isDeleted])
+}
+
+model EventTag {
+  eventId String
+  tag     String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, tag])
+}
+
+model EventParticipation {
+  eventId   String
+  userId    String
+  joinedAt  DateTime         @default(now())
+  status    MembershipStatus @default(joined)
+  event     Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+  @@index([userId, status])
+}
+
+model EventFeedback {
+  eventId     String
+  userId      String
+  rating      Int
+  comment     String?
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@id([eventId, userId])
+}
+
+model Comment {
+  id           String    @id @default(uuid())
+  entityType   EntityType
+  entityId     String
+  authorUserId String
+  text         String
+  isDeleted    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  author       User      @relation("CommentAuthor", fields: [authorUserId], references: [id], onDelete: Cascade)
+
+  @@index([entityType, entityId, createdAt])
+  @@index([authorUserId])
+}
+
+model Favorite {
+  userId     String
+  entityType EntityType
+  entityId   String
+  createdAt  DateTime @default(now())
+
+  @@id([userId, entityType, entityId])
+}
+
+model Connection {
+  followerUserId String
+  followedUserId String
+  createdAt      DateTime @default(now())
+  follower       User     @relation("UserFollowing", fields: [followerUserId], references: [id], onDelete: Cascade)
+  followed       User     @relation("UserFollowers", fields: [followedUserId], references: [id], onDelete: Cascade)
+
+  @@id([followerUserId, followedUserId])
+}
+
+model Notification {
+  id         String           @id @default(uuid())
+  userId     String
+  type       NotificationType
+  title      String
+  body       String
+  isRead     Boolean          @default(false)
+  targetType EntityType?
+  targetId   String?
+  createdAt  DateTime         @default(now())
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, isRead])
+}
+
+model PointsLedger {
+  id          String   @id @default(uuid())
+  userId      String
+  ruleCode    String
+  deltaPoints Int
+  eventId     String?
+  clubId      String?
+  referenceId String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([ruleCode])
+  @@unique([userId, ruleCode, referenceId])
+}
+
+
+model AnalyticsEvent {
+  id            BigInt   @id @default(autoincrement())
+  occurredAt    DateTime @default(now())
+  userId        String?
+  eventName     String
+  entityType    EntityType?
+  entityId      String?
+  category      String?
+  eventStatus   EventStatus?
+  roleCode      RoleCode?
+  endpoint      String?
+  clientVersion String?
+  environment   String
+  contextJson   Json?
+
+  @@index([occurredAt])
+  @@index([eventName, occurredAt])
+  @@index([entityType, occurredAt])
+}

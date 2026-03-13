@@ -1,0 +1,6 @@
+export class JoinClubCommand {
+  constructor(
+    public readonly telegramUserId: string | undefined,
+    public readonly clubId: string,
+  ) {}
+}

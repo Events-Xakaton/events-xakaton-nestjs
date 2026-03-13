@@ -1,0 +1,61 @@
+import { HttpStatus } from '@nestjs/common';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+
+import { HttpStatusDescriptions } from '../../../shared/constants';
+import { GeneralApiResponseDto } from '../../../shared/dto';
+import { PrismaService } from '../../../shared/prisma';
+import { UserContextService } from '../../../shared/user-context';
+import { getPeriodRange } from '../../../shared/utils/period-range';
+import { GetPointsBalanceQuery } from '../queries';
+
+@QueryHandler(GetPointsBalanceQuery)
+export class GetPointsBalanceHandler implements IQueryHandler<GetPointsBalanceQuery> {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userContextService: UserContextService,
+  ) {}
+
+  async execute(
+    query: GetPointsBalanceQuery,
+  ): Promise<
+    GeneralApiResponseDto<{ lifetime: number; weekly: number; monthly: number }>
+  > {
+    const user = await this.userContextService.requireUserByTelegram(
+      query.telegramUserId,
+    );
+
+    const weeklyRange = getPeriodRange('weekly');
+    const monthlyRange = getPeriodRange('monthly');
+
+    const [lifetime, weekly, monthly] = await Promise.all([
+      this.prisma.pointsLedger.aggregate({
+        _sum: { deltaPoints: true },
+        where: { userId: user.id },
+      }),
+      this.prisma.pointsLedger.aggregate({
+        _sum: { deltaPoints: true },
+        where: {
+          userId: user.id,
+          createdAt: { gte: weeklyRange.start, lt: weeklyRange.end },
+        },
+      }),
+      this.prisma.pointsLedger.aggregate({
+        _sum: { deltaPoints: true },
+        where: {
+          userId: user.id,
+          createdAt: { gte: monthlyRange.start, lt: monthlyRange.end },
+        },
+      }),
+    ]);
+
+    return new GeneralApiResponseDto(
+      HttpStatus.OK,
+      HttpStatusDescriptions[HttpStatus.OK],
+      {
+        lifetime: lifetime._sum.deltaPoints ?? 0,
+        weekly: weekly._sum.deltaPoints ?? 0,
+        monthly: monthly._sum.deltaPoints ?? 0,
+      },
+    );
+  }
+}
