@@ -3,6 +3,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -17,7 +19,7 @@ export class DeleteCommentHandler implements ICommandHandler<DeleteCommentComman
 
   async execute(
     command: DeleteCommentCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, commentId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -27,20 +29,16 @@ export class DeleteCommentHandler implements ICommandHandler<DeleteCommentComman
       select: { id: true, authorUserId: true, isDeleted: true },
     });
     if (!comment || comment.isDeleted) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Комментарий не найден' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Комментарий не найден',
+      });
     }
     if (comment.authorUserId !== user.id) {
-      return new GeneralApiResponseDto(
-        HttpStatus.FORBIDDEN,
-        HttpStatusDescriptions[HttpStatus.FORBIDDEN],
-        null as never,
-        { message: 'Только автор может удалить комментарий' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: 'Только автор может удалить комментарий',
+      });
     }
 
     await this.prisma.comment.update({

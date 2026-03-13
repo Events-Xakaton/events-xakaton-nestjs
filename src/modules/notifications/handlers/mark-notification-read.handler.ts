@@ -3,6 +3,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { OkStatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -17,7 +19,7 @@ export class MarkNotificationReadHandler implements ICommandHandler<MarkNotifica
 
   async execute(
     command: MarkNotificationReadCommand,
-  ): Promise<GeneralApiResponseDto<{ status: 'ok' }>> {
+  ): Promise<GeneralApiResponseDto<OkStatusResDto>> {
     const user = await this.userContextService.requireUserByTelegram(
       command.telegramUserId,
     );
@@ -27,11 +29,10 @@ export class MarkNotificationReadHandler implements ICommandHandler<MarkNotifica
       select: { id: true },
     });
     if (!exists) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        'Уведомление не найдено',
-        null as never,
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Уведомление не найдено',
+      });
     }
 
     await this.prisma.notification.update({

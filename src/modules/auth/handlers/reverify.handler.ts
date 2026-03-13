@@ -2,8 +2,8 @@ import { HttpStatus } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
-import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 
 import { RequestCodeCommand, ReverifyCommand } from '../commands';
@@ -26,12 +26,10 @@ export class ReverifyHandler implements ICommandHandler<ReverifyCommand> {
       select: { id: true },
     });
     if (!user) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Сессия подтверждения не найдена' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Сессия подтверждения не найдена',
+      });
     }
 
     const binding = await this.prisma.identityBinding.findUnique({
@@ -39,12 +37,10 @@ export class ReverifyHandler implements ICommandHandler<ReverifyCommand> {
       select: { reddyUserKey: true },
     });
     if (!binding) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Сессия подтверждения не найдена' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Сессия подтверждения не найдена',
+      });
     }
 
     void this.analyticsService.track({

@@ -4,6 +4,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 
 import { VerifyCodeCommand } from '../commands';
@@ -28,12 +29,10 @@ export class VerifyCodeHandler implements ICommandHandler<VerifyCodeCommand> {
       where: { telegramUserId: BigInt(telegramUserId) },
     });
     if (!user) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Сессия подтверждения не найдена' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Сессия подтверждения не найдена',
+      });
     }
 
     const reddyUser = await this.reddyIdentityService.resolve(reddyUserKey);

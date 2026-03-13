@@ -58,8 +58,6 @@ return new GeneralApiResponseDto(HttpStatus.NOT_FOUND, 'Ресурс не най
 Исключения — только `VerificationService` (нейтральные сообщения безопасности) и
 `UserContextService.requireUserByTelegram` (401). Оба перехватываются глобальными фильтрами.
 
-`TransformResponseInterceptor` превращает `GeneralApiResponseDto` с кодом ≠ 200/201 в `HttpException`.
-
 ### Аналитика — только fire-and-forget
 
 ```typescript

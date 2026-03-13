@@ -7,6 +7,8 @@ import { PointsService } from '@points/points.service';
 import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -41,23 +43,19 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
       },
     });
     if (!event || event.isDeleted) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Событие не найдено' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Событие не найдено',
+      });
     }
 
     if (event.creatorUserId !== user.id) {
       const canManage = await this.checkCanManage(user.id, event.clubId);
       if (!canManage) {
-        return new GeneralApiResponseDto(
-          HttpStatus.FORBIDDEN,
-          HttpStatusDescriptions[HttpStatus.FORBIDDEN],
-          null as never,
-          { message: 'Недостаточно прав для управления событием' },
-        );
+        throw new AppException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Недостаточно прав для управления событием',
+        });
       }
     }
 

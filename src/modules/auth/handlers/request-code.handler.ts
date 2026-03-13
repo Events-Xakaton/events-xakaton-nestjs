@@ -5,6 +5,7 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { QueueService } from '@jobs/queue.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { AppException } from '@shared/exceptions';
 import { UserContextService } from '@shared/user-context';
 
 import { RequestCodeCommand } from '../commands';
@@ -27,12 +28,10 @@ export class RequestCodeHandler implements ICommandHandler<RequestCodeCommand> {
     const { telegramUserId, reddyUserKey } = command;
 
     if (!reddyUserKey || !String(reddyUserKey).trim()) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Ключ Reddy обязателен' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Ключ Reddy обязателен',
+      });
     }
 
     const user =
@@ -40,12 +39,10 @@ export class RequestCodeHandler implements ICommandHandler<RequestCodeCommand> {
 
     const reddyUser = await this.reddyIdentityService.resolve(reddyUserKey);
     if (!reddyUser.id) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Пользователь Reddy не найден' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Пользователь Reddy не найден',
+      });
     }
 
     // VerificationService.createSession может бросить UnauthorizedException/429 —

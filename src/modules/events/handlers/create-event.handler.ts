@@ -6,6 +6,7 @@ import { PointsService } from '@points/points.service';
 import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -30,12 +31,10 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
     const startsAt = new Date(dto.startsAtUtc);
     const endsAt = new Date(dto.endsAtUtc);
     if (endsAt.getTime() <= startsAt.getTime()) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Время окончания события должно быть позже начала' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Время окончания события должно быть позже начала',
+      });
     }
 
     if (dto.clubId) {
@@ -44,33 +43,27 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
         select: { id: true, creatorUserId: true },
       });
       if (!club) {
-        return new GeneralApiResponseDto(
-          HttpStatus.NOT_FOUND,
-          HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-          null as never,
-          { message: 'Клуб не найден' },
-        );
+        throw new AppException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Клуб не найден',
+        });
       }
       if (
         !(await this.canCreateClubEvent(user.id, club.id, club.creatorUserId))
       ) {
-        return new GeneralApiResponseDto(
-          HttpStatus.FORBIDDEN,
-          HttpStatusDescriptions[HttpStatus.FORBIDDEN],
-          null as never,
-          { message: 'Недостаточно прав для создания событий в этом клубе' },
-        );
+        throw new AppException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Недостаточно прав для создания событий в этом клубе',
+        });
       }
     }
 
     const tags = [...new Set(dto.tags ?? [])];
     if (tags.length > 3) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Слишком много тегов' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Слишком много тегов',
+      });
     }
 
     const event = await this.prisma.event.create({

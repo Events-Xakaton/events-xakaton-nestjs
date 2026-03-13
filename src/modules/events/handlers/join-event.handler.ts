@@ -7,6 +7,8 @@ import { NotificationsService } from '@modules/notifications/notifications.servi
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -42,12 +44,10 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
       },
     });
     if (!event) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Событие не найдено' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Событие не найдено',
+      });
     }
 
     const computedStatus = this.eventStatusService.calculate({
@@ -56,23 +56,19 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
       endsAtUtc: event.endsAtUtc,
     });
     if (computedStatus === 'past' || computedStatus === 'cancelled') {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Нельзя записаться на событие в текущем статусе' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Нельзя записаться на событие в текущем статусе',
+      });
     }
     if (
       typeof event.maxParticipants === 'number' &&
       event.participations.length >= event.maxParticipants
     ) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Свободных мест нет' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Свободных мест нет',
+      });
     }
 
     await this.prisma.eventParticipation.upsert({

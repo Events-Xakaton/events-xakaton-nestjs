@@ -116,7 +116,7 @@ export class GeneralExceptionFilter implements ExceptionFilter {
     traceId: string,
   ): { statusCode: HttpStatus; message: string } {
     const statusCode = exception.getStatus() as HttpStatus;
-    // Извлекаем оригинальное сообщение: TransformResponseInterceptor кладёт его в getResponse()
+    // Извлекаем оригинальное сообщение
     const message = this.extractMessage(exception, statusCode);
 
     const logCtx = { statusCode, requestId, traceId };
@@ -136,7 +136,6 @@ export class GeneralExceptionFilter implements ExceptionFilter {
   /**
    * Извлекает человекочитаемое сообщение из HttpException.
    * ValidationPipe кладёт в getResponse() объект { message: string[] }.
-   * TransformResponseInterceptor кладёт строку.
    * Для неизвестных форм — fallback к описанию статуса.
    */
   private extractMessage(

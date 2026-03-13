@@ -5,6 +5,8 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -20,7 +22,7 @@ export class UpdateClubHandler implements ICommandHandler<UpdateClubCommand> {
 
   async execute(
     command: UpdateClubCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, clubId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -30,12 +32,10 @@ export class UpdateClubHandler implements ICommandHandler<UpdateClubCommand> {
       select: { id: true, creatorUserId: true, isDeleted: true },
     });
     if (!club || club.isDeleted) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Клуб не найден' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Клуб не найден',
+      });
     }
 
     const canManage = await this.checkCanManage(
@@ -44,21 +44,17 @@ export class UpdateClubHandler implements ICommandHandler<UpdateClubCommand> {
       club.creatorUserId,
     );
     if (!canManage) {
-      return new GeneralApiResponseDto(
-        HttpStatus.FORBIDDEN,
-        HttpStatusDescriptions[HttpStatus.FORBIDDEN],
-        null as never,
-        { message: 'Недостаточно прав для управления клубом' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: 'Недостаточно прав для управления клубом',
+      });
     }
 
     if (dto.tags !== undefined && [...new Set(dto.tags)].length > 3) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Слишком много тегов' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Слишком много тегов',
+      });
     }
 
     await this.prisma.$transaction(async (tx) => {

@@ -7,7 +7,6 @@ import { Logger } from 'nestjs-pino';
 import 'reflect-metadata';
 
 import { EnvVariableName } from '@shared/config';
-import { TransformResponseInterceptor } from '@shared/interceptors';
 import { initOtel } from '@shared/observability';
 
 import { AppModule } from './app.module';
@@ -45,9 +44,6 @@ async function bootstrap(): Promise<void> {
       forbidNonWhitelisted: true,
     }),
   );
-
-  // TransformResponseInterceptor не зависит от DI — регистрируем здесь
-  app.useGlobalInterceptors(new TransformResponseInterceptor());
 
   // Swagger/OpenAPI — доступен по /api/docs в development
   if (process.env[EnvVariableName.NODE_ENV] !== 'production') {

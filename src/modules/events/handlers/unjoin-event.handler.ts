@@ -6,6 +6,8 @@ import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.ser
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -32,12 +34,10 @@ export class UnjoinEventHandler implements ICommandHandler<UnjoinEventCommand> {
       where: { eventId_userId: { eventId, userId: user.id } },
     });
     if (!participation) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Участие в событии не найдено' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Участие в событии не найдено',
+      });
     }
 
     await this.prisma.eventParticipation.update({

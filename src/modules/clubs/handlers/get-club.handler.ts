@@ -4,6 +4,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -36,12 +37,10 @@ export class GetClubHandler implements IQueryHandler<GetClubQuery> {
       },
     });
     if (!club) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Клуб не найден' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Клуб не найден',
+      });
     }
 
     const myMembership = await this.prisma.clubMembership.findUnique({

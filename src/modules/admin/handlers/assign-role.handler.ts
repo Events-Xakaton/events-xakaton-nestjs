@@ -3,6 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { OkStatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { AssignRoleCommand } from '../commands';
@@ -13,7 +14,7 @@ export class AssignRoleHandler implements ICommandHandler<AssignRoleCommand> {
 
   async execute(
     command: AssignRoleCommand,
-  ): Promise<GeneralApiResponseDto<{ status: 'ok' }>> {
+  ): Promise<GeneralApiResponseDto<OkStatusResDto>> {
     await this.userContextService.assignRoleByTelegramUserId(
       command.targetTelegramUserId,
       command.role,

@@ -6,6 +6,8 @@ import { NotificationsService } from '@modules/notifications/notifications.servi
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -23,7 +25,7 @@ export class JoinClubHandler implements ICommandHandler<JoinClubCommand> {
 
   async execute(
     command: JoinClubCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, clubId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -33,12 +35,10 @@ export class JoinClubHandler implements ICommandHandler<JoinClubCommand> {
       select: { id: true, title: true, creatorUserId: true },
     });
     if (!club) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Клуб не найден' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Клуб не найден',
+      });
     }
 
     const existing = await this.prisma.clubMembership.findUnique({

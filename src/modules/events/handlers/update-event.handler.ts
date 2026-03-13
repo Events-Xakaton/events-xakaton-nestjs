@@ -7,6 +7,8 @@ import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.ser
 import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -41,23 +43,19 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
       },
     });
     if (!event || event.isDeleted) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Событие не найдено' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Событие не найдено',
+      });
     }
 
     if (event.creatorUserId !== user.id) {
       const canManage = await this.checkCanManage(user.id, event.clubId);
       if (!canManage) {
-        return new GeneralApiResponseDto(
-          HttpStatus.FORBIDDEN,
-          HttpStatusDescriptions[HttpStatus.FORBIDDEN],
-          null as never,
-          { message: 'Недостаточно прав для управления событием' },
-        );
+        throw new AppException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Недостаточно прав для управления событием',
+        });
       }
     }
 
@@ -67,12 +65,10 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
       endsAtUtc: event.endsAtUtc,
     });
     if (computedStatus === 'past') {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Прошедшее событие нельзя редактировать' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Прошедшее событие нельзя редактировать',
+      });
     }
 
     const nextStarts = dto.startsAtUtc
@@ -80,12 +76,10 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
       : event.startsAtUtc;
     const nextEnds = dto.endsAtUtc ? new Date(dto.endsAtUtc) : event.endsAtUtc;
     if (nextEnds.getTime() <= nextStarts.getTime()) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Время окончания события должно быть позже начала' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Время окончания события должно быть позже начала',
+      });
     }
 
     let nextClubId: string | null | undefined;
@@ -98,26 +92,20 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
           select: { id: true },
         });
         if (!targetClub) {
-          return new GeneralApiResponseDto(
-            HttpStatus.NOT_FOUND,
-            HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-            null as never,
-            { message: 'Клуб не найден' },
-          );
+          throw new AppException({
+            statusCode: HttpStatus.NOT_FOUND,
+            message: 'Клуб не найден',
+          });
         }
         const canBindToClub = await this.hasClubOwnerRights(
           user.id,
           dto.clubId,
         );
         if (!canBindToClub) {
-          return new GeneralApiResponseDto(
-            HttpStatus.FORBIDDEN,
-            HttpStatusDescriptions[HttpStatus.FORBIDDEN],
-            null as never,
-            {
-              message: 'Только владелец клуба может привязать событие к клубу',
-            },
-          );
+          throw new AppException({
+            statusCode: HttpStatus.FORBIDDEN,
+            message: 'Только владелец клуба может привязать событие к клубу',
+          });
         }
         nextClubId = dto.clubId;
       }

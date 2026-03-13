@@ -5,6 +5,8 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -31,12 +33,10 @@ export class SubmitEventFeedbackHandler implements ICommandHandler<SubmitEventFe
       select: { id: true, startsAtUtc: true, endsAtUtc: true },
     });
     if (!event) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Событие не найдено' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Событие не найдено',
+      });
     }
 
     const now = Date.now();
@@ -44,12 +44,10 @@ export class SubmitEventFeedbackHandler implements ICommandHandler<SubmitEventFe
     // Окно отзыва: от начала события до +48ч после окончания
     const endPlus48h = event.endsAtUtc.getTime() + 48 * 60 * 60 * 1000;
     if (now < start || now > endPlus48h) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Окно отметки посещения закрыто' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Окно отметки посещения закрыто',
+      });
     }
 
     await this.prisma.eventFeedback.upsert({

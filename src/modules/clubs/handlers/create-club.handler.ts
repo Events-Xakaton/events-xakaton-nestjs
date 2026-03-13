@@ -5,6 +5,7 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -28,12 +29,10 @@ export class CreateClubHandler implements ICommandHandler<CreateClubCommand> {
 
     const tags = [...new Set(dto.tags ?? [])];
     if (tags.length > 3) {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Слишком много тегов' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Слишком много тегов',
+      });
     }
 
     const club = await this.prisma.club.create({

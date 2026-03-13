@@ -4,6 +4,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 
 import { GetAdminUserQuery } from '../queries';
@@ -28,11 +29,10 @@ export class GetAdminUserHandler implements IQueryHandler<GetAdminUserQuery> {
     });
 
     if (!user) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        'Пользователь не найден',
-        null as never,
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Пользователь не найден',
+      });
     }
 
     return new GeneralApiResponseDto(

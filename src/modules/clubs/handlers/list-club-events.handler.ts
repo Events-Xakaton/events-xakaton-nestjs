@@ -3,6 +3,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 import { computeEventStatus } from '@shared/utils/event-status.utils';
@@ -32,12 +33,10 @@ export class ListClubEventsHandler implements IQueryHandler<ListClubEventsQuery>
       select: { id: true },
     });
     if (!club) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Клуб не найден' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Клуб не найден',
+      });
     }
 
     const now = new Date();

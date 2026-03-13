@@ -5,6 +5,8 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -21,7 +23,7 @@ export class LeaveClubHandler implements ICommandHandler<LeaveClubCommand> {
 
   async execute(
     command: LeaveClubCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, clubId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -30,22 +32,18 @@ export class LeaveClubHandler implements ICommandHandler<LeaveClubCommand> {
       where: { clubId_userId: { clubId, userId: user.id } },
     });
     if (!membership) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Членство в клубе не найдено' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Членство в клубе не найдено',
+      });
     }
 
     // Владелец не может покинуть собственный клуб — нужно сначала передать права
     if (membership.role === 'owner') {
-      return new GeneralApiResponseDto(
-        HttpStatus.BAD_REQUEST,
-        HttpStatusDescriptions[HttpStatus.BAD_REQUEST],
-        null as never,
-        { message: 'Владелец клуба не может покинуть свой клуб' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Владелец клуба не может покинуть свой клуб',
+      });
     }
 
     await this.prisma.clubMembership.update({

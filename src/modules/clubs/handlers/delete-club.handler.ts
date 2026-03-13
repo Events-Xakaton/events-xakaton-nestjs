@@ -6,6 +6,8 @@ import { PointsService } from '@points/points.service';
 import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -22,7 +24,7 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
 
   async execute(
     command: DeleteClubCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, clubId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -32,12 +34,10 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
       select: { id: true, creatorUserId: true, isDeleted: true },
     });
     if (!club) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Клуб не найден' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Клуб не найден',
+      });
     }
 
     // Идемпотентность: уже удалённый клуб
@@ -57,12 +57,10 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
       club.creatorUserId,
     );
     if (!canManage) {
-      return new GeneralApiResponseDto(
-        HttpStatus.FORBIDDEN,
-        HttpStatusDescriptions[HttpStatus.FORBIDDEN],
-        null as never,
-        { message: 'Недостаточно прав для управления клубом' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: 'Недостаточно прав для управления клубом',
+      });
     }
 
     // Считаем активность клуба — нужно для решения об откате очков

@@ -4,6 +4,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
+import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -19,7 +21,7 @@ export class UnfollowHandler implements ICommandHandler<UnfollowCommand> {
 
   async execute(
     command: UnfollowCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, targetTelegramUserId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -29,12 +31,10 @@ export class UnfollowHandler implements ICommandHandler<UnfollowCommand> {
       select: { id: true },
     });
     if (!target) {
-      return new GeneralApiResponseDto(
-        HttpStatus.NOT_FOUND,
-        HttpStatusDescriptions[HttpStatus.NOT_FOUND],
-        null as never,
-        { message: 'Пользователь не найден' },
-      );
+      throw new AppException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Пользователь не найден',
+      });
     }
 
     await this.prisma.connection.deleteMany({
