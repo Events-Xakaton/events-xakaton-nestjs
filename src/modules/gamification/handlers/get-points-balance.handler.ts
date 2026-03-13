@@ -7,6 +7,7 @@ import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 import { getPeriodRange } from '@shared/utils/period-range';
 
+import { PointsBalanceResDto } from '../dto/response';
 import { GetPointsBalanceQuery } from '../queries';
 
 @QueryHandler(GetPointsBalanceQuery)
@@ -18,9 +19,7 @@ export class GetPointsBalanceHandler implements IQueryHandler<GetPointsBalanceQu
 
   async execute(
     query: GetPointsBalanceQuery,
-  ): Promise<
-    GeneralApiResponseDto<{ lifetime: number; weekly: number; monthly: number }>
-  > {
+  ): Promise<GeneralApiResponseDto<PointsBalanceResDto>> {
     const user = await this.userContextService.requireUserByTelegram(
       query.telegramUserId,
     );

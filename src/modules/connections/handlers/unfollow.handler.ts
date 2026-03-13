@@ -4,9 +4,9 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
-import { StatusResDto } from '@shared/types';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { UnfollowCommand } from '../commands';

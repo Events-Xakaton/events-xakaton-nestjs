@@ -5,6 +5,7 @@ import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { IdResDto, StatusResDto } from '@shared/types';
 
 import {
   CancelEventCommand,
@@ -56,7 +57,7 @@ export class EventsController {
   @ApiResponse({ status: 404, description: 'Нет подходящих событий' })
   random(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<GeneralApiResponseDto<{ id: string }>> {
+  ): Promise<GeneralApiResponseDto<IdResDto>> {
     return this.queryBus.execute(new GetRandomEventQuery(req.telegramUserId));
   }
 
@@ -91,7 +92,7 @@ export class EventsController {
   create(
     @Req() req: Request & { telegramUserId?: string },
     @Body() dto: CreateEventReqDto,
-  ): Promise<GeneralApiResponseDto<{ id: string }>> {
+  ): Promise<GeneralApiResponseDto<IdResDto>> {
     return this.commandBus.execute(
       new CreateEventCommand(req.telegramUserId, dto),
     );
@@ -103,7 +104,7 @@ export class EventsController {
   join(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new JoinEventCommand(req.telegramUserId, eventId),
     );
@@ -114,7 +115,7 @@ export class EventsController {
   unjoin(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new UnjoinEventCommand(req.telegramUserId, eventId),
     );
@@ -127,7 +128,7 @@ export class EventsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
     @Body() dto: EventFeedbackReqDto,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new SubmitEventFeedbackCommand(req.telegramUserId, eventId, dto),
     );
@@ -140,7 +141,7 @@ export class EventsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
     @Body() dto: UpdateEventReqDto,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new UpdateEventCommand(req.telegramUserId, eventId, dto),
     );
@@ -152,7 +153,7 @@ export class EventsController {
   cancel(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new CancelEventCommand(req.telegramUserId, eventId),
     );

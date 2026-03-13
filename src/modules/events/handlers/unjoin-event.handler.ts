@@ -6,9 +6,9 @@ import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.ser
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
-import { StatusResDto } from '@shared/types';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { UnjoinEventCommand } from '../commands';
@@ -25,7 +25,7 @@ export class UnjoinEventHandler implements ICommandHandler<UnjoinEventCommand> {
 
   async execute(
     command: UnjoinEventCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, eventId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

@@ -5,6 +5,7 @@ import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { IdResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { CreateCommentCommand } from '../commands';
@@ -18,7 +19,7 @@ export class CreateCommentHandler implements ICommandHandler<CreateCommentComman
 
   async execute(
     command: CreateCommentCommand,
-  ): Promise<GeneralApiResponseDto<{ id: string }>> {
+  ): Promise<GeneralApiResponseDto<IdResDto>> {
     const { telegramUserId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

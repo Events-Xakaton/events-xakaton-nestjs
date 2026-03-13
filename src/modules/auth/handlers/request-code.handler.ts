@@ -9,6 +9,7 @@ import { AppException } from '@shared/exceptions';
 import { UserContextService } from '@shared/user-context';
 
 import { RequestCodeCommand } from '../commands';
+import { OtpRequestedResDto } from '../dto/response';
 import { ReddyIdentityService } from '../reddy-identity.service';
 import { VerificationService } from '../verification.service';
 
@@ -24,7 +25,7 @@ export class RequestCodeHandler implements ICommandHandler<RequestCodeCommand> {
 
   async execute(
     command: RequestCodeCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string; ttlSec: number }>> {
+  ): Promise<GeneralApiResponseDto<OtpRequestedResDto>> {
     const { telegramUserId, reddyUserKey } = command;
 
     if (!reddyUserKey || !String(reddyUserKey).trim()) {

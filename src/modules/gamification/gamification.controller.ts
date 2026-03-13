@@ -8,18 +8,17 @@ import { GeneralApiResponseDto } from '@shared/dto';
 
 import { LeaderboardQueryDto } from './dto/leaderboard-query.dto';
 import {
+  LeaderboardResDto,
+  PointsBalanceResDto,
+  PointsHistoryItemResDto,
+  PointsRuleResDto,
+} from './dto/response';
+import {
   GetLeaderboardQuery,
   GetPointsBalanceQuery,
   GetPointsHistoryQuery,
   GetPointsRulesQuery,
 } from './queries';
-
-type LeaderboardEntry = {
-  rank: number;
-  userId: string;
-  fullName: string;
-  points: number;
-};
 
 @ApiTags('gamification')
 @Controller()
@@ -28,25 +27,16 @@ export class GamificationController {
 
   @Get('points/rules')
   @ApiOperation({ summary: 'Справочник правил начисления очков' })
-  async getRules(): Promise<
-    GeneralApiResponseDto<Array<{ rule: string; points: number }>>
-  > {
+  async getRules(): Promise<GeneralApiResponseDto<PointsRuleResDto[]>> {
     return this.queryBus.execute(new GetPointsRulesQuery());
   }
 
   @Get('points/history')
   @Roles(AppRole.Member)
   @ApiOperation({ summary: 'История начислений очков текущего пользователя' })
-  async getHistory(@Req() req: Request & { telegramUserId?: string }): Promise<
-    GeneralApiResponseDto<
-      Array<{
-        id: string;
-        ruleCode: string;
-        deltaPoints: number;
-        createdAt: Date;
-      }>
-    >
-  > {
+  async getHistory(
+    @Req() req: Request & { telegramUserId?: string },
+  ): Promise<GeneralApiResponseDto<PointsHistoryItemResDto[]>> {
     return this.queryBus.execute(new GetPointsHistoryQuery(req.telegramUserId));
   }
 
@@ -55,9 +45,7 @@ export class GamificationController {
   @ApiOperation({ summary: 'Баланс очков: lifetime, weekly, monthly' })
   async getBalance(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<
-    GeneralApiResponseDto<{ lifetime: number; weekly: number; monthly: number }>
-  > {
+  ): Promise<GeneralApiResponseDto<PointsBalanceResDto>> {
     return this.queryBus.execute(new GetPointsBalanceQuery(req.telegramUserId));
   }
 
@@ -67,13 +55,7 @@ export class GamificationController {
   async getLeaderboard(
     @Req() req: Request & { telegramUserId?: string },
     @Query() query: LeaderboardQueryDto,
-  ): Promise<
-    GeneralApiResponseDto<{
-      period: 'weekly' | 'monthly';
-      top: LeaderboardEntry[];
-      currentUser: LeaderboardEntry | null;
-    }>
-  > {
+  ): Promise<GeneralApiResponseDto<LeaderboardResDto>> {
     return this.queryBus.execute(
       new GetLeaderboardQuery(query.period, req.telegramUserId),
     );

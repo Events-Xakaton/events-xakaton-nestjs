@@ -5,6 +5,7 @@ import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
 
 import { FollowCommand, UnfollowCommand } from './commands';
 import { FollowingItemResDto } from './dto/response';
@@ -32,7 +33,7 @@ export class ConnectionsController {
   async follow(
     @Req() req: Request & { telegramUserId?: string },
     @Param('targetTelegramUserId') targetTelegramUserId: string,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new FollowCommand(req.telegramUserId, targetTelegramUserId),
     );
@@ -43,7 +44,7 @@ export class ConnectionsController {
   async unfollow(
     @Req() req: Request & { telegramUserId?: string },
     @Param('targetTelegramUserId') targetTelegramUserId: string,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new UnfollowCommand(req.telegramUserId, targetTelegramUserId),
     );

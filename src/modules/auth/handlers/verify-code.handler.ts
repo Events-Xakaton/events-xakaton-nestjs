@@ -6,6 +6,7 @@ import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { StatusResDto } from '@shared/types';
 
 import { VerifyCodeCommand } from '../commands';
 import { ReddyIdentityService } from '../reddy-identity.service';
@@ -22,7 +23,7 @@ export class VerifyCodeHandler implements ICommandHandler<VerifyCodeCommand> {
 
   async execute(
     command: VerifyCodeCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, reddyUserKey, code } = command;
 
     const user = await this.prisma.user.findUnique({

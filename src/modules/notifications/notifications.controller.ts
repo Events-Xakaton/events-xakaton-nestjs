@@ -6,13 +6,12 @@ import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { OkStatusResDto } from '@shared/types';
 
 import { MarkNotificationReadCommand } from './commands';
+import { NotificationsPageResDto } from './dto/response';
 import { ListNotificationsDto } from './dto/list-notifications.dto';
 import { ListNotificationsQuery } from './queries';
-
-type ApiNotificationType = 'event_changed' | 'member_joined';
-type ApiNotificationTargetType = 'club' | 'event';
 
 @ApiTags('notifications')
 @Roles(AppRole.Member)
@@ -29,22 +28,7 @@ export class NotificationsController {
   async list(
     @Req() req: Request & { telegramUserId?: string },
     @Query() query: ListNotificationsDto,
-  ): Promise<
-    GeneralApiResponseDto<{
-      items: Array<{
-        id: string;
-        type: ApiNotificationType;
-        title: string;
-        preview: string;
-        isRead: boolean;
-        createdAt: Date;
-        targetType: ApiNotificationTargetType | null;
-        targetId: string | null;
-        isTargetAvailable: boolean | null;
-      }>;
-      nextCursor: string | null;
-    }>
-  > {
+  ): Promise<GeneralApiResponseDto<NotificationsPageResDto>> {
     return this.queryBus.execute(
       new ListNotificationsQuery(req.telegramUserId, query),
     );
@@ -55,7 +39,7 @@ export class NotificationsController {
   async markRead(
     @Req() req: Request & { telegramUserId?: string },
     @Param('notificationId') notificationId: string,
-  ): Promise<GeneralApiResponseDto<{ status: 'ok' }>> {
+  ): Promise<GeneralApiResponseDto<OkStatusResDto>> {
     return this.commandBus.execute(
       new MarkNotificationReadCommand(req.telegramUserId, notificationId),
     );

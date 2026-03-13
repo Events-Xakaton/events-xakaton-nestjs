@@ -13,6 +13,7 @@ import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { IdResDto, StatusResDto } from '@shared/types';
 
 import {
   CreateCommentCommand,
@@ -46,7 +47,7 @@ export class CommentsController {
   async create(
     @Req() req: Request & { telegramUserId?: string },
     @Body() dto: CreateCommentReqDto,
-  ): Promise<GeneralApiResponseDto<{ id: string }>> {
+  ): Promise<GeneralApiResponseDto<IdResDto>> {
     return this.commandBus.execute(
       new CreateCommentCommand(req.telegramUserId, dto),
     );
@@ -58,7 +59,7 @@ export class CommentsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('commentId') commentId: string,
     @Body() dto: UpdateCommentReqDto,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new UpdateCommentCommand(req.telegramUserId, commentId, dto),
     );
@@ -69,7 +70,7 @@ export class CommentsController {
   async remove(
     @Req() req: Request & { telegramUserId?: string },
     @Param('commentId') commentId: string,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new DeleteCommentCommand(req.telegramUserId, commentId),
     );

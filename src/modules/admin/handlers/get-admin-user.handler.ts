@@ -7,14 +7,8 @@ import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 
+import { AdminUserResDto } from '../dto/response';
 import { GetAdminUserQuery } from '../queries';
-
-type AdminUserResDto = {
-  telegramUserId: string;
-  fullName: string;
-  isVerified: boolean;
-  roles: AppRole[];
-};
 
 @QueryHandler(GetAdminUserQuery)
 export class GetAdminUserHandler implements IQueryHandler<GetAdminUserQuery> {

@@ -6,6 +6,7 @@ import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { IdResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { EventStatusService } from '../event-status.service';
@@ -22,7 +23,7 @@ export class GetRandomEventHandler implements IQueryHandler<GetRandomEventQuery>
 
   async execute(
     query: GetRandomEventQuery,
-  ): Promise<GeneralApiResponseDto<{ id: string }>> {
+  ): Promise<GeneralApiResponseDto<IdResDto>> {
     const { telegramUserId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

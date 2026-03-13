@@ -7,6 +7,7 @@ import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 
 import { RequestCodeCommand, ReverifyCommand } from '../commands';
+import { OtpRequestedResDto } from '../dto/response';
 
 @CommandHandler(ReverifyCommand)
 export class ReverifyHandler implements ICommandHandler<ReverifyCommand> {
@@ -18,7 +19,7 @@ export class ReverifyHandler implements ICommandHandler<ReverifyCommand> {
 
   async execute(
     command: ReverifyCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string; ttlSec: number }>> {
+  ): Promise<GeneralApiResponseDto<OtpRequestedResDto>> {
     const { telegramUserId } = command;
 
     const user = await this.prisma.user.findUnique({

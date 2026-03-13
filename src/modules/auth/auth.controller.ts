@@ -11,12 +11,14 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { GeneralApiResponseDto } from '@shared/dto';
+import { StatusResDto } from '@shared/types';
 
 import {
   RequestCodeCommand,
   ReverifyCommand,
   VerifyCodeCommand,
 } from './commands';
+import { OtpRequestedResDto } from './dto/response';
 import { RequestCodeDto } from './dto/request-code.dto';
 import { VerifyCodeDto } from './dto/verify-code.dto';
 
@@ -39,7 +41,7 @@ export class AuthController {
   requestCode(
     @Req() req: Request & { telegramUserId?: string },
     @Body() body: RequestCodeDto,
-  ): Promise<GeneralApiResponseDto<{ status: string; ttlSec: number }>> {
+  ): Promise<GeneralApiResponseDto<OtpRequestedResDto>> {
     const telegramUserId =
       req.telegramUserId ?? req.header('x-telegram-user-id');
     if (!telegramUserId) {
@@ -65,7 +67,7 @@ export class AuthController {
   verifyCode(
     @Req() req: Request & { telegramUserId?: string },
     @Body() body: VerifyCodeDto,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const telegramUserId =
       req.telegramUserId ?? req.header('x-telegram-user-id');
     if (!telegramUserId) {
@@ -89,7 +91,7 @@ export class AuthController {
   })
   reverify(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<GeneralApiResponseDto<{ status: string; ttlSec: number }>> {
+  ): Promise<GeneralApiResponseDto<OtpRequestedResDto>> {
     const telegramUserId =
       req.telegramUserId ?? req.header('x-telegram-user-id');
     if (!telegramUserId) {

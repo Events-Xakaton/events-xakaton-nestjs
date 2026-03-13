@@ -15,6 +15,7 @@ import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
 import { GeneralApiResponseDto } from '@shared/dto';
+import { IdResDto, StatusResDto } from '@shared/types';
 
 import {
   CreateClubCommand,
@@ -122,7 +123,7 @@ export class ClubsController {
   create(
     @Req() req: Request & { telegramUserId?: string },
     @Body() dto: CreateClubReqDto,
-  ): Promise<GeneralApiResponseDto<{ id: string }>> {
+  ): Promise<GeneralApiResponseDto<IdResDto>> {
     return this.commandBus.execute(
       new CreateClubCommand(req.telegramUserId, dto),
     );
@@ -133,7 +134,7 @@ export class ClubsController {
   join(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new JoinClubCommand(req.telegramUserId, clubId),
     );
@@ -144,7 +145,7 @@ export class ClubsController {
   leave(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new LeaveClubCommand(req.telegramUserId, clubId),
     );
@@ -157,7 +158,7 @@ export class ClubsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
     @Body() dto: UpdateClubReqDto,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new UpdateClubCommand(req.telegramUserId, clubId, dto),
     );
@@ -169,7 +170,7 @@ export class ClubsController {
   delete(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     return this.commandBus.execute(
       new DeleteClubCommand(req.telegramUserId, clubId),
     );

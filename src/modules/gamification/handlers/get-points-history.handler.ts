@@ -6,6 +6,7 @@ import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
+import { PointsHistoryItemResDto } from '../dto/response';
 import { GetPointsHistoryQuery } from '../queries';
 
 @QueryHandler(GetPointsHistoryQuery)
@@ -15,16 +16,9 @@ export class GetPointsHistoryHandler implements IQueryHandler<GetPointsHistoryQu
     private readonly userContextService: UserContextService,
   ) {}
 
-  async execute(query: GetPointsHistoryQuery): Promise<
-    GeneralApiResponseDto<
-      Array<{
-        id: string;
-        ruleCode: string;
-        deltaPoints: number;
-        createdAt: Date;
-      }>
-    >
-  > {
+  async execute(
+    query: GetPointsHistoryQuery,
+  ): Promise<GeneralApiResponseDto<PointsHistoryItemResDto[]>> {
     const user = await this.userContextService.requireUserByTelegram(
       query.telegramUserId,
     );

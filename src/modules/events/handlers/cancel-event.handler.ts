@@ -7,9 +7,9 @@ import { PointsService } from '@points/points.service';
 import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
-import { StatusResDto } from '@shared/types';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { CancelEventCommand } from '../commands';
@@ -28,7 +28,7 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
 
   async execute(
     command: CancelEventCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, eventId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

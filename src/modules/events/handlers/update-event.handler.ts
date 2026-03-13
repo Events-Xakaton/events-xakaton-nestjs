@@ -7,9 +7,9 @@ import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.ser
 import { AppRole } from '@shared/auth';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
-import { StatusResDto } from '@shared/types';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { UpdateEventCommand } from '../commands';
@@ -28,7 +28,7 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
 
   async execute(
     command: UpdateEventCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, eventId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

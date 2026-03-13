@@ -7,14 +7,8 @@ import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 import { getPeriodRange } from '@shared/utils/period-range';
 
+import { LeaderboardEntryResDto, LeaderboardResDto } from '../dto/response';
 import { GetLeaderboardQuery } from '../queries';
-
-type LeaderboardEntry = {
-  rank: number;
-  userId: string;
-  fullName: string;
-  points: number;
-};
 
 @QueryHandler(GetLeaderboardQuery)
 export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery> {
@@ -23,13 +17,9 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
     private readonly userContextService: UserContextService,
   ) {}
 
-  async execute(query: GetLeaderboardQuery): Promise<
-    GeneralApiResponseDto<{
-      period: 'weekly' | 'monthly';
-      top: LeaderboardEntry[];
-      currentUser: LeaderboardEntry | null;
-    }>
-  > {
+  async execute(
+    query: GetLeaderboardQuery,
+  ): Promise<GeneralApiResponseDto<LeaderboardResDto>> {
     const { period, telegramUserId } = query;
     const user = telegramUserId
       ? await this.userContextService.requireUserByTelegram(telegramUserId)
@@ -68,7 +58,7 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
         return a.userId.localeCompare(b.userId);
       });
 
-    const ranked: LeaderboardEntry[] = sorted.map((row, index) => ({
+    const ranked: LeaderboardEntryResDto[] = sorted.map((row, index) => ({
       rank: index + 1,
       userId: row.userId,
       fullName: row.fullName,
@@ -77,7 +67,7 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
 
     const top = ranked.slice(0, 10);
 
-    let currentUser: LeaderboardEntry | null = null;
+    let currentUser: LeaderboardEntryResDto | null = null;
     if (user) {
       const mine = ranked.find((r) => r.userId === user.id);
       if (mine) {

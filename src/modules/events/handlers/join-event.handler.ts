@@ -7,9 +7,9 @@ import { NotificationsService } from '@modules/notifications/notifications.servi
 import { PointsService } from '@points/points.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
-import { StatusResDto } from '@shared/types';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { JoinEventCommand } from '../commands';
@@ -29,7 +29,7 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
 
   async execute(
     command: JoinEventCommand,
-  ): Promise<GeneralApiResponseDto<{ status: string }>> {
+  ): Promise<GeneralApiResponseDto<StatusResDto>> {
     const { telegramUserId, eventId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

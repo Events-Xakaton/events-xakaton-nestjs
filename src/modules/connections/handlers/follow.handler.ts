@@ -5,9 +5,9 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
-import { StatusResDto } from '@shared/types';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { FollowCommand } from '../commands';

@@ -4,13 +4,12 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { HttpStatusDescriptions } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 
+import { PointsRuleResDto } from '../dto/response';
 import { GetPointsRulesQuery } from '../queries';
 
 @QueryHandler(GetPointsRulesQuery)
 export class GetPointsRulesHandler implements IQueryHandler<GetPointsRulesQuery> {
-  execute(): Promise<
-    GeneralApiResponseDto<Array<{ rule: string; points: number }>>
-  > {
+  execute(): Promise<GeneralApiResponseDto<PointsRuleResDto[]>> {
     const rules = [
       { rule: 'club_create', points: 10 },
       { rule: 'event_create', points: 8 },

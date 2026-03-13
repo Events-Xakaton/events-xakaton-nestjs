@@ -6,22 +6,13 @@ import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
+import {
+  ApiNotificationTargetType,
+  ApiNotificationType,
+  NotificationItemResDto,
+  NotificationsPageResDto,
+} from '../dto/response';
 import { ListNotificationsQuery } from '../queries';
-
-type ApiNotificationType = 'event_changed' | 'member_joined';
-type ApiNotificationTargetType = 'club' | 'event';
-
-type NotificationItem = {
-  id: string;
-  type: ApiNotificationType;
-  title: string;
-  preview: string;
-  isRead: boolean;
-  createdAt: Date;
-  targetType: ApiNotificationTargetType | null;
-  targetId: string | null;
-  isTargetAvailable: boolean | null;
-};
 
 @QueryHandler(ListNotificationsQuery)
 export class ListNotificationsHandler implements IQueryHandler<ListNotificationsQuery> {
@@ -30,12 +21,9 @@ export class ListNotificationsHandler implements IQueryHandler<ListNotifications
     private readonly userContextService: UserContextService,
   ) {}
 
-  async execute(query: ListNotificationsQuery): Promise<
-    GeneralApiResponseDto<{
-      items: NotificationItem[];
-      nextCursor: string | null;
-    }>
-  > {
+  async execute(
+    query: ListNotificationsQuery,
+  ): Promise<GeneralApiResponseDto<NotificationsPageResDto>> {
     const user = await this.userContextService.requireUserByTelegram(
       query.telegramUserId,
     );
@@ -93,7 +81,7 @@ export class ListNotificationsHandler implements IQueryHandler<ListNotifications
     const availableEventIds = new Set(availableEvents.map((e) => e.id));
     const availableClubIds = new Set(availableClubs.map((c) => c.id));
 
-    const items: NotificationItem[] = notifications.map((n) => ({
+    const items: NotificationItemResDto[] = notifications.map((n) => ({
       id: n.id,
       // new_follower переименовывается в member_joined на уровне API
       type: (n.type === 'new_follower'
