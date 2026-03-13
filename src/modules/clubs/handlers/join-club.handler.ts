@@ -4,7 +4,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, POINTS } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -55,7 +55,7 @@ export class JoinClubHandler implements ICommandHandler<JoinClubCommand> {
     await this.pointsService.award({
       userId: user.id,
       ruleCode: 'club_join',
-      deltaPoints: 3,
+      deltaPoints: POINTS.CLUB_JOIN,
       referenceId: `club_join_${clubId}_${user.id}`,
       clubId,
     });
@@ -69,7 +69,7 @@ export class JoinClubHandler implements ICommandHandler<JoinClubCommand> {
       await this.pointsService.award({
         userId: club.creatorUserId,
         ruleCode: 'club_new_member_bonus',
-        deltaPoints: 1,
+        deltaPoints: POINTS.CLUB_NEW_MEMBER_BONUS,
         referenceId: `club_new_member_${clubId}_${user.id}`,
         clubId,
       });

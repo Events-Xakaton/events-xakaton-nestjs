@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
@@ -22,6 +22,11 @@ export class ConnectionsController {
 
   @Get()
   @ApiOperation({ summary: 'Список подписок текущего пользователя' })
+  @ApiResponse({
+    status: 200,
+    type: [FollowingItemResDto],
+    description: 'Список подписок',
+  })
   async list(
     @Req() req: Request & { telegramUserId?: string },
   ): Promise<GeneralApiResponseDto<FollowingItemResDto[]>> {
@@ -30,6 +35,20 @@ export class ConnectionsController {
 
   @Post(':targetTelegramUserId/follow')
   @ApiOperation({ summary: 'Подписаться на пользователя' })
+  @ApiParam({
+    name: 'targetTelegramUserId',
+    description: 'Telegram ID целевого пользователя',
+  })
+  @ApiResponse({
+    status: 200,
+    type: StatusResDto,
+    description: 'Подписка оформлена',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Уже подписан или попытка подписаться на себя',
+  })
+  @ApiResponse({ status: 404, description: 'Пользователь не найден' })
   async follow(
     @Req() req: Request & { telegramUserId?: string },
     @Param('targetTelegramUserId') targetTelegramUserId: string,
@@ -41,6 +60,16 @@ export class ConnectionsController {
 
   @Post(':targetTelegramUserId/unfollow')
   @ApiOperation({ summary: 'Отписаться от пользователя' })
+  @ApiParam({
+    name: 'targetTelegramUserId',
+    description: 'Telegram ID целевого пользователя',
+  })
+  @ApiResponse({
+    status: 200,
+    type: StatusResDto,
+    description: 'Отписка выполнена',
+  })
+  @ApiResponse({ status: 400, description: 'Подписка не существует' })
   async unfollow(
     @Req() req: Request & { telegramUserId?: string },
     @Param('targetTelegramUserId') targetTelegramUserId: string,

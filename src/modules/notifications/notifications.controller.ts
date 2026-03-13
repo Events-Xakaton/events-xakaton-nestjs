@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 
@@ -9,8 +9,8 @@ import { GeneralApiResponseDto } from '@shared/dto';
 import { OkStatusResDto } from '@shared/types';
 
 import { MarkNotificationReadCommand } from './commands';
-import { NotificationsPageResDto } from './dto/response';
 import { ListNotificationsDto } from './dto/list-notifications.dto';
+import { NotificationsPageResDto } from './dto/response';
 import { ListNotificationsQuery } from './queries';
 
 @ApiTags('notifications')
@@ -25,6 +25,11 @@ export class NotificationsController {
   @Get()
   @Throttle({ default: { limit: 1500, ttl: 60_000 } })
   @ApiOperation({ summary: 'Список уведомлений с cursor-пагинацией' })
+  @ApiResponse({
+    status: 200,
+    type: NotificationsPageResDto,
+    description: 'Страница уведомлений',
+  })
   async list(
     @Req() req: Request & { telegramUserId?: string },
     @Query() query: ListNotificationsDto,
@@ -36,6 +41,13 @@ export class NotificationsController {
 
   @Post(':notificationId/read')
   @ApiOperation({ summary: 'Пометить уведомление как прочитанное' })
+  @ApiParam({ name: 'notificationId', description: 'UUID уведомления' })
+  @ApiResponse({
+    status: 200,
+    type: OkStatusResDto,
+    description: 'Уведомление помечено прочитанным',
+  })
+  @ApiResponse({ status: 404, description: 'Уведомление не найдено' })
   async markRead(
     @Req() req: Request & { telegramUserId?: string },
     @Param('notificationId') notificationId: string,

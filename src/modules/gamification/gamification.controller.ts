@@ -1,6 +1,6 @@
 import { Controller, Get, Query, Req } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
@@ -27,6 +27,11 @@ export class GamificationController {
 
   @Get('points/rules')
   @ApiOperation({ summary: 'Справочник правил начисления очков' })
+  @ApiResponse({
+    status: 200,
+    type: [PointsRuleResDto],
+    description: 'Список правил начисления',
+  })
   async getRules(): Promise<GeneralApiResponseDto<PointsRuleResDto[]>> {
     return this.queryBus.execute(new GetPointsRulesQuery());
   }
@@ -34,6 +39,11 @@ export class GamificationController {
   @Get('points/history')
   @Roles(AppRole.Member)
   @ApiOperation({ summary: 'История начислений очков текущего пользователя' })
+  @ApiResponse({
+    status: 200,
+    type: [PointsHistoryItemResDto],
+    description: 'История начислений',
+  })
   async getHistory(
     @Req() req: Request & { telegramUserId?: string },
   ): Promise<GeneralApiResponseDto<PointsHistoryItemResDto[]>> {
@@ -43,6 +53,11 @@ export class GamificationController {
   @Get('points/balance')
   @Roles(AppRole.Member)
   @ApiOperation({ summary: 'Баланс очков: lifetime, weekly, monthly' })
+  @ApiResponse({
+    status: 200,
+    type: PointsBalanceResDto,
+    description: 'Баланс очков',
+  })
   async getBalance(
     @Req() req: Request & { telegramUserId?: string },
   ): Promise<GeneralApiResponseDto<PointsBalanceResDto>> {
@@ -52,6 +67,11 @@ export class GamificationController {
   @Get('leaderboard')
   @Roles(AppRole.Member)
   @ApiOperation({ summary: 'Лидерборд за период (weekly/monthly)' })
+  @ApiResponse({
+    status: 200,
+    type: LeaderboardResDto,
+    description: 'Рейтинг участников',
+  })
   async getLeaderboard(
     @Req() req: Request & { telegramUserId?: string },
     @Query() query: LeaderboardQueryDto,

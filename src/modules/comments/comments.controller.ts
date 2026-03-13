@@ -8,7 +8,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
@@ -35,6 +35,17 @@ export class CommentsController {
 
   @Get(':entityType/:entityId')
   @ApiOperation({ summary: 'Список комментариев сущности (club/event)' })
+  @ApiParam({
+    name: 'entityType',
+    enum: ['club', 'event'],
+    description: 'Тип сущности',
+  })
+  @ApiParam({ name: 'entityId', description: 'UUID сущности' })
+  @ApiResponse({
+    status: 200,
+    type: [CommentItemResDto],
+    description: 'Список комментариев',
+  })
   async list(
     @Param('entityType') entityType: 'club' | 'event',
     @Param('entityId') entityId: string,
@@ -44,6 +55,12 @@ export class CommentsController {
 
   @Post()
   @ApiOperation({ summary: 'Создать комментарий' })
+  @ApiResponse({
+    status: 201,
+    type: IdResDto,
+    description: 'ID созданного комментария',
+  })
+  @ApiResponse({ status: 404, description: 'Сущность не найдена' })
   async create(
     @Req() req: Request & { telegramUserId?: string },
     @Body() dto: CreateCommentReqDto,
@@ -55,6 +72,14 @@ export class CommentsController {
 
   @Post(':commentId/edit')
   @ApiOperation({ summary: 'Редактировать комментарий (только автор)' })
+  @ApiParam({ name: 'commentId', description: 'UUID комментария' })
+  @ApiResponse({
+    status: 200,
+    type: StatusResDto,
+    description: 'Комментарий обновлён',
+  })
+  @ApiResponse({ status: 403, description: 'Не автор комментария' })
+  @ApiResponse({ status: 404, description: 'Комментарий не найден' })
   async edit(
     @Req() req: Request & { telegramUserId?: string },
     @Param('commentId') commentId: string,
@@ -67,6 +92,14 @@ export class CommentsController {
 
   @Delete(':commentId')
   @ApiOperation({ summary: 'Удалить комментарий (только автор)' })
+  @ApiParam({ name: 'commentId', description: 'UUID комментария' })
+  @ApiResponse({
+    status: 200,
+    type: StatusResDto,
+    description: 'Комментарий удалён',
+  })
+  @ApiResponse({ status: 403, description: 'Не автор комментария' })
+  @ApiResponse({ status: 404, description: 'Комментарий не найден' })
   async remove(
     @Req() req: Request & { telegramUserId?: string },
     @Param('commentId') commentId: string,

@@ -18,8 +18,8 @@ import {
   ReverifyCommand,
   VerifyCodeCommand,
 } from './commands';
-import { OtpRequestedResDto } from './dto/response';
 import { RequestCodeDto } from './dto/request-code.dto';
+import { OtpRequestedResDto } from './dto/response';
 import { VerifyCodeDto } from './dto/verify-code.dto';
 
 @ApiTags('auth')
@@ -29,7 +29,11 @@ export class AuthController {
 
   @Post('request-code')
   @ApiOperation({ summary: 'Запросить OTP-код через Reddy' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Код отправлен' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: OtpRequestedResDto,
+    description: 'Код отправлен',
+  })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Неверный запрос',
@@ -58,6 +62,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Подтвердить OTP-код' })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: StatusResDto,
     description: 'Верификация прошла успешно',
   })
   @ApiResponse({
@@ -84,7 +89,11 @@ export class AuthController {
   @ApiOperation({
     summary: 'Повторно верифицировать привязанный Reddy-аккаунт',
   })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Новый код отправлен' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: OtpRequestedResDto,
+    description: 'Новый код отправлен',
+  })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Нет привязанного аккаунта',

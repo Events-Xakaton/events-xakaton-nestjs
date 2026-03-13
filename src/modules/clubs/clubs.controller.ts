@@ -10,7 +10,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
@@ -77,6 +77,7 @@ export class ClubsController {
 
   @Get(':clubId')
   @ApiOperation({ summary: 'Детали клуба' })
+  @ApiParam({ name: 'clubId', description: 'UUID клуба' })
   @ApiResponse({ status: 200, type: ClubDetailResDto })
   @ApiResponse({ status: 404, description: 'Клуб не найден' })
   getOne(
@@ -88,6 +89,7 @@ export class ClubsController {
 
   @Get(':clubId/members')
   @ApiOperation({ summary: 'Участники клуба' })
+  @ApiParam({ name: 'clubId', description: 'UUID клуба' })
   @ApiResponse({ status: 200, type: [ClubMemberResDto] })
   listMembers(
     @Req() req: Request & { telegramUserId?: string },
@@ -100,6 +102,7 @@ export class ClubsController {
 
   @Get(':clubId/events')
   @ApiOperation({ summary: 'События клуба с пагинацией' })
+  @ApiParam({ name: 'clubId', description: 'UUID клуба' })
   @ApiResponse({ status: 200, type: ClubEventsPageResDto })
   listClubEvents(
     @Req() req: Request & { telegramUserId?: string },
@@ -119,7 +122,15 @@ export class ClubsController {
 
   @Post()
   @ApiOperation({ summary: 'Создать клуб' })
-  @ApiResponse({ status: 201, description: 'ID созданного клуба' })
+  @ApiResponse({
+    status: 201,
+    type: IdResDto,
+    description: 'ID созданного клуба',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Клуб с таким названием уже существует',
+  })
   create(
     @Req() req: Request & { telegramUserId?: string },
     @Body() dto: CreateClubReqDto,
@@ -131,6 +142,14 @@ export class ClubsController {
 
   @Post(':clubId/join')
   @ApiOperation({ summary: 'Вступить в клуб' })
+  @ApiParam({ name: 'clubId', description: 'UUID клуба' })
+  @ApiResponse({
+    status: 200,
+    type: StatusResDto,
+    description: 'Успешное вступление',
+  })
+  @ApiResponse({ status: 400, description: 'Уже состоит в клубе' })
+  @ApiResponse({ status: 404, description: 'Клуб не найден' })
   join(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
@@ -142,6 +161,17 @@ export class ClubsController {
 
   @Post(':clubId/leave')
   @ApiOperation({ summary: 'Покинуть клуб' })
+  @ApiParam({ name: 'clubId', description: 'UUID клуба' })
+  @ApiResponse({
+    status: 200,
+    type: StatusResDto,
+    description: 'Успешный выход из клуба',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Не состоит в клубе или является владельцем',
+  })
+  @ApiResponse({ status: 404, description: 'Клуб не найден' })
   leave(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
@@ -153,7 +183,14 @@ export class ClubsController {
 
   @Patch(':clubId')
   @ApiOperation({ summary: 'Обновить клуб' })
+  @ApiParam({ name: 'clubId', description: 'UUID клуба' })
+  @ApiResponse({
+    status: 200,
+    type: StatusResDto,
+    description: 'Клуб обновлён',
+  })
   @ApiResponse({ status: 403, description: 'Недостаточно прав' })
+  @ApiResponse({ status: 404, description: 'Клуб не найден' })
   update(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
@@ -166,7 +203,10 @@ export class ClubsController {
 
   @Delete(':clubId')
   @ApiOperation({ summary: 'Удалить клуб (soft delete)' })
+  @ApiParam({ name: 'clubId', description: 'UUID клуба' })
+  @ApiResponse({ status: 200, type: StatusResDto, description: 'Клуб удалён' })
   @ApiResponse({ status: 403, description: 'Недостаточно прав' })
+  @ApiResponse({ status: 404, description: 'Клуб не найден' })
   delete(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,

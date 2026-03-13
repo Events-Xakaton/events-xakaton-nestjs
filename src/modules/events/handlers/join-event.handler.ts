@@ -5,7 +5,7 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, POINTS } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -80,7 +80,7 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
     await this.pointsService.award({
       userId: user.id,
       ruleCode: 'event_join',
-      deltaPoints: 1,
+      deltaPoints: POINTS.EVENT_JOIN,
       referenceId: `event_join_${eventId}_${user.id}`,
       eventId,
     });

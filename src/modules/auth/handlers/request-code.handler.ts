@@ -8,6 +8,7 @@ import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { UserContextService } from '@shared/user-context';
 
+import { OTP_TTL_SEC } from '../auth.constants';
 import { RequestCodeCommand } from '../commands';
 import { OtpRequestedResDto } from '../dto/response';
 import { ReddyIdentityService } from '../reddy-identity.service';
@@ -70,7 +71,7 @@ export class RequestCodeHandler implements ICommandHandler<RequestCodeCommand> {
       HttpStatusDescriptions[HttpStatus.OK],
       {
         status: 'code_requested',
-        ttlSec: 60,
+        ttlSec: OTP_TTL_SEC,
       },
     );
   }

@@ -4,7 +4,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
 import { AppRole } from '@shared/auth';
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION, POINTS } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -60,7 +60,7 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
     }
 
     const tags = [...new Set(dto.tags ?? [])];
-    if (tags.length > 3) {
+    if (tags.length > PAGINATION.MAX_TAGS_PER_ENTITY) {
       throw new AppException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'Слишком много тегов',
@@ -87,7 +87,7 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
     await this.pointsService.award({
       userId: user.id,
       ruleCode: 'event_create',
-      deltaPoints: 8,
+      deltaPoints: POINTS.EVENT_CREATE,
       referenceId: `event_create_${event.id}`,
       eventId: event.id,
       clubId: dto.clubId,

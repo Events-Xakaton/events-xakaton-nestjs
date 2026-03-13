@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions } from '@shared/constants';
+import { HttpStatusDescriptions, PAGINATION, POINTS } from '@shared/constants';
 import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
@@ -29,7 +29,7 @@ export class CreateClubHandler implements ICommandHandler<CreateClubCommand> {
       await this.userContextService.requireUserByTelegram(telegramUserId);
 
     const tags = [...new Set(dto.tags ?? [])];
-    if (tags.length > 3) {
+    if (tags.length > PAGINATION.MAX_TAGS_PER_ENTITY) {
       throw new AppException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'Слишком много тегов',
@@ -56,7 +56,7 @@ export class CreateClubHandler implements ICommandHandler<CreateClubCommand> {
     await this.pointsService.award({
       userId: user.id,
       ruleCode: 'club_create',
-      deltaPoints: 10,
+      deltaPoints: POINTS.CLUB_CREATE,
       referenceId: `club_create_${club.id}`,
       clubId: club.id,
     });

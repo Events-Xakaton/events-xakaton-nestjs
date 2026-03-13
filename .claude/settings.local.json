@@ -58,7 +58,8 @@
       "Bash(cd \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs\" && npx tsc --noEmit 2>&1)",
       "Bash(node -e \"console.log\\(require\\('./node_modules/helmet/package.json'\\).version\\)\" 2>/dev/null || echo \"not installed\"\nnode -e \"console.log\\(require\\('./node_modules/compression/package.json'\\).version\\)\" 2>/dev/null || echo \"not installed\")",
       "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && npx tsc --noEmit 2>&1 | head -60)",
-      "Bash(cd \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs\" && npx tsc --noEmit 2>&1 | head -30)"
+      "Bash(cd \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs\" && npx tsc --noEmit 2>&1 | head -30)",
+      "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && grep -A 30 '\"paths\"' tsconfig.json)"
     ]
   }
 }
