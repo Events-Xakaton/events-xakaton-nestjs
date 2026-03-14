@@ -29,9 +29,7 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
     private readonly reminderScheduler: ReminderSchedulerService,
   ) {}
 
-  async execute(
-    command: UpdateEventCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: UpdateEventCommand): Promise<StatusResDto> {
     const { telegramUserId, eventId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -213,4 +211,3 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
     );
   }
 }
-пше

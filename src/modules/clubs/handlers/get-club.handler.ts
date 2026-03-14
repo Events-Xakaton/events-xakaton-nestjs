@@ -16,9 +16,7 @@ export class GetClubHandler implements IQueryHandler<GetClubQuery> {
     private readonly userContextService: UserContextService,
   ) {}
 
-  async execute(
-    query: GetClubQuery,
-  ): Promise<ClubDetailResDto> {
+  async execute(query: GetClubQuery): Promise<ClubDetailResDto> {
     const { telegramUserId, clubId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
