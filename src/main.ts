@@ -2,7 +2,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
-import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import 'reflect-metadata';
 
@@ -25,7 +24,7 @@ async function bootstrap(): Promise<void> {
 
   // Добавляет HTTP security headers: X-Content-Type-Options, X-Frame-Options,
   // Strict-Transport-Security, X-XSS-Protection и др.
-  app.use(helmet());
+  // app.use(helmet());
 
   // Сжатие ответов gzip/deflate — снижает трафик для крупных payload (лидерборд, списки)
   app.use(compression());
@@ -33,6 +32,14 @@ async function bootstrap(): Promise<void> {
   app.enableCors({
     origin: true,
     credentials: true,
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'x-telegram-init-data',
+      'x-telegram-user-id',
+      'x-device-id',
+      'x-idempotency-key',
+    ],
   });
 
   app.setGlobalPrefix('api');
