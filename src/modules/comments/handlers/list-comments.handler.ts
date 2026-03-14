@@ -1,8 +1,6 @@
-import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
+import { PAGINATION } from '@shared/constants';
 import { PrismaService } from '@shared/prisma';
 
 import { CommentItemResDto } from '../dto/response';
@@ -14,7 +12,7 @@ export class ListCommentsHandler implements IQueryHandler<ListCommentsQuery> {
 
   async execute(
     query: ListCommentsQuery,
-  ): Promise<GeneralApiResponseDto<CommentItemResDto[]>> {
+  ): Promise<CommentItemResDto[]> {
     const { entityType, entityId } = query;
 
     const comments = await this.prisma.comment.findMany({
@@ -36,10 +34,6 @@ export class ListCommentsHandler implements IQueryHandler<ListCommentsQuery> {
         }),
     );
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      items,
-    );
+    return items;
   }
 }

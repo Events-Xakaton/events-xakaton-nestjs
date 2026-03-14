@@ -1,9 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
+import { PAGINATION } from '@shared/constants';
 import { EventParticipationStatus, EventStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -21,7 +20,7 @@ export class ListClubEventsHandler implements IQueryHandler<ListClubEventsQuery>
 
   async execute(
     query: ListClubEventsQuery,
-  ): Promise<GeneralApiResponseDto<ClubEventsPageResDto>> {
+  ): Promise<ClubEventsPageResDto> {
     const { telegramUserId, clubId } = query;
     const bucket = query.bucket ?? EventStatus.Upcoming;
     const page = Math.max(query.page ?? 1, 1);
@@ -104,17 +103,13 @@ export class ListClubEventsHandler implements IQueryHandler<ListClubEventsQuery>
       });
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      new ClubEventsPageResDto({
-        bucket,
-        page,
-        limit,
-        hasMore: skip + events.length < total,
-        total,
-        items,
-      }),
-    );
+    return new ClubEventsPageResDto({
+      bucket,
+      page,
+      limit,
+      hasMore: skip + events.length < total,
+      total,
+      items,
+    });
   }
 }

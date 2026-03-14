@@ -1,8 +1,5 @@
-import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { OkStatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
@@ -14,18 +11,14 @@ export class AssignRoleHandler implements ICommandHandler<AssignRoleCommand> {
 
   async execute(
     command: AssignRoleCommand,
-  ): Promise<GeneralApiResponseDto<OkStatusResDto>> {
+  ): Promise<OkStatusResDto> {
     await this.userContextService.assignRoleByTelegramUserId(
       command.targetTelegramUserId,
       command.role,
     );
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'ok' as const,
-      },
-    );
+    return {
+      status: 'ok' as const,
+    };
   }
 }

@@ -10,7 +10,6 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { GeneralApiResponseDto } from '@shared/dto';
 import { StatusResDto } from '@shared/types';
 
 import {
@@ -45,7 +44,7 @@ export class AuthController {
   requestCode(
     @Req() req: Request & { telegramUserId?: string },
     @Body() body: RequestCodeDto,
-  ): Promise<GeneralApiResponseDto<OtpRequestedResDto>> {
+  ): Promise<OtpRequestedResDto> {
     const telegramUserId =
       req.telegramUserId ?? req.header('x-telegram-user-id');
     if (!telegramUserId) {
@@ -72,7 +71,7 @@ export class AuthController {
   verifyCode(
     @Req() req: Request & { telegramUserId?: string },
     @Body() body: VerifyCodeDto,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const telegramUserId =
       req.telegramUserId ?? req.header('x-telegram-user-id');
     if (!telegramUserId) {
@@ -100,7 +99,7 @@ export class AuthController {
   })
   reverify(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<GeneralApiResponseDto<OtpRequestedResDto>> {
+  ): Promise<OtpRequestedResDto> {
     const telegramUserId =
       req.telegramUserId ?? req.header('x-telegram-user-id');
     if (!telegramUserId) {

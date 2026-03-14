@@ -1,8 +1,6 @@
-import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
+import { PAGINATION } from '@shared/constants';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -23,7 +21,7 @@ export class ListNotificationsHandler implements IQueryHandler<ListNotifications
 
   async execute(
     query: ListNotificationsQuery,
-  ): Promise<GeneralApiResponseDto<NotificationsPageResDto>> {
+  ): Promise<NotificationsPageResDto> {
     const user = await this.userContextService.requireUserByTelegram(
       query.telegramUserId,
     );
@@ -107,13 +105,9 @@ export class ListNotificationsHandler implements IQueryHandler<ListNotifications
         ? notifications[notifications.length - 1].createdAt.toISOString()
         : null;
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        items,
-        nextCursor,
-      },
-    );
+    return {
+      items,
+      nextCursor,
+    };
   }
 }

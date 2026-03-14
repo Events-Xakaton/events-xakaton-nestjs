@@ -2,8 +2,6 @@ import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { AppRole } from '@shared/auth';
-import { HttpStatusDescriptions } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 
@@ -16,7 +14,7 @@ export class GetAdminUserHandler implements IQueryHandler<GetAdminUserQuery> {
 
   async execute(
     query: GetAdminUserQuery,
-  ): Promise<GeneralApiResponseDto<AdminUserResDto>> {
+  ): Promise<AdminUserResDto> {
     const user = await this.prisma.user.findUnique({
       where: { telegramUserId: BigInt(query.targetTelegramUserId) },
       include: { roles: { include: { role: { select: { code: true } } } } },
@@ -29,15 +27,11 @@ export class GetAdminUserHandler implements IQueryHandler<GetAdminUserQuery> {
       });
     }
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        telegramUserId: user.telegramUserId.toString(),
-        fullName: user.fullName,
-        isVerified: user.isVerified,
-        roles: user.roles.map((r) => r.role.code as AppRole),
-      },
-    );
+    return {
+      telegramUserId: user.telegramUserId.toString(),
+      fullName: user.fullName,
+      isVerified: user.isVerified,
+      roles: user.roles.map((r) => r.role.code as AppRole),
+    };
   }
 }

@@ -4,14 +4,12 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { QueueService } from '@jobs/queue.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
-import { HttpStatusDescriptions } from '@shared/constants';
 import {
   ClubMembershipRole,
   ClubMembershipStatus,
   EventParticipationStatus,
   EventStatus,
 } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -33,7 +31,7 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
 
   async execute(
     command: UpdateEventCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, eventId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -187,13 +185,9 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
       entityId: eventId,
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'updated',
-      },
-    );
+    return {
+      status: 'updated',
+    };
   }
 
   private async hasClubOwnerRights(
@@ -219,3 +213,4 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
     );
   }
 }
+пше

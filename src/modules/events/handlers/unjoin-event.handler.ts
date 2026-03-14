@@ -4,9 +4,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions } from '@shared/constants';
 import { EventParticipationStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -26,7 +24,7 @@ export class UnjoinEventHandler implements ICommandHandler<UnjoinEventCommand> {
 
   async execute(
     command: UnjoinEventCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, eventId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -55,12 +53,8 @@ export class UnjoinEventHandler implements ICommandHandler<UnjoinEventCommand> {
       entityId: eventId,
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: EventParticipationStatus.Left,
-      },
-    );
+    return {
+      status: EventParticipationStatus.Left,
+    };
   }
 }

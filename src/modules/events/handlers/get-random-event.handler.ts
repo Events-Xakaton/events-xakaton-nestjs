@@ -2,9 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
-import { HttpStatusDescriptions } from '@shared/constants';
 import { EventParticipationStatus, EventStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { IdResDto } from '@shared/types';
@@ -24,7 +22,7 @@ export class GetRandomEventHandler implements IQueryHandler<GetRandomEventQuery>
 
   async execute(
     query: GetRandomEventQuery,
-  ): Promise<GeneralApiResponseDto<IdResDto>> {
+  ): Promise<IdResDto> {
     const { telegramUserId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -64,10 +62,6 @@ export class GetRandomEventHandler implements IQueryHandler<GetRandomEventQuery>
       entityId: pick.id,
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      { id: pick.id },
-    );
+    return { id: pick.id };
   }
 }

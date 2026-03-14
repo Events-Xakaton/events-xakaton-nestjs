@@ -1,9 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
+import { PAGINATION } from '@shared/constants';
 import { ClubMembershipRole, ClubMembershipStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -19,7 +18,7 @@ export class ListEventAuthoringClubsHandler implements IQueryHandler<ListEventAu
 
   async execute(
     query: ListEventAuthoringClubsQuery,
-  ): Promise<GeneralApiResponseDto<ClubAuthoringItemResDto[]>> {
+  ): Promise<ClubAuthoringItemResDto[]> {
     const { telegramUserId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -45,11 +44,7 @@ export class ListEventAuthoringClubsHandler implements IQueryHandler<ListEventAu
           }),
       );
 
-      return new GeneralApiResponseDto(
-        HttpStatus.OK,
-        HttpStatusDescriptions[HttpStatus.OK],
-        items,
-      );
+      return items;
     }
 
     // Обычный пользователь видит только клубы, где он owner/admin/event_manager
@@ -82,10 +77,6 @@ export class ListEventAuthoringClubsHandler implements IQueryHandler<ListEventAu
         }),
     );
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      items,
-    );
+    return items;
   }
 }

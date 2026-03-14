@@ -3,8 +3,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { NotificationsService } from '@modules/notifications/notifications.service';
-import { HttpStatusDescriptions } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -23,7 +21,7 @@ export class FollowHandler implements ICommandHandler<FollowCommand> {
 
   async execute(
     command: FollowCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, targetTelegramUserId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -81,12 +79,8 @@ export class FollowHandler implements ICommandHandler<FollowCommand> {
       context: { targetTelegramUserId },
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'followed',
-      },
-    );
+    return {
+      status: 'followed',
+    };
   }
 }

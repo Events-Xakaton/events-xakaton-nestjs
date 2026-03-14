@@ -1,8 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -19,7 +17,7 @@ export class DeleteCommentHandler implements ICommandHandler<DeleteCommentComman
 
   async execute(
     command: DeleteCommentCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, commentId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -46,12 +44,8 @@ export class DeleteCommentHandler implements ICommandHandler<DeleteCommentComman
       data: { isDeleted: true, deletedAt: new Date() },
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'deleted',
-      },
-    );
+    return {
+      status: 'deleted',
+    };
   }
 }

@@ -1,8 +1,5 @@
-import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 import { getPeriodRange } from '@shared/utils/period-range';
@@ -19,7 +16,7 @@ export class GetPointsBalanceHandler implements IQueryHandler<GetPointsBalanceQu
 
   async execute(
     query: GetPointsBalanceQuery,
-  ): Promise<GeneralApiResponseDto<PointsBalanceResDto>> {
+  ): Promise<PointsBalanceResDto> {
     const user = await this.userContextService.requireUserByTelegram(
       query.telegramUserId,
     );
@@ -48,14 +45,10 @@ export class GetPointsBalanceHandler implements IQueryHandler<GetPointsBalanceQu
       }),
     ]);
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        lifetime: lifetime._sum.deltaPoints ?? 0,
-        weekly: weekly._sum.deltaPoints ?? 0,
-        monthly: monthly._sum.deltaPoints ?? 0,
-      },
-    );
+    return {
+      lifetime: lifetime._sum.deltaPoints ?? 0,
+      weekly: weekly._sum.deltaPoints ?? 0,
+      monthly: monthly._sum.deltaPoints ?? 0,
+    };
   }
 }

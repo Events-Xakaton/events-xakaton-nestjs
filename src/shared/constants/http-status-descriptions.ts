@@ -2,7 +2,6 @@ import { HttpStatus } from '@nestjs/common';
 
 /**
  * Текстовые описания HTTP-статусов.
- * Используются в GeneralApiResponseDto как человекочитаемое поле message.
  */
 export const HttpStatusDescriptions: Record<number, string> = {
   [HttpStatus.OK]: 'OK',

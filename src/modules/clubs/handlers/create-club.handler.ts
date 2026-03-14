@@ -3,9 +3,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions, PAGINATION, POINTS } from '@shared/constants';
+import { PAGINATION, POINTS } from '@shared/constants';
 import { ClubMembershipRole, ClubMembershipStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { IdResDto } from '@shared/types';
@@ -24,7 +23,7 @@ export class CreateClubHandler implements ICommandHandler<CreateClubCommand> {
 
   async execute(
     command: CreateClubCommand,
-  ): Promise<GeneralApiResponseDto<IdResDto>> {
+  ): Promise<IdResDto> {
     const { telegramUserId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -72,10 +71,6 @@ export class CreateClubHandler implements ICommandHandler<CreateClubCommand> {
       entityId: club.id,
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.CREATED,
-      HttpStatusDescriptions[HttpStatus.CREATED],
-      { id: club.id },
-    );
+    return { id: club.id };
   }
 }

@@ -1,9 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
 import { ClubMembershipRole, ClubMembershipStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -20,7 +18,7 @@ export class GetClubHandler implements IQueryHandler<GetClubQuery> {
 
   async execute(
     query: GetClubQuery,
-  ): Promise<GeneralApiResponseDto<ClubDetailResDto>> {
+  ): Promise<ClubDetailResDto> {
     const { telegramUserId, clubId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -55,24 +53,20 @@ export class GetClubHandler implements IQueryHandler<GetClubQuery> {
       myMembership?.role,
     );
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      new ClubDetailResDto({
-        id: club.id,
-        title: club.title,
-        description: club.description,
-        categoryCode: club.categoryCode,
-        coverUrl: club.coverUrl ?? null,
-        creatorTelegramUserId: club.creator.telegramUserId.toString(),
-        creatorName: club.creator.fullName,
-        membersCount: club.memberships.length,
-        joinedByMe,
-        canManage,
-        tags: club.tags.map((t) => t.tag),
-        coverSeed: club.coverSeed ?? null,
-      }),
-    );
+    return new ClubDetailResDto({
+      id: club.id,
+      title: club.title,
+      description: club.description,
+      categoryCode: club.categoryCode,
+      coverUrl: club.coverUrl ?? null,
+      creatorTelegramUserId: club.creator.telegramUserId.toString(),
+      creatorName: club.creator.fullName,
+      membersCount: club.memberships.length,
+      joinedByMe,
+      canManage,
+      tags: club.tags.map((t) => t.tag),
+      coverSeed: club.coverSeed ?? null,
+    });
   }
 
   private async checkCanManage(

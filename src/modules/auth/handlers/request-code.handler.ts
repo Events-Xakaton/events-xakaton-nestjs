@@ -3,8 +3,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { QueueService } from '@jobs/queue.service';
-import { HttpStatusDescriptions } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { UserContextService } from '@shared/user-context';
 
@@ -26,7 +24,7 @@ export class RequestCodeHandler implements ICommandHandler<RequestCodeCommand> {
 
   async execute(
     command: RequestCodeCommand,
-  ): Promise<GeneralApiResponseDto<OtpRequestedResDto>> {
+  ): Promise<OtpRequestedResDto> {
     const { telegramUserId, reddyUserKey } = command;
 
     if (!reddyUserKey || !String(reddyUserKey).trim()) {
@@ -66,13 +64,9 @@ export class RequestCodeHandler implements ICommandHandler<RequestCodeCommand> {
       context: { reddyUserKeyProvided: Boolean(reddyUserKey) },
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'code_requested',
-        ttlSec: OTP_TTL_SEC,
-      },
-    );
+    return {
+      status: 'code_requested',
+      ttlSec: OTP_TTL_SEC,
+    };
   }
 }

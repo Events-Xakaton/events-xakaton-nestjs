@@ -13,7 +13,6 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { IdResDto, StatusResDto } from '@shared/types';
 
 import {
@@ -50,7 +49,7 @@ export class CommentsController {
   async list(
     @Param('entityType') entityType: 'club' | 'event',
     @Param('entityId') entityId: string,
-  ): Promise<GeneralApiResponseDto<CommentItemResDto[]>> {
+  ): Promise<CommentItemResDto[]> {
     return this.queryBus.execute(new ListCommentsQuery(entityType, entityId));
   }
 
@@ -68,7 +67,7 @@ export class CommentsController {
   async create(
     @Req() req: Request & { telegramUserId?: string },
     @Body() dto: CreateCommentReqDto,
-  ): Promise<GeneralApiResponseDto<IdResDto>> {
+  ): Promise<IdResDto> {
     return this.commandBus.execute(
       new CreateCommentCommand(req.telegramUserId, dto),
     );
@@ -94,7 +93,7 @@ export class CommentsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('commentId') commentId: string,
     @Body() dto: UpdateCommentReqDto,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new UpdateCommentCommand(req.telegramUserId, commentId, dto),
     );
@@ -119,7 +118,7 @@ export class CommentsController {
   async remove(
     @Req() req: Request & { telegramUserId?: string },
     @Param('commentId') commentId: string,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new DeleteCommentCommand(req.telegramUserId, commentId),
     );

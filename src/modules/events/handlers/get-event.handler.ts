@@ -2,13 +2,11 @@ import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { AppRole } from '@shared/auth';
-import { HttpStatusDescriptions } from '@shared/constants';
 import {
   ClubMembershipRole,
   ClubMembershipStatus,
   EventParticipationStatus,
 } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -27,7 +25,7 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
 
   async execute(
     query: GetEventQuery,
-  ): Promise<GeneralApiResponseDto<EventDetailResDto>> {
+  ): Promise<EventDetailResDto> {
     const { telegramUserId, eventId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -63,34 +61,30 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
       event.club?.id,
     );
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      new EventDetailResDto({
-        id: event.id,
-        title: event.title,
-        description: event.description,
-        locationOrLink: event.locationOrLink,
-        status: this.eventStatusService.calculate({
-          status: event.status,
-          startsAtUtc: event.startsAtUtc,
-          endsAtUtc: event.endsAtUtc,
-        }),
+    return new EventDetailResDto({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      locationOrLink: event.locationOrLink,
+      status: this.eventStatusService.calculate({
+        status: event.status,
         startsAtUtc: event.startsAtUtc,
         endsAtUtc: event.endsAtUtc,
-        maxParticipants: event.maxParticipants ?? null,
-        participantsCount,
-        freeSpots,
-        creatorTelegramUserId: event.creator.telegramUserId.toString(),
-        creatorName: event.creator.fullName,
-        clubId: event.club?.id ?? null,
-        clubTitle: event.club?.title ?? null,
-        tags: event.tags.map((t) => t.tag),
-        coverSeed: event.coverSeed ?? null,
-        joinedByMe,
-        canManage,
       }),
-    );
+      startsAtUtc: event.startsAtUtc,
+      endsAtUtc: event.endsAtUtc,
+      maxParticipants: event.maxParticipants ?? null,
+      participantsCount,
+      freeSpots,
+      creatorTelegramUserId: event.creator.telegramUserId.toString(),
+      creatorName: event.creator.fullName,
+      clubId: event.club?.id ?? null,
+      clubTitle: event.club?.title ?? null,
+      tags: event.tags.map((t) => t.tag),
+      coverSeed: event.coverSeed ?? null,
+      joinedByMe,
+      canManage,
+    });
   }
 
   private async checkCanManage(

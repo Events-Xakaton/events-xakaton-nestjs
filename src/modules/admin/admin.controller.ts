@@ -11,7 +11,6 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { AppRole, Roles } from '@shared/auth';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { OkStatusResDto } from '@shared/types';
 
 import { AssignRoleCommand } from './commands';
@@ -48,7 +47,7 @@ export class AdminController {
   async assignRole(
     @Param('telegramUserId') telegramUserId: string,
     @Body() dto: AssignRoleDto,
-  ): Promise<GeneralApiResponseDto<OkStatusResDto>> {
+  ): Promise<OkStatusResDto> {
     return this.commandBus.execute(
       new AssignRoleCommand(telegramUserId, dto.role),
     );
@@ -68,7 +67,7 @@ export class AdminController {
   })
   async getUser(
     @Param('telegramUserId') telegramUserId: string,
-  ): Promise<GeneralApiResponseDto<AdminUserResDto>> {
+  ): Promise<AdminUserResDto> {
     return this.queryBus.execute(new GetAdminUserQuery(telegramUserId));
   }
 
@@ -81,7 +80,7 @@ export class AdminController {
   })
   async getOverviewReport(
     @Query() range: ReportRangeDto,
-  ): Promise<GeneralApiResponseDto<OverviewReportResDto>> {
+  ): Promise<OverviewReportResDto> {
     return this.queryBus.execute(new GetOverviewReportQuery(range));
   }
 }

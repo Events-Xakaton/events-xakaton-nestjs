@@ -1,8 +1,6 @@
-import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
+import { PAGINATION } from '@shared/constants';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 import { getPeriodRange } from '@shared/utils/period-range';
@@ -19,7 +17,7 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
 
   async execute(
     query: GetLeaderboardQuery,
-  ): Promise<GeneralApiResponseDto<LeaderboardResDto>> {
+  ): Promise<LeaderboardResDto> {
     const { period, telegramUserId } = query;
     const user = telegramUserId
       ? await this.userContextService.requireUserByTelegram(telegramUserId)
@@ -86,14 +84,10 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
       }
     }
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        period,
-        top,
-        currentUser,
-      },
-    );
+    return {
+      period,
+      top,
+      currentUser,
+    };
   }
 }

@@ -13,7 +13,6 @@ import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { OkStatusResDto } from '@shared/types';
 
 import { MarkNotificationReadCommand } from './commands';
@@ -41,7 +40,7 @@ export class NotificationsController {
   async list(
     @Req() req: Request & { telegramUserId?: string },
     @Query() query: ListNotificationsDto,
-  ): Promise<GeneralApiResponseDto<NotificationsPageResDto>> {
+  ): Promise<NotificationsPageResDto> {
     return this.queryBus.execute(
       new ListNotificationsQuery(req.telegramUserId, query),
     );
@@ -62,7 +61,7 @@ export class NotificationsController {
   async markRead(
     @Req() req: Request & { telegramUserId?: string },
     @Param('notificationId') notificationId: string,
-  ): Promise<GeneralApiResponseDto<OkStatusResDto>> {
+  ): Promise<OkStatusResDto> {
     return this.commandBus.execute(
       new MarkNotificationReadCommand(req.telegramUserId, notificationId),
     );

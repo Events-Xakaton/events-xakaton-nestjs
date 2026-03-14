@@ -1,8 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -21,7 +19,7 @@ export class UpdateCommentHandler implements ICommandHandler<UpdateCommentComman
 
   async execute(
     command: UpdateCommentCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, commentId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -67,12 +65,8 @@ export class UpdateCommentHandler implements ICommandHandler<UpdateCommentComman
       data: { text: trimmed },
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'updated',
-      },
-    );
+    return {
+      status: 'updated',
+    };
   }
 }

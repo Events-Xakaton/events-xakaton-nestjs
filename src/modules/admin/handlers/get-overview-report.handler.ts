@@ -1,9 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
 import { EventParticipationStatus, EventStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 
 import { OverviewReportResDto } from '../dto/response';
@@ -15,7 +13,7 @@ export class GetOverviewReportHandler implements IQueryHandler<GetOverviewReport
 
   async execute(
     query: GetOverviewReportQuery,
-  ): Promise<GeneralApiResponseDto<OverviewReportResDto>> {
+  ): Promise<OverviewReportResDto> {
     const fromUtc = query.range.fromUtc
       ? new Date(query.range.fromUtc)
       : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -83,30 +81,26 @@ export class GetOverviewReportHandler implements IQueryHandler<GetOverviewReport
       }),
     ]);
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        period: { fromUtc: fromUtc.toISOString(), toUtc: toUtc.toISOString() },
-        users: { total: usersTotal, verified: usersVerified },
-        clubs: { active: clubsActive, createdInPeriod: clubsCreatedInPeriod },
-        events: {
-          createdInPeriod: eventsCreatedInPeriod,
-          byStatus: {
-            upcoming: eventsUpcoming,
-            ongoing: eventsOngoing,
-            past: eventsPast,
-            cancelled: eventsCancelled,
-          },
+    return {
+      period: { fromUtc: fromUtc.toISOString(), toUtc: toUtc.toISOString() },
+      users: { total: usersTotal, verified: usersVerified },
+      clubs: { active: clubsActive, createdInPeriod: clubsCreatedInPeriod },
+      events: {
+        createdInPeriod: eventsCreatedInPeriod,
+        byStatus: {
+          upcoming: eventsUpcoming,
+          ongoing: eventsOngoing,
+          past: eventsPast,
+          cancelled: eventsCancelled,
         },
-        engagement: {
-          joinsInPeriod,
-          feedbacksInPeriod,
-          analyticsEventsInPeriod,
-          activeUsersInPeriod: activeUsers.length,
-        },
-        points: { awardedInPeriod: awardedRaw._sum.deltaPoints ?? 0 },
       },
-    );
+      engagement: {
+        joinsInPeriod,
+        feedbacksInPeriod,
+        analyticsEventsInPeriod,
+        activeUsersInPeriod: activeUsers.length,
+      },
+      points: { awardedInPeriod: awardedRaw._sum.deltaPoints ?? 0 },
+    };
   }
 }

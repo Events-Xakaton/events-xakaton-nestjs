@@ -15,7 +15,6 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { IdResDto, StatusResDto } from '@shared/types';
 
 import {
@@ -59,7 +58,7 @@ export class ClubsController {
   @ApiResponse({ status: HttpStatus.OK, type: [ClubListItemResDto] })
   list(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<GeneralApiResponseDto<ClubListItemResDto[]>> {
+  ): Promise<ClubListItemResDto[]> {
     return this.queryBus.execute(new ListClubsQuery(req.telegramUserId));
   }
 
@@ -70,7 +69,7 @@ export class ClubsController {
   @ApiResponse({ status: HttpStatus.OK, type: [ClubAuthoringItemResDto] })
   listEventAuthoringClubs(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<GeneralApiResponseDto<ClubAuthoringItemResDto[]>> {
+  ): Promise<ClubAuthoringItemResDto[]> {
     return this.queryBus.execute(
       new ListEventAuthoringClubsQuery(req.telegramUserId),
     );
@@ -84,7 +83,7 @@ export class ClubsController {
   getOne(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
-  ): Promise<GeneralApiResponseDto<ClubDetailResDto>> {
+  ): Promise<ClubDetailResDto> {
     return this.queryBus.execute(new GetClubQuery(req.telegramUserId, clubId));
   }
 
@@ -95,7 +94,7 @@ export class ClubsController {
   listMembers(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
-  ): Promise<GeneralApiResponseDto<ClubMemberResDto[]>> {
+  ): Promise<ClubMemberResDto[]> {
     return this.queryBus.execute(
       new ListClubMembersQuery(req.telegramUserId, clubId),
     );
@@ -109,7 +108,7 @@ export class ClubsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
     @Query() queryDto: ListClubEventsReqDto,
-  ): Promise<GeneralApiResponseDto<ClubEventsPageResDto>> {
+  ): Promise<ClubEventsPageResDto> {
     return this.queryBus.execute(
       new ListClubEventsQuery(
         req.telegramUserId,
@@ -135,7 +134,7 @@ export class ClubsController {
   create(
     @Req() req: Request & { telegramUserId?: string },
     @Body() dto: CreateClubReqDto,
-  ): Promise<GeneralApiResponseDto<IdResDto>> {
+  ): Promise<IdResDto> {
     return this.commandBus.execute(
       new CreateClubCommand(req.telegramUserId, dto),
     );
@@ -157,7 +156,7 @@ export class ClubsController {
   join(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new JoinClubCommand(req.telegramUserId, clubId),
     );
@@ -179,7 +178,7 @@ export class ClubsController {
   leave(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new LeaveClubCommand(req.telegramUserId, clubId),
     );
@@ -202,7 +201,7 @@ export class ClubsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
     @Body() dto: UpdateClubReqDto,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new UpdateClubCommand(req.telegramUserId, clubId, dto),
     );
@@ -224,7 +223,7 @@ export class ClubsController {
   delete(
     @Req() req: Request & { telegramUserId?: string },
     @Param('clubId') clubId: string,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new DeleteClubCommand(req.telegramUserId, clubId),
     );

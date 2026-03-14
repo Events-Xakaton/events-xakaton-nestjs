@@ -4,7 +4,6 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { StatusResDto } from '@shared/types';
 
 import { FollowCommand, UnfollowCommand } from './commands';
@@ -29,7 +28,7 @@ export class ConnectionsController {
   })
   async list(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<GeneralApiResponseDto<FollowingItemResDto[]>> {
+  ): Promise<FollowingItemResDto[]> {
     return this.queryBus.execute(new ListFollowingQuery(req.telegramUserId));
   }
 
@@ -55,7 +54,7 @@ export class ConnectionsController {
   async follow(
     @Req() req: Request & { telegramUserId?: string },
     @Param('targetTelegramUserId') targetTelegramUserId: string,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new FollowCommand(req.telegramUserId, targetTelegramUserId),
     );
@@ -79,7 +78,7 @@ export class ConnectionsController {
   async unfollow(
     @Req() req: Request & { telegramUserId?: string },
     @Param('targetTelegramUserId') targetTelegramUserId: string,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new UnfollowCommand(req.telegramUserId, targetTelegramUserId),
     );

@@ -1,9 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
+import { PAGINATION } from '@shared/constants';
 import { ClubMembershipStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -20,7 +19,7 @@ export class ListClubMembersHandler implements IQueryHandler<ListClubMembersQuer
 
   async execute(
     query: ListClubMembersQuery,
-  ): Promise<GeneralApiResponseDto<ClubMemberResDto[]>> {
+  ): Promise<ClubMemberResDto[]> {
     const { telegramUserId, clubId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -70,10 +69,6 @@ export class ListClubMembersHandler implements IQueryHandler<ListClubMembersQuer
         }),
     );
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      items,
-    );
+    return items;
   }
 }

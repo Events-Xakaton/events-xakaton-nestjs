@@ -2,8 +2,6 @@ import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
-import { HttpStatusDescriptions } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -23,7 +21,7 @@ export class VerifyCodeHandler implements ICommandHandler<VerifyCodeCommand> {
 
   async execute(
     command: VerifyCodeCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, reddyUserKey, code } = command;
 
     const user = await this.prisma.user.findUnique({
@@ -49,12 +47,8 @@ export class VerifyCodeHandler implements ICommandHandler<VerifyCodeCommand> {
 
     void this.analyticsService.track({ eventName: 'auth.verify_code_success' });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'verified',
-      },
-    );
+    return {
+      status: 'verified',
+    };
   }
 }

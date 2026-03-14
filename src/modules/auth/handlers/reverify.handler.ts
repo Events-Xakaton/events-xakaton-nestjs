@@ -2,7 +2,6 @@ import { HttpStatus } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 
@@ -19,7 +18,7 @@ export class ReverifyHandler implements ICommandHandler<ReverifyCommand> {
 
   async execute(
     command: ReverifyCommand,
-  ): Promise<GeneralApiResponseDto<OtpRequestedResDto>> {
+  ): Promise<OtpRequestedResDto> {
     const { telegramUserId } = command;
 
     const user = await this.prisma.user.findUnique({

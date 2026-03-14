@@ -1,8 +1,6 @@
-import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
+import { PAGINATION } from '@shared/constants';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -18,7 +16,7 @@ export class GetPointsHistoryHandler implements IQueryHandler<GetPointsHistoryQu
 
   async execute(
     query: GetPointsHistoryQuery,
-  ): Promise<GeneralApiResponseDto<PointsHistoryItemResDto[]>> {
+  ): Promise<PointsHistoryItemResDto[]> {
     const user = await this.userContextService.requireUserByTelegram(
       query.telegramUserId,
     );
@@ -30,10 +28,6 @@ export class GetPointsHistoryHandler implements IQueryHandler<GetPointsHistoryQu
       select: { id: true, ruleCode: true, deltaPoints: true, createdAt: true },
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      history,
-    );
+    return history;
   }
 }

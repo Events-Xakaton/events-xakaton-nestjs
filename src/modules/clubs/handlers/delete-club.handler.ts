@@ -3,9 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions } from '@shared/constants';
 import { ClubMembershipStatus, EventStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -24,7 +22,7 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
 
   async execute(
     command: DeleteClubCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, clubId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -42,13 +40,9 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
 
     // Идемпотентность: уже удалённый клуб
     if (club.isDeleted) {
-      return new GeneralApiResponseDto(
-        HttpStatus.OK,
-        HttpStatusDescriptions[HttpStatus.OK],
-        {
-          status: 'deleted',
-        },
-      );
+      return {
+        status: 'deleted',
+      };
     }
 
     const canManage = await this.userContextService.canManageClub(
@@ -108,12 +102,8 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
       entityId: clubId,
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'deleted',
-      },
-    );
+    return {
+      status: 'deleted',
+    };
   }
 }

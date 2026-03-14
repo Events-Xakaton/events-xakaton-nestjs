@@ -1,9 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions, PAGINATION } from '@shared/constants';
+import { PAGINATION } from '@shared/constants';
 import { EventParticipationStatus, EventStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 
@@ -21,7 +20,7 @@ export class ListEventsHandler implements IQueryHandler<ListEventsQuery> {
 
   async execute(
     query: ListEventsQuery,
-  ): Promise<GeneralApiResponseDto<EventListItemResDto[]>> {
+  ): Promise<EventListItemResDto[]> {
     const { telegramUserId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -68,10 +67,6 @@ export class ListEventsHandler implements IQueryHandler<ListEventsQuery> {
           e.status === EventStatus.Upcoming || e.status === EventStatus.Ongoing,
       );
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      items,
-    );
+    return items;
   }
 }

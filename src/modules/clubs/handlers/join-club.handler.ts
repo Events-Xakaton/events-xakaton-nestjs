@@ -4,9 +4,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions, POINTS } from '@shared/constants';
+import { POINTS } from '@shared/constants';
 import { ClubMembershipRole, ClubMembershipStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -26,7 +25,7 @@ export class JoinClubHandler implements ICommandHandler<JoinClubCommand> {
 
   async execute(
     command: JoinClubCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, clubId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -99,12 +98,8 @@ export class JoinClubHandler implements ICommandHandler<JoinClubCommand> {
       entityId: clubId,
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: ClubMembershipStatus.Joined,
-      },
-    );
+    return {
+      status: ClubMembershipStatus.Joined,
+    };
   }
 }

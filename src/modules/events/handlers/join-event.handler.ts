@@ -5,9 +5,8 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions, POINTS } from '@shared/constants';
+import { POINTS } from '@shared/constants';
 import { EventParticipationStatus, EventStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -30,7 +29,7 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
 
   async execute(
     command: JoinEventCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, eventId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -121,12 +120,8 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
       entityId: eventId,
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: EventParticipationStatus.Joined,
-      },
-    );
+    return {
+      status: EventParticipationStatus.Joined,
+    };
   }
 }

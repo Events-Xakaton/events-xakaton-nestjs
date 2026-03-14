@@ -3,8 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions, POINTS } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
+import { POINTS } from '@shared/constants';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -23,7 +22,7 @@ export class SubmitEventFeedbackHandler implements ICommandHandler<SubmitEventFe
 
   async execute(
     command: SubmitEventFeedbackCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, eventId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -76,12 +75,8 @@ export class SubmitEventFeedbackHandler implements ICommandHandler<SubmitEventFe
       context: { rating: dto.rating },
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'feedback_saved',
-      },
-    );
+    return {
+      status: 'feedback_saved',
+    };
   }
 }

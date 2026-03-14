@@ -4,7 +4,6 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
-import { GeneralApiResponseDto } from '@shared/dto';
 
 import { LeaderboardQueryDto } from './dto/leaderboard-query.dto';
 import {
@@ -32,7 +31,7 @@ export class GamificationController {
     type: [PointsRuleResDto],
     description: 'Список правил начисления',
   })
-  async getRules(): Promise<GeneralApiResponseDto<PointsRuleResDto[]>> {
+  async getRules(): Promise<PointsRuleResDto[]> {
     return this.queryBus.execute(new GetPointsRulesQuery());
   }
 
@@ -46,7 +45,7 @@ export class GamificationController {
   })
   async getHistory(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<GeneralApiResponseDto<PointsHistoryItemResDto[]>> {
+  ): Promise<PointsHistoryItemResDto[]> {
     return this.queryBus.execute(new GetPointsHistoryQuery(req.telegramUserId));
   }
 
@@ -60,7 +59,7 @@ export class GamificationController {
   })
   async getBalance(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<GeneralApiResponseDto<PointsBalanceResDto>> {
+  ): Promise<PointsBalanceResDto> {
     return this.queryBus.execute(new GetPointsBalanceQuery(req.telegramUserId));
   }
 
@@ -75,7 +74,7 @@ export class GamificationController {
   async getLeaderboard(
     @Req() req: Request & { telegramUserId?: string },
     @Query() query: LeaderboardQueryDto,
-  ): Promise<GeneralApiResponseDto<LeaderboardResDto>> {
+  ): Promise<LeaderboardResDto> {
     return this.queryBus.execute(
       new GetLeaderboardQuery(query.period, req.telegramUserId),
     );

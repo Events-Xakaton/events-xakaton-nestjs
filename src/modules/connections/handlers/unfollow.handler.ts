@@ -2,8 +2,6 @@ import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
-import { HttpStatusDescriptions } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -21,7 +19,7 @@ export class UnfollowHandler implements ICommandHandler<UnfollowCommand> {
 
   async execute(
     command: UnfollowCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, targetTelegramUserId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -46,12 +44,8 @@ export class UnfollowHandler implements ICommandHandler<UnfollowCommand> {
       context: { targetTelegramUserId },
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'unfollowed',
-      },
-    );
+    return {
+      status: 'unfollowed',
+    };
   }
 }

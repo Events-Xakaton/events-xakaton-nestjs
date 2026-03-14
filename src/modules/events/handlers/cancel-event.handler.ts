@@ -4,9 +4,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AnalyticsService } from '@analytics/analytics.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
 import { PointsService } from '@points/points.service';
-import { HttpStatusDescriptions } from '@shared/constants';
 import { EventParticipationStatus, EventStatus } from '@shared/domain';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -28,7 +26,7 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
 
   async execute(
     command: CancelEventCommand,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     const { telegramUserId, eventId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -69,13 +67,9 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
       endsAtUtc: event.endsAtUtc,
     });
     if (computedStatus === EventStatus.Cancelled) {
-      return new GeneralApiResponseDto(
-        HttpStatus.OK,
-        HttpStatusDescriptions[HttpStatus.OK],
-        {
-          status: EventStatus.Cancelled,
-        },
-      );
+      return {
+        status: EventStatus.Cancelled,
+      };
     }
 
     await this.prisma.event.update({
@@ -108,12 +102,8 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
       entityId: eventId,
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: EventStatus.Cancelled,
-      },
-    );
+    return {
+      status: EventStatus.Cancelled,
+    };
   }
 }

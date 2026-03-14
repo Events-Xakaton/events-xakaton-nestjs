@@ -13,7 +13,6 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { IdResDto, StatusResDto } from '@shared/types';
 
 import {
@@ -59,7 +58,7 @@ export class EventsController {
   })
   list(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<GeneralApiResponseDto<EventListItemResDto[]>> {
+  ): Promise<EventListItemResDto[]> {
     return this.queryBus.execute(new ListEventsQuery(req.telegramUserId));
   }
 
@@ -78,7 +77,7 @@ export class EventsController {
   })
   random(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<GeneralApiResponseDto<IdResDto>> {
+  ): Promise<IdResDto> {
     return this.queryBus.execute(new GetRandomEventQuery(req.telegramUserId));
   }
 
@@ -97,7 +96,7 @@ export class EventsController {
   getOne(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
-  ): Promise<GeneralApiResponseDto<EventDetailResDto>> {
+  ): Promise<EventDetailResDto> {
     return this.queryBus.execute(
       new GetEventQuery(req.telegramUserId, eventId),
     );
@@ -114,7 +113,7 @@ export class EventsController {
   listParticipants(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
-  ): Promise<GeneralApiResponseDto<EventParticipantResDto[]>> {
+  ): Promise<EventParticipantResDto[]> {
     return this.queryBus.execute(
       new ListEventParticipantsQuery(req.telegramUserId, eventId),
     );
@@ -134,7 +133,7 @@ export class EventsController {
   create(
     @Req() req: Request & { telegramUserId?: string },
     @Body() dto: CreateEventReqDto,
-  ): Promise<GeneralApiResponseDto<IdResDto>> {
+  ): Promise<IdResDto> {
     return this.commandBus.execute(
       new CreateEventCommand(req.telegramUserId, dto),
     );
@@ -159,7 +158,7 @@ export class EventsController {
   join(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new JoinEventCommand(req.telegramUserId, eventId),
     );
@@ -184,7 +183,7 @@ export class EventsController {
   unjoin(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new UnjoinEventCommand(req.telegramUserId, eventId),
     );
@@ -210,7 +209,7 @@ export class EventsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
     @Body() dto: EventFeedbackReqDto,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new SubmitEventFeedbackCommand(req.telegramUserId, eventId, dto),
     );
@@ -236,7 +235,7 @@ export class EventsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
     @Body() dto: UpdateEventReqDto,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new UpdateEventCommand(req.telegramUserId, eventId, dto),
     );
@@ -261,7 +260,7 @@ export class EventsController {
   cancel(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
-  ): Promise<GeneralApiResponseDto<StatusResDto>> {
+  ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new CancelEventCommand(req.telegramUserId, eventId),
     );

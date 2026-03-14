@@ -1,8 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { HttpStatusDescriptions } from '@shared/constants';
-import { GeneralApiResponseDto } from '@shared/dto';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { OkStatusResDto } from '@shared/types';
@@ -19,7 +17,7 @@ export class MarkNotificationReadHandler implements ICommandHandler<MarkNotifica
 
   async execute(
     command: MarkNotificationReadCommand,
-  ): Promise<GeneralApiResponseDto<OkStatusResDto>> {
+  ): Promise<OkStatusResDto> {
     const user = await this.userContextService.requireUserByTelegram(
       command.telegramUserId,
     );
@@ -40,12 +38,8 @@ export class MarkNotificationReadHandler implements ICommandHandler<MarkNotifica
       data: { isRead: true },
     });
 
-    return new GeneralApiResponseDto(
-      HttpStatus.OK,
-      HttpStatusDescriptions[HttpStatus.OK],
-      {
-        status: 'ok' as const,
-      },
-    );
+    return {
+      status: 'ok' as const,
+    };
   }
 }
