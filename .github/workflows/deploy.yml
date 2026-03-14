@@ -25,6 +25,8 @@ jobs:
             set -e
             cd /opt/tribe-events-new/backend/events-xakaton-nestjs
 
+            git config --global --add safe.directory /opt/tribe-events-new/backend/events-xakaton-nestjs
+
             echo "→ Pulling latest code..."
             git pull origin main
 
