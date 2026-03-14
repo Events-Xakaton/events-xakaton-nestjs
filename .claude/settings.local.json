@@ -62,7 +62,18 @@
       "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && grep -A 30 '\"paths\"' tsconfig.json)",
       "Bash(sed -n '100,145p' \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs/src/modules/clubs/handlers/delete-club.handler.ts\" && echo \"===\" && sed -n '100,130p' \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs/src/modules/clubs/handlers/update-club.handler.ts\" && echo \"===\" && sed -n '75,100p' \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs/src/modules/clubs/handlers/get-club.handler.ts\")",
       "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && grep -A3 '\"baseUrl\"' tsconfig.json)",
-      "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && npm run lint 2>&1 | grep -v \"^>\" | grep -v \"^$\")"
+      "Bash(cd \"C:\\\\Users\\\\tahir\\\\Проекты\\\\Хакатон\\\\events-xakaton-nestjs\" && npm run lint 2>&1 | grep -v \"^>\" | grep -v \"^$\")",
+      "Bash(git -C \"C:/Users/tahir/Проекты/Хакатон/events\" show 4e991b9f0203706640426ca88ae0ca99a0b1f15a -- \"backend/src/shared/auth/telegram-init-data.middleware.ts\" \"backend/src/shared/filters/http-exception.filter.ts\")",
+      "Bash(git -C \"C:/Users/tahir/Проекты/Хакатон/events\" show 4e991b9f0203706640426ca88ae0ca99a0b1f15a 2>&1 | head -120)",
+      "Bash(git -C \"C:/Users/tahir/Проекты/Хакатон/events\" show 0cba83f 2>&1)",
+      "Bash(npm show:*)",
+      "Bash(cd /tmp && npm pack @telegram-apps/init-data-node 2>/dev/null && tar -tzf telegram-apps-init-data-node-*.tgz | grep \"\\\\.d\\\\.ts\" | head -20)",
+      "Bash(tar -xOf /tmp/telegram-apps-init-data-node-*.tgz package/dist/entries/node.d.ts 2>/dev/null)",
+      "Bash(tar -xOf /tmp/telegram-apps-init-data-node-*.tgz package/dist/validate.d.ts 2>/dev/null)",
+      "Bash(tar -xOf /tmp/telegram-apps-init-data-node-*.tgz package/dist/entries/shared.d.ts 2>/dev/null)",
+      "Bash(cd \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs\" && npm uninstall @tma.js/init-data-node && npm install @telegram-apps/init-data-node)",
+      "Bash(cd \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs\" && npm uninstall @telegram-apps/init-data-node && npm install @tma.js/init-data-node)",
+      "Bash(cat \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs/node_modules/@tma.js/init-data-node/dist/node/index.d.ts\" 2>/dev/null || find \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs/node_modules/@tma.js/init-data-node\" -name \"*.d.ts\" | head -10)"
     ]
   }
 }

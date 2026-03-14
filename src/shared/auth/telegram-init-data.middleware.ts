@@ -4,7 +4,7 @@ import {
   NestMiddleware,
   UnauthorizedException,
 } from '@nestjs/common';
-import { parse, validate } from '@tma.js/init-data-node';
+import { isValid, parse } from '@tma.js/init-data-node';
 import { NextFunction, Request, Response } from 'express';
 
 import { AppConfigService, EnvVariableName } from '@shared/config';
@@ -46,7 +46,11 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
 
     const nodeEnv =
       this.appConfigService.get(EnvVariableName.NODE_ENV) ?? 'development';
-    const initData = req.header('x-telegram-init-data');
+    const initDataRaw = req.header('x-telegram-init-data');
+    // Обрезаем ведущий "?", если клиент передаёт initData как query-string напрямую
+    const initData = initDataRaw?.startsWith('?')
+      ? initDataRaw.slice(1)
+      : initDataRaw?.trim();
 
     if (!initData) {
       // В dev-режиме позволяем передать просто числовой userId без подписи
@@ -69,10 +73,7 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
       throw new UnauthorizedException('Токен Telegram-бота не настроен');
     }
 
-    try {
-      // Проверяем HMAC-подпись и что initData не старше 24 часов
-      validate(initData, botToken, { expiresIn: 86400 });
-    } catch {
+    if (!isValid(initData, botToken, { expiresIn: 86400 })) {
       throw new UnauthorizedException('Некорректные данные Telegram initData');
     }
 
