@@ -1,0 +1,38 @@
+name: Deploy to production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build & deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            echo "→ Pulling latest code..."
+            git pull origin main
+
+            echo "→ Rebuilding and restarting containers..."
+            docker compose build --no-cache
+            docker compose up -d --force-recreate
+
+            echo "→ Removing dangling images..."
+            docker image prune -f
+
+            echo "✓ Deployment complete"
