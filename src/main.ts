@@ -39,6 +39,8 @@ async function bootstrap(): Promise<void> {
       'x-telegram-user-id',
       'x-device-id',
       'x-idempotency-key',
+      'idempotency-key',
+      'x-request-id',
     ],
   });
 
