@@ -1,10 +1,10 @@
 import { Inject, Injectable, OnModuleDestroy, Optional } from '@nestjs/common';
 
+import { JobsConnectionService } from '@jobs/queues';
+import { MetricsService } from '@observability/metrics.service';
 import { AppConfigService, EnvVariableName } from '@shared/config';
 
-import { MetricsService } from '../observability/metrics.service';
 import { QueueJobPayload, QueueName } from './queue.types';
-import { JobsConnectionService } from './queues/jobs-connection.service';
 
 /**
  * Высокоуровневый сервис для постановки задач в очереди BullMQ.

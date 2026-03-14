@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { Worker } from 'bullmq';
 
+import { BaseWorker } from '@jobs/workers/base.worker';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 
 import { ReminderJobPayload } from '../queue.types';
-import { BaseWorker } from '../workers/base.worker';
 
 /**
  * Worker для обработки напоминаний о начале событий.

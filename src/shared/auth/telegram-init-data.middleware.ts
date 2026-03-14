@@ -4,7 +4,7 @@ import {
   NestMiddleware,
   UnauthorizedException,
 } from '@nestjs/common';
-import { isValid, parse } from '@tma.js/init-data-node';
+import { parse, validate } from '@telegram-apps/init-data-node';
 import { NextFunction, Request, Response } from 'express';
 
 import { AppConfigService, EnvVariableName } from '@shared/config';
@@ -73,9 +73,10 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
       throw new UnauthorizedException('Токен Telegram-бота не настроен');
     }
 
-    if (!isValid(initData, botToken, { expiresIn: 86400 })) {
-      throw new UnauthorizedException('Некорректные данные Telegram initData');
-    }
+    /**
+     * Выбросит ошибку при проблемах с init data
+     */
+    validate(initData, botToken, { expiresIn: 86400 });
 
     const parsedData = parse(initData);
     if (!parsedData.user?.id) {

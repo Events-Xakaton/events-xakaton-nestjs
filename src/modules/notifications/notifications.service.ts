@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '@shared/prisma/prisma.service';
-import { UserContextService } from '@shared/user-context/user-context.service';
+import { UserContextService } from '@shared/user-context';
 
 import { ListNotificationsDto } from './dto/list-notifications.dto';
 

@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
 import { AnalyticsModule } from '@analytics/analytics.module';
+import { NotificationsModule } from '@modules/notifications';
 
-import { NotificationsModule } from '../notifications/notifications.module';
 import { ClubsController } from './clubs.controller';
 import {
   CreateClubHandler,

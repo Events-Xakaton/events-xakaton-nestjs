@@ -9,7 +9,7 @@
   "scripts": {
     "build": "nest build",
     "start": "node dist/main.js",
-    "start:dev": "nest start --watch",
+    "start:dev": "nest start --watch | pino-pretty -c -C",
     "typecheck": "tsc --noEmit --skipLibCheck -p tsconfig.json",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -33,7 +33,7 @@
     "@opentelemetry/exporter-trace-otlp-http": "^0.213.0",
     "@opentelemetry/sdk-node": "^0.213.0",
     "@prisma/client": "^6.19.2",
-    "@tma.js/init-data-node": "^2.0.6",
+    "@telegram-apps/init-data-node": "^2.0.10",
     "@types/speakeasy": "^2.0.10",
     "axios": "^1.13.6",
     "axios-retry": "^4.5.0",

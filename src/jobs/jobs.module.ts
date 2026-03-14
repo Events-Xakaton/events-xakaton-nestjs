@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 
+import { JobsConnectionService } from '@jobs/queues';
+import { ReminderSchedulerService } from '@jobs/reminders';
+import { BaseWorker } from '@jobs/workers';
+
 import { QueueService } from './queue.service';
-import { JobsConnectionService } from './queues/jobs-connection.service';
-import { ReminderSchedulerService } from './reminders/reminder.scheduler.service';
-import { BaseWorker } from './workers/base.worker';
 
 @Module({
   providers: [

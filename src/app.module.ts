@@ -9,34 +9,33 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 
+import { AnalyticsModule } from '@analytics/analytics.module';
+import { HealthModule } from '@health/health.module';
+import { JobsModule } from '@jobs/jobs.module';
+import { AdminModule } from '@modules/admin';
+import { AuthModule } from '@modules/auth';
+import { ClubsModule } from '@modules/clubs';
+import { CommentsModule } from '@modules/comments/';
+import { ConnectionsModule } from '@modules/connections';
+import { EventsModule } from '@modules/events';
+import { GamificationModule } from '@modules/gamification';
+import { NotificationsModule } from '@modules/notifications';
+import { ObservabilityModule } from '@observability/observability.module';
+import { PointsModule } from '@points/points.module';
+import { ReddyModule } from '@reddy/reddy.module';
+import { RbacGuard, TelegramInitDataMiddleware } from '@shared/auth';
 import {
   AppConfigModule,
   AppConfigService,
   EnvVariableName,
 } from '@shared/config';
+import { GeneralExceptionFilter } from '@shared/filters';
+import { IdempotencyMiddleware } from '@shared/idempotency';
 import { RequestContextMiddleware } from '@shared/observability';
 import { PrismaModule } from '@shared/prisma';
-
-import { AnalyticsModule } from './analytics/analytics.module';
-import { HealthModule } from './health/health.module';
-import { JobsModule } from './jobs/jobs.module';
-import { AdminModule } from './modules/admin/admin.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { ClubsModule } from './modules/clubs/clubs.module';
-import { CommentsModule } from './modules/comments/comments.module';
-import { ConnectionsModule } from './modules/connections/connections.module';
-import { EventsModule } from './modules/events/events.module';
-import { GamificationModule } from './modules/gamification/gamification.module';
-import { NotificationsModule } from './modules/notifications/notifications.module';
-import { ObservabilityModule } from './observability/observability.module';
-import { PointsModule } from './points/points.module';
-import { ReddyModule } from './reddy-bot/reddy.module';
-import { RbacGuard, TelegramInitDataMiddleware } from './shared/auth';
-import { GeneralExceptionFilter } from './shared/filters';
-import { IdempotencyMiddleware } from './shared/idempotency';
-import { AppThrottlerGuard } from './shared/rate-limit';
-import { RedisModule } from './shared/redis';
-import { UserContextModule } from './shared/user-context';
+import { AppThrottlerGuard } from '@shared/rate-limit';
+import { RedisModule } from '@shared/redis';
+import { UserContextModule } from '@shared/user-context';
 
 @Module({
   imports: [
