@@ -74,7 +74,11 @@
       "Bash(cd \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs\" && npm uninstall @tma.js/init-data-node && npm install @telegram-apps/init-data-node)",
       "Bash(cd \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs\" && npm uninstall @telegram-apps/init-data-node && npm install @tma.js/init-data-node)",
       "Bash(cat \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs/node_modules/@tma.js/init-data-node/dist/node/index.d.ts\" 2>/dev/null || find \"C:/Users/tahir/Проекты/Хакатон/events-xakaton-nestjs/node_modules/@tma.js/init-data-node\" -name \"*.d.ts\" | head -10)",
-      "Bash(netstat -ano | findstr \":4000\")"
+      "Bash(netstat -ano | findstr \":4000\")",
+      "WebSearch",
+      "WebFetch(domain:speckit.org)",
+      "WebFetch(domain:github.com)",
+      "Bash(python3:*)"
     ]
   }
 }

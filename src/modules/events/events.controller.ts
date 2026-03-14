@@ -64,16 +64,24 @@ export class EventsController {
 
   @Get('random')
   @ApiOperation({
-    summary: 'Случайное событие, в котором пользователь не участвует',
+    summary: 'Lucky Wheel: предопределённое случайное событие для пользователя',
+    description:
+      'Выбирает одно доступное upcoming-событие из окна ближайших K=5. ' +
+      'Пользователь не должен быть участником, должны быть свободные места. ' +
+      'Лимит: 1 запуск в UTC-день.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     type: IdResDto,
-    description: 'ID случайного события',
+    description: 'ID выбранного события',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Нет подходящих событий',
+    description:
+      'Нет доступных событий или исчерпан дневной лимит. ' +
+      'Поле `message` содержит машиночитаемый код: ' +
+      '`NO_ELIGIBLE_EVENTS` — нет подходящих событий; ' +
+      '`DAILY_LIMIT_REACHED` — лимит 1 запуск/день исчерпан.',
   })
   random(
     @Req() req: Request & { telegramUserId?: string },

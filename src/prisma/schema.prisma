@@ -71,6 +71,7 @@ model User {
   followers         Connection[]           @relation("UserFollowers")
   following         Connection[]           @relation("UserFollowing")
   comments          Comment[]              @relation("CommentAuthor")
+  luckyWheelUsages  LuckyWheelUsage[]
 }
 
 model IdentityBinding {
@@ -286,6 +287,17 @@ model PointsLedger {
   @@unique([userId, ruleCode, referenceId])
 }
 
+
+model LuckyWheelUsage {
+  id        String   @id @default(uuid())
+  userId    String
+  dayKey    String
+  usedAtUtc DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dayKey])
+  @@index([userId])
+}
 
 model AnalyticsEvent {
   id            BigInt   @id @default(autoincrement())
