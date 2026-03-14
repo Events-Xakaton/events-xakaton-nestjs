@@ -78,7 +78,8 @@
       "WebSearch",
       "WebFetch(domain:speckit.org)",
       "WebFetch(domain:github.com)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(docker network:*)"
     ]
   }
 }

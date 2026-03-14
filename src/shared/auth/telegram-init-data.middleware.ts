@@ -63,7 +63,8 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
           return;
         }
       }
-      throw new UnauthorizedException('Отсутствуют данные Telegram initData');
+
+      throw new UnauthorizedException(initData);
     }
 
     const botToken = this.appConfigService.get(
