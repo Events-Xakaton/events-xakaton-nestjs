@@ -11,7 +11,7 @@ import * as speakeasy from 'speakeasy';
 import { PrismaService } from '@shared/prisma/prisma.service';
 
 const OTP_LENGTH = 6;
-const OTP_TTL_MINUTES = 10;
+const OTP_TTL_MINUTES = 0.5;
 const OTP_MAX_ATTEMPTS = 7;
 const OTP_MAX_RESENDS = 5;
 const OTP_COOLDOWN_MINUTES = 5;
@@ -77,7 +77,7 @@ export class VerificationService {
 
     const code = this.generateCode();
     const hash = this.hashCode(code);
-    const expiresAt = new Date(now + OTP_TTL_MINUTES * 60_000);
+    const expiresAt = new Date(now + OTP_TTL_MINUTES * 600_000);
     const nextResendLeft =
       typeof lastActiveSession?.resendLeft === 'number'
         ? Math.max(0, lastActiveSession.resendLeft - 1)
@@ -151,7 +151,7 @@ export class VerificationService {
           attemptsLeft: Math.max(0, attemptsLeft),
           cooldownUntil:
             attemptsLeft <= 0
-              ? new Date(Date.now() + OTP_COOLDOWN_MINUTES * 60_000)
+              ? new Date(Date.now() + OTP_COOLDOWN_MINUTES * 30_000)
               : session.cooldownUntil,
           status: attemptsLeft <= 0 ? 'blocked' : 'active',
         },

@@ -23,8 +23,8 @@ export class AppThrottlerGuard extends ThrottlerGuard {
     return Promise.resolve(`${telegramUserId}:${deviceId}:${ip}`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected shouldSkip(_context: ExecutionContext): Promise<boolean> {
-    return Promise.resolve(false);
+  protected shouldSkip(context: ExecutionContext): Promise<boolean> {
+    // Telegraf-обработчики не имеют HTTP-контекста — пропускаем троттлинг
+    return Promise.resolve(context.getType() !== 'http');
   }
 }

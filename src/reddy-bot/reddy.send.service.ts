@@ -28,6 +28,8 @@ export class ReddySendService {
    * @throws Error если errorCode != 0 в ответе API
    */
   async sendDirectMessage(userKey: string, text: string): Promise<void> {
+    console.log(userKey);
+
     if (this.httpClient.mockMode) {
       this.logger.warn(
         `Reddy credentials are not configured, mock send to userKey=${userKey}`,

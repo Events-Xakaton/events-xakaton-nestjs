@@ -29,6 +29,12 @@ export class GeneralExceptionFilter implements ExceptionFilter {
   constructor(private readonly logger: PinoLogger) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
+    // Фильтр обрабатывает только HTTP-контекст; Telegraf-апдейты — пропускаем
+    if (host.getType() !== 'http') {
+      this.logger.error({ err: exception }, 'Unhandled exception in non-HTTP context');
+      return;
+    }
+
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<

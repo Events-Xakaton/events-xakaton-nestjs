@@ -253,6 +253,7 @@ model Connection {
   followed       User     @relation("UserFollowers", fields: [followedUserId], references: [id], onDelete: Cascade)
 
   @@id([followerUserId, followedUserId])
+  @@index([followedUserId])
 }
 
 model Notification {

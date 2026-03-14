@@ -22,9 +22,7 @@ export class RequestCodeHandler implements ICommandHandler<RequestCodeCommand> {
     private readonly analyticsService: AnalyticsService,
   ) {}
 
-  async execute(
-    command: RequestCodeCommand,
-  ): Promise<OtpRequestedResDto> {
+  async execute(command: RequestCodeCommand): Promise<OtpRequestedResDto> {
     const { telegramUserId, reddyUserKey } = command;
 
     if (!reddyUserKey || !String(reddyUserKey).trim()) {
@@ -38,6 +36,7 @@ export class RequestCodeHandler implements ICommandHandler<RequestCodeCommand> {
       await this.userContextService.requireUserByTelegram(telegramUserId);
 
     const reddyUser = await this.reddyIdentityService.resolve(reddyUserKey);
+
     if (!reddyUser.id) {
       throw new AppException({
         statusCode: HttpStatus.BAD_REQUEST,

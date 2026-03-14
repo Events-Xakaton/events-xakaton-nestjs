@@ -13,6 +13,7 @@ import { AnalyticsModule } from '@analytics/analytics.module';
 import { HealthModule } from '@health/health.module';
 import { JobsModule } from '@jobs/jobs.module';
 import { AdminModule } from '@modules/admin';
+import { BotModule } from '@modules/bot/bot.module';
 import { AuthModule } from '@modules/auth';
 import { ClubsModule } from '@modules/clubs';
 import { CommentsModule } from '@modules/comments/';
@@ -95,6 +96,7 @@ import { UserContextModule } from '@shared/user-context';
     ObservabilityModule,
     NotificationsModule,
     AdminModule,
+    BotModule,
     HealthModule,
   ],
   providers: [
