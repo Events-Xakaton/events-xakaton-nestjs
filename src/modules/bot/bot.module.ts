@@ -8,6 +8,7 @@ import {
 } from '@shared/config';
 
 import { BotUpdate } from './bot.update';
+import { TelegramNotificationService } from './telegram-notification.service';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { BotUpdate } from './bot.update';
       }),
     }),
   ],
-  providers: [BotUpdate],
+  providers: [BotUpdate, TelegramNotificationService],
+  exports: [TelegramNotificationService],
 })
 export class BotModule {}

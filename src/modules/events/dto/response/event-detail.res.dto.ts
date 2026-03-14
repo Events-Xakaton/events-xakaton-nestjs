@@ -21,6 +21,8 @@ export class EventDetailResDto {
   @ApiProperty({ nullable: true }) readonly coverSeed: string | null;
   @ApiProperty() readonly joinedByMe: boolean;
   @ApiProperty() readonly canManage: boolean;
+  @ApiProperty({ description: 'Организатор уже подтвердил присутствие участников' })
+  readonly attendanceConfirmed: boolean;
 
   constructor(data: {
     id: string;
@@ -41,6 +43,7 @@ export class EventDetailResDto {
     coverSeed: string | null;
     joinedByMe: boolean;
     canManage: boolean;
+    attendanceConfirmed: boolean;
   }) {
     this.id = data.id;
     this.title = data.title;
@@ -60,5 +63,6 @@ export class EventDetailResDto {
     this.coverSeed = data.coverSeed;
     this.joinedByMe = data.joinedByMe;
     this.canManage = data.canManage;
+    this.attendanceConfirmed = data.attendanceConfirmed;
   }
 }

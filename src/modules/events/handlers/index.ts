@@ -1,4 +1,5 @@
 export { CancelEventHandler } from './cancel-event.handler';
+export { ConfirmAttendanceHandler } from './confirm-attendance.handler';
 export { CreateEventHandler } from './create-event.handler';
 export { GetEventHandler } from './get-event.handler';
 export { GetRandomEventHandler } from './get-random-event.handler';

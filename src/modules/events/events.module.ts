@@ -6,11 +6,13 @@ import { JobsModule } from '@jobs/jobs.module';
 import { EventChangedWorker } from '@jobs/workers/event-changed.worker';
 import { ReddyModule } from '@reddy/reddy.module';
 
+import { BotModule } from '../bot/bot.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { EventStatusService } from './event-status.service';
 import { EventsController } from './events.controller';
 import {
   CancelEventHandler,
+  ConfirmAttendanceHandler,
   CreateEventHandler,
   GetEventHandler,
   GetRandomEventHandler,
@@ -26,6 +28,7 @@ const handlers = [
   CreateEventHandler,
   UpdateEventHandler,
   CancelEventHandler,
+  ConfirmAttendanceHandler,
   JoinEventHandler,
   UnjoinEventHandler,
   SubmitEventFeedbackHandler,
@@ -39,6 +42,7 @@ const handlers = [
   imports: [
     CqrsModule,
     JobsModule,
+    BotModule,
     NotificationsModule,
     ReddyModule,
     AnalyticsModule,

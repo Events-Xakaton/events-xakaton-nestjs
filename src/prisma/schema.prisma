@@ -71,7 +71,8 @@ model User {
   followers         Connection[]           @relation("UserFollowers")
   following         Connection[]           @relation("UserFollowing")
   comments          Comment[]              @relation("CommentAuthor")
-  luckyWheelUsages  LuckyWheelUsage[]
+  luckyWheelUsages       LuckyWheelUsage[]
+  attendanceConfirmations AttendanceConfirmation[]
 }
 
 model IdentityBinding {
@@ -179,8 +180,9 @@ model Event {
   updatedAt       DateTime       @updatedAt
   club            Club?          @relation(fields: [clubId], references: [id], onDelete: SetNull)
   creator         User           @relation("EventCreator", fields: [creatorUserId], references: [id], onDelete: Restrict)
-  tags            EventTag[]
-  participations  EventParticipation[]
+  tags                    EventTag[]
+  participations          EventParticipation[]
+  attendanceConfirmations AttendanceConfirmation[]
 
   @@index([clubId])
   @@index([clubId, startsAtUtc])
@@ -287,6 +289,18 @@ model PointsLedger {
   @@unique([userId, ruleCode, referenceId])
 }
 
+
+model AttendanceConfirmation {
+  eventId     String
+  userId      String
+  rating      Int?
+  confirmedAt DateTime @default(now())
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+  @@index([eventId])
+}
 
 model LuckyWheelUsage {
   id        String   @id @default(uuid())

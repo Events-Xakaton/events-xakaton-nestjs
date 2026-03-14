@@ -30,18 +30,22 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
 
-    const event = await this.prisma.event.findFirst({
-      where: { id: eventId, isDeleted: false },
-      include: {
-        creator: { select: { id: true, telegramUserId: true, fullName: true } },
-        club: { select: { id: true, title: true } },
-        tags: { select: { tag: true } },
-        participations: {
-          where: { status: EventParticipationStatus.Joined },
-          select: { userId: true },
+    const [event, attendanceConfirmedCount] = await Promise.all([
+      this.prisma.event.findFirst({
+        where: { id: eventId, isDeleted: false },
+        include: {
+          creator: { select: { id: true, telegramUserId: true, fullName: true } },
+          club: { select: { id: true, title: true } },
+          tags: { select: { tag: true } },
+          participations: {
+            where: { status: EventParticipationStatus.Joined },
+            select: { userId: true },
+          },
         },
-      },
-    });
+      }),
+      this.prisma.attendanceConfirmation.count({ where: { eventId } }),
+    ]);
+
     if (!event) {
       throw new AppException({
         statusCode: HttpStatus.NOT_FOUND,
@@ -84,6 +88,7 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
       coverSeed: event.coverSeed ?? null,
       joinedByMe,
       canManage,
+      attendanceConfirmed: attendanceConfirmedCount > 0,
     });
   }
 

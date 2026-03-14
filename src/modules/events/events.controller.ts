@@ -17,6 +17,7 @@ import { IdResDto, StatusResDto } from '@shared/types';
 
 import {
   CancelEventCommand,
+  ConfirmAttendanceCommand,
   CreateEventCommand,
   JoinEventCommand,
   SubmitEventFeedbackCommand,
@@ -24,6 +25,7 @@ import {
   UpdateEventCommand,
 } from './commands';
 import {
+  ConfirmAttendanceReqDto,
   CreateEventReqDto,
   EventFeedbackReqDto,
   UpdateEventReqDto,
@@ -246,6 +248,40 @@ export class EventsController {
   ): Promise<StatusResDto> {
     return this.commandBus.execute(
       new UpdateEventCommand(req.telegramUserId, eventId, dto),
+    );
+  }
+
+  @Post(':eventId/attendance')
+  @ApiOperation({ summary: 'Подтвердить присутствие участников и выставить оценки' })
+  @ApiParam({ name: 'eventId', description: 'UUID события' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: StatusResDto,
+    description: 'Подтверждения применены',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Событие не в статусе past или пустой список',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Не создатель события',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Событие не найдено',
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'Подтверждения уже были отправлены',
+  })
+  confirmAttendance(
+    @Req() req: Request & { telegramUserId?: string },
+    @Param('eventId') eventId: string,
+    @Body() dto: ConfirmAttendanceReqDto,
+  ): Promise<StatusResDto> {
+    return this.commandBus.execute(
+      new ConfirmAttendanceCommand(req.telegramUserId, eventId, dto),
     );
   }
 
