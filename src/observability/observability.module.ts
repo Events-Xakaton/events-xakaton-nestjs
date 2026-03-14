@@ -25,6 +25,6 @@ export class ObservabilityModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(HttpMetricsMiddleware)
-      .forRoutes({ path: '*', method: RequestMethod.ALL });
+      .forRoutes({ path: '*path', method: RequestMethod.ALL });
   }
 }

@@ -122,6 +122,6 @@ export class AppModule implements NestModule {
         TelegramInitDataMiddleware,
         IdempotencyMiddleware,
       )
-      .forRoutes({ path: '*', method: RequestMethod.ALL });
+      .forRoutes({ path: '*path', method: RequestMethod.ALL });
   }
 }

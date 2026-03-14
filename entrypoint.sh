@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-echo "→ Applying database migrations..."
-npm run prisma:deploy
+echo "→ Applying database schema..."
+npm run prisma:push -- --accept-data-loss
 
 echo "→ Seeding database..."
 npm run seed
