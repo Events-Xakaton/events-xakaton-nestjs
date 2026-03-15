@@ -27,6 +27,17 @@ export class UnjoinEventHandler implements ICommandHandler<UnjoinEventCommand> {
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
 
+    const event = await this.prisma.event.findUnique({
+      where: { id: eventId },
+      select: { creatorUserId: true },
+    });
+    if (event?.creatorUserId === user.id) {
+      throw new AppException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: 'Создатель не может покинуть своё событие',
+      });
+    }
+
     const participation = await this.prisma.eventParticipation.findUnique({
       where: { eventId_userId: { eventId, userId: user.id } },
     });

@@ -5,7 +5,7 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { AchievementCheckerService } from '@modules/achievements/achievement-checker.service';
 import { PointsService } from '@points/points.service';
 import { PAGINATION, POINTS } from '@shared/constants';
-import { EventStatus } from '@shared/domain';
+import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
@@ -84,6 +84,11 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
         tags: { create: tags.map((tag) => ({ tag })) },
       },
       select: { id: true },
+    });
+
+    // Создатель автоматически становится участником события
+    await this.prisma.eventParticipation.create({
+      data: { eventId: event.id, userId: user.id, status: EventParticipationStatus.Joined },
     });
 
     await this.pointsService.award({
