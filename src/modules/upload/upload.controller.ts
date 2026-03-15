@@ -9,8 +9,8 @@ import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { EnvVariableName } from '@shared/config';
 import { AppRole, Roles } from '@shared/auth';
+import { EnvVariableName } from '@shared/config';
 
 import { UploadBannerResDto } from './dto/response/upload-banner.res.dto';
 
@@ -30,11 +30,9 @@ export class UploadController {
     },
   })
   @ApiResponse({ status: HttpStatus.CREATED, type: UploadBannerResDto })
-  uploadBanner(
-    @UploadedFile() file: Express.Multer.File,
-  ): UploadBannerResDto {
+  uploadBanner(@UploadedFile() file: Express.Multer.File): UploadBannerResDto {
     const baseUrl =
-      this.config.get<string>(EnvVariableName.MINI_APP_URL) ??
+      this.config.get<string>(EnvVariableName.MINI_APP_URL)?.replace(/\/$/, '') ??
       'http://localhost:4000';
     return { url: `${baseUrl}/api/static/banners/${file.filename}` };
   }

@@ -84,7 +84,8 @@
       "Bash(cd:*)",
       "Read(//c/Users/tahir/Проекты/Хакатон//**)",
       "Read(//c/Users/tahir/Проекты//**)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(node:*)"
     ]
   }
 }

@@ -52,7 +52,7 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
     const userMap = new Map(users.map((u) => [u.id, u]));
 
     const baseUrl =
-      this.config.get<string>(EnvVariableName.MINI_APP_URL) ??
+      this.config.get<string>(EnvVariableName.MINI_APP_URL)?.replace(/\/$/, '') ??
       'http://localhost:4000';
 
     const sorted = aggregated
