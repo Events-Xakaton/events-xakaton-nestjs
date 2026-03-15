@@ -105,18 +105,19 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
    */
   private async syncUserProfile(user: {
     id: number;
+    first_name?: string;
+    last_name?: string;
+    photo_url?: string;
     username?: string;
     firstName?: string;
     lastName?: string;
     photoUrl?: string;
   }): Promise<void> {
     const telegramUserId = BigInt(user.id);
-    const firstName = (user.firstName ?? '').trim();
-    const lastName = (user.lastName ?? '').trim();
-    const fullName =
-      `${firstName} ${lastName}`.trim() ||
-      user.username?.trim() ||
-      `tg-${user.id}`;
+    const firstName = (user.first_name ?? user.firstName ?? '').trim();
+    const lastName = (user.last_name ?? user.lastName ?? '').trim();
+    const fullName = `${firstName} ${lastName}`.trim() || `tg-${user.id}`;
+    const avatarUrl = user.photo_url ?? user.photoUrl ?? null;
 
     // Получаем текущий аватар до upsert, чтобы определить первую установку
     const existing = await this.prisma.user.findUnique({
@@ -129,19 +130,19 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
       update: {
         fullName,
         telegramUsername: user.username ?? null,
-        avatarUrl: user.photoUrl ?? null,
+        avatarUrl,
       },
       create: {
         telegramUserId,
         fullName,
         telegramUsername: user.username ?? null,
-        avatarUrl: user.photoUrl ?? null,
+        avatarUrl,
       },
       select: { id: true },
     });
 
     // Начисляем очки за заполнение профиля (аватар) — один раз в жизни
-    if (user.photoUrl && !existing?.avatarUrl) {
+    if (avatarUrl && !existing?.avatarUrl) {
       void this.pointsService.award({
         userId: upserted.id,
         ruleCode: 'profile_complete',
