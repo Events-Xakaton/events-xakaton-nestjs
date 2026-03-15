@@ -35,7 +35,7 @@ export class GetUserAchievementsHandler implements IQueryHandler<GetUserAchievem
 
     const activeAchievementId = userRecord?.activeAchievementId ?? null;
     const baseUrl =
-      this.config.get<string>(EnvVariableName.APP_BASE_URL) ??
+      this.config.get<string>(EnvVariableName.MINI_APP_URL) ??
       'http://localhost:4000';
 
     return userAchievements.map((ua) => ({

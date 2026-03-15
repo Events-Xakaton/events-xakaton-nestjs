@@ -82,7 +82,7 @@ export class ListEventParticipantsHandler implements IQueryHandler<ListEventPart
     );
 
     const baseUrl =
-      this.config.get<string>(EnvVariableName.APP_BASE_URL) ??
+      this.config.get<string>(EnvVariableName.MINI_APP_URL) ??
       'http://localhost:4000';
 
     const items = participants.map(
