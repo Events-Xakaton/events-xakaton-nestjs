@@ -51,6 +51,7 @@ export class ListEventsHandler implements IQueryHandler<ListEventsQuery> {
           title: event.title,
           status,
           startsAtUtc: event.startsAtUtc,
+          endsAtUtc: event.endsAtUtc,
           participantsCount,
           freeSpots,
           coverUrl: event.coverUrl ?? null,

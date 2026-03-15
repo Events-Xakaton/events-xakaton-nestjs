@@ -7,6 +7,7 @@ export class EventListItemResDto {
   @ApiProperty() readonly title: string;
   @ApiProperty({ enum: EventStatus }) readonly status: EventStatus;
   @ApiProperty() readonly startsAtUtc: Date;
+  @ApiProperty() readonly endsAtUtc: Date;
   @ApiProperty() readonly participantsCount: number;
   @ApiProperty({ nullable: true }) readonly freeSpots: number | null;
   @ApiProperty({ nullable: true }) readonly minLevel: number | null;
@@ -30,6 +31,7 @@ export class EventListItemResDto {
     title: string;
     status: EventStatus;
     startsAtUtc: Date;
+    endsAtUtc: Date;
     participantsCount: number;
     freeSpots: number | null;
     minLevel: number | null;
@@ -44,6 +46,7 @@ export class EventListItemResDto {
     this.title = data.title;
     this.status = data.status;
     this.startsAtUtc = data.startsAtUtc;
+    this.endsAtUtc = data.endsAtUtc;
     this.participantsCount = data.participantsCount;
     this.freeSpots = data.freeSpots;
     this.minLevel = data.minLevel;
