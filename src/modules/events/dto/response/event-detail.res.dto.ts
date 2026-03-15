@@ -23,6 +23,7 @@ export class EventDetailResDto {
   @ApiProperty({ nullable: true }) readonly clubId: string | null;
   @ApiProperty({ nullable: true }) readonly clubTitle: string | null;
   @ApiProperty({ type: [String] }) readonly tags: string[];
+  @ApiProperty({ nullable: true }) readonly coverUrl: string | null;
   @ApiProperty({ nullable: true }) readonly coverSeed: string | null;
   @ApiProperty() readonly joinedByMe: boolean;
   @ApiProperty() readonly canManage: boolean;
@@ -48,6 +49,7 @@ export class EventDetailResDto {
     clubId: string | null;
     clubTitle: string | null;
     tags: string[];
+    coverUrl: string | null;
     coverSeed: string | null;
     joinedByMe: boolean;
     canManage: boolean;
@@ -69,6 +71,7 @@ export class EventDetailResDto {
     this.clubId = data.clubId;
     this.clubTitle = data.clubTitle;
     this.tags = data.tags;
+    this.coverUrl = data.coverUrl;
     this.coverSeed = data.coverSeed;
     this.joinedByMe = data.joinedByMe;
     this.canManage = data.canManage;

@@ -86,6 +86,7 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
       clubId: event.club?.id ?? null,
       clubTitle: event.club?.title ?? null,
       tags: event.tags.map((t) => t.tag),
+      coverUrl: event.coverUrl ?? null,
       coverSeed: event.coverSeed ?? null,
       joinedByMe,
       canManage,

@@ -76,6 +76,7 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
         locationOrLink: dto.locationOrLink,
         startsAtUtc: startsAt,
         endsAtUtc: endsAt,
+        coverUrl: dto.coverUrl,
         coverSeed: dto.coverSeed,
         maxParticipants: dto.maxParticipants,
         minLevel: dto.minLevel ?? null,

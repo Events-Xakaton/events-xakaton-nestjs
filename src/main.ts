@@ -87,7 +87,7 @@ async function bootstrap(): Promise<void> {
   // enableShutdownHooks позволяет NestJS перехватывать SIGTERM/SIGINT и корректно
   // вызывать onModuleDestroy у воркеров BullMQ, закрывать Prisma и Redis-соединения
   // Раздача статических файлов из папки static/ (иконки достижений и др.)
-  app.useStaticAssets(join(__dirname, '..', 'static'), { prefix: '/static' });
+  app.useStaticAssets(join(__dirname, '..', 'static'), { prefix: '/api/static' });
 
   app.enableShutdownHooks();
 

@@ -22,6 +22,7 @@ import { ConnectionsModule } from '@modules/connections';
 import { EventsModule } from '@modules/events';
 import { GamificationModule } from '@modules/gamification';
 import { NotificationsModule } from '@modules/notifications';
+import { UploadModule } from '@modules/upload/upload.module';
 import { ObservabilityModule } from '@observability/observability.module';
 import { PointsModule } from '@points/points.module';
 import { ReddyModule } from '@reddy/reddy.module';
@@ -97,6 +98,7 @@ import { UserContextModule } from '@shared/user-context';
     GamificationModule,
     ObservabilityModule,
     NotificationsModule,
+    UploadModule,
     AdminModule,
     BotModule,
     HealthModule,

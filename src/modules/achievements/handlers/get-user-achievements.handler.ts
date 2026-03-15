@@ -43,7 +43,7 @@ export class GetUserAchievementsHandler implements IQueryHandler<GetUserAchievem
       code: ua.achievement.code,
       name: ua.achievement.name,
       description: ua.achievement.description,
-      iconUrl: `${baseUrl}/static/${ua.achievement.iconPath}`,
+      iconUrl: `${baseUrl}/api/static/${ua.achievement.iconPath}`,
       earnedAt: ua.earnedAt.toISOString(),
       isActive: activeAchievementId === ua.achievementId,
     }));

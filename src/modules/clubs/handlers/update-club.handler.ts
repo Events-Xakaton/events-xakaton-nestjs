@@ -3,6 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { AppException } from '@shared/exceptions';
+import { deleteBannerIfLocal } from '@shared/helpers/delete-banner.helper';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
@@ -24,7 +25,7 @@ export class UpdateClubHandler implements ICommandHandler<UpdateClubCommand> {
 
     const club = await this.prisma.club.findUnique({
       where: { id: clubId },
-      select: { id: true, creatorUserId: true, isDeleted: true },
+      select: { id: true, creatorUserId: true, isDeleted: true, coverUrl: true },
     });
     if (!club || club.isDeleted) {
       throw new AppException({
@@ -50,6 +51,14 @@ export class UpdateClubHandler implements ICommandHandler<UpdateClubCommand> {
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'Слишком много тегов',
       });
+    }
+
+    // Удаляем старый файл баннера, если coverUrl меняется
+    if (
+      dto.coverUrl !== undefined &&
+      dto.coverUrl !== club.coverUrl
+    ) {
+      await deleteBannerIfLocal(club.coverUrl);
     }
 
     await this.prisma.$transaction(async (tx) => {

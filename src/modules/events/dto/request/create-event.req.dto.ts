@@ -6,6 +6,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsUrl,
   Max,
   MaxLength,
   Min,
@@ -73,6 +74,14 @@ export class CreateEventReqDto {
   @IsString({ each: true })
   @MaxLength(10, { each: true })
   tags?: string[];
+
+  @ApiPropertyOptional({
+    description: 'URL загруженного баннера (из POST /upload/banner)',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsUrl()
+  coverUrl?: string;
 
   @ApiPropertyOptional({
     description: 'Seed для генерации обложки',

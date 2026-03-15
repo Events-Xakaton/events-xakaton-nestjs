@@ -10,6 +10,7 @@ export class EventListItemResDto {
   @ApiProperty() readonly participantsCount: number;
   @ApiProperty({ nullable: true }) readonly freeSpots: number | null;
   @ApiProperty({ nullable: true }) readonly minLevel: number | null;
+  @ApiProperty({ nullable: true }) readonly coverUrl: string | null;
   @ApiProperty({ nullable: true }) readonly coverSeed: string | null;
   @ApiProperty() readonly joinedByMe: boolean;
   @ApiProperty() readonly isOrganizer: boolean;
@@ -22,6 +23,7 @@ export class EventListItemResDto {
     participantsCount: number;
     freeSpots: number | null;
     minLevel: number | null;
+    coverUrl: string | null;
     coverSeed: string | null;
     joinedByMe: boolean;
     isOrganizer: boolean;
@@ -33,6 +35,7 @@ export class EventListItemResDto {
     this.participantsCount = data.participantsCount;
     this.freeSpots = data.freeSpots;
     this.minLevel = data.minLevel;
+    this.coverUrl = data.coverUrl;
     this.coverSeed = data.coverSeed;
     this.joinedByMe = data.joinedByMe;
     this.isOrganizer = data.isOrganizer;

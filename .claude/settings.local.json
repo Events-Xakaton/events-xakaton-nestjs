@@ -83,7 +83,8 @@
       "Bash(find:*)",
       "Bash(cd:*)",
       "Read(//c/Users/tahir/Проекты/Хакатон//**)",
-      "Read(//c/Users/tahir/Проекты//**)"
+      "Read(//c/Users/tahir/Проекты//**)",
+      "Bash(grep:*)"
     ]
   }
 }

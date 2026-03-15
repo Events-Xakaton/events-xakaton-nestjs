@@ -4,6 +4,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsUrl,
   Max,
   MaxLength,
   Min,
@@ -46,6 +47,14 @@ export class UpdateEventReqDto {
   @IsInt()
   @Min(1)
   maxParticipants?: number;
+
+  @ApiPropertyOptional({
+    description: 'URL загруженного баннера. null — удалить баннер.',
+    nullable: true,
+  })
+  @ValidateIf((_, value) => value !== null && value !== undefined)
+  @IsUrl()
+  coverUrl?: string | null;
 
   @ApiPropertyOptional({
     description: 'Seed для генерации обложки',

@@ -126,7 +126,7 @@ export class AchievementCheckerService {
       code: achievement.code,
       name: achievement.name,
       description: achievement.description,
-      iconUrl: `${baseUrl}/static/${achievement.iconPath}`,
+      iconUrl: `${baseUrl}/api/static/${achievement.iconPath}`,
       earnedAt: new Date().toISOString(),
       isActive: false,
     };

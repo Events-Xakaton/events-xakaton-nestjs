@@ -11,6 +11,7 @@ import {
   EventStatus,
 } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
+import { deleteBannerIfLocal } from '@shared/helpers/delete-banner.helper';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
@@ -123,6 +124,14 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
       Object.prototype.hasOwnProperty.call(dto, 'minLevel') &&
       (dto.minLevel ?? null) !== (event.minLevel ?? null);
 
+    // Удаляем старый файл баннера, если coverUrl меняется
+    if (
+      Object.prototype.hasOwnProperty.call(dto, 'coverUrl') &&
+      dto.coverUrl !== event.coverUrl
+    ) {
+      await deleteBannerIfLocal(event.coverUrl);
+    }
+
     await this.prisma.event.update({
       where: { id: eventId },
       data: {
@@ -132,6 +141,9 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
         startsAtUtc: dto.startsAtUtc ? new Date(dto.startsAtUtc) : undefined,
         endsAtUtc: dto.endsAtUtc ? new Date(dto.endsAtUtc) : undefined,
         maxParticipants: dto.maxParticipants ?? undefined,
+        ...(Object.prototype.hasOwnProperty.call(dto, 'coverUrl') && {
+          coverUrl: dto.coverUrl ?? null,
+        }),
         coverSeed: dto.coverSeed ?? undefined,
         clubId: nextClubId,
         ...(Object.prototype.hasOwnProperty.call(dto, 'minLevel') && {

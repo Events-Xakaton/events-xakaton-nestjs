@@ -178,6 +178,7 @@ model Event {
   locationOrLink  String
   startsAtUtc     DateTime
   endsAtUtc       DateTime
+  coverUrl        String?
   coverSeed       String?
   maxParticipants Int?
   minLevel        Int?

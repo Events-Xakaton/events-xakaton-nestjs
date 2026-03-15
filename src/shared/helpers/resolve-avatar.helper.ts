@@ -11,7 +11,7 @@ export function resolveAvatarUrl(
   staticBaseUrl: string,
 ): string | null {
   if (user.activeAchievement?.iconPath) {
-    return `${staticBaseUrl}/static/${user.activeAchievement.iconPath}`;
+    return `${staticBaseUrl}/api/static/${user.activeAchievement.iconPath}`;
   }
   return user.avatarUrl ?? null;
 }
