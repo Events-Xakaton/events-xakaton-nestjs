@@ -81,7 +81,9 @@
       "Bash(python3:*)",
       "Bash(docker network:*)",
       "Bash(find:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Read(//c/Users/tahir/Проекты/Хакатон//**)",
+      "Read(//c/Users/tahir/Проекты//**)"
     ]
   }
 }
