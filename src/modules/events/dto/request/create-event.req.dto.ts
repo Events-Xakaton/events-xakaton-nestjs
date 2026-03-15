@@ -80,7 +80,7 @@ export class CreateEventReqDto {
     nullable: true,
   })
   @IsOptional()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   coverUrl?: string;
 
   @ApiPropertyOptional({

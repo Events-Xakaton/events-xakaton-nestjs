@@ -53,7 +53,7 @@ export class UpdateEventReqDto {
     nullable: true,
   })
   @ValidateIf((_, value) => value !== null && value !== undefined)
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   coverUrl?: string | null;
 
   @ApiPropertyOptional({

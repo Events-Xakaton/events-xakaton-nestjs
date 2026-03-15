@@ -9,9 +9,15 @@ services:
       REDIS_URL: redis://redis:6379
     ports:
       - "${PORT:-4000}:4000"
+    volumes:
+      # Пользовательские upload'ы сохраняются между рестартами контейнера
+      - banners:/app/static/banners
     networks:
       - tribe-network
     restart: unless-stopped
+
+volumes:
+  banners:
 
 networks:
   tribe-network:
