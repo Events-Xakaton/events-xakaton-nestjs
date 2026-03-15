@@ -238,12 +238,12 @@ async function main(): Promise<void> {
 
   const clubBooks = await prisma.club.upsert({
     where: { id: CLUB_IDS.books },
-    update: { coverUrl: bannerUrl('dungeons & dragons.jpeg') },
+    update: { coverUrl: bannerUrl('dangeons n dragons.jpg') },
     create: {
       id: CLUB_IDS.books,
       creatorUserId: users[5].id,
       title: 'Book Nerds',
-      coverUrl: bannerUrl('dungeons & dragons.jpeg'),
+      coverUrl: bannerUrl('dangeons n dragons.jpg'),
       description:
         'Книжный клуб: обсуждения, авторские встречи, читательские марафоны. Одна книга в месяц.',
       categoryCode: 'Образование',
@@ -640,14 +640,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now + 6 * DAY),
       endsAtUtc: new Date(now + 6 * DAY + 2 * HOUR),
-      coverUrl: bannerUrl('dungeons & dragons.jpeg'),
+      coverUrl: bannerUrl('dangeons n dragons.jpg'),
     },
     create: {
       id: EVENT_IDS.upcomingBooks,
       clubId: clubBooks.id,
       creatorUserId: users[5].id,
       title: 'Обсуждение: "Атлант расправил плечи"',
-      coverUrl: bannerUrl('dungeons & dragons.jpeg'),
+      coverUrl: bannerUrl('dangeons n dragons.jpg'),
       description:
         'Разбираем философию объективизма Айн Рэнд. Читаем только части I и II.',
       locationOrLink: 'Антикафе "Циолковский", ул. Бауманская 35',
