@@ -5,6 +5,14 @@ const prisma = new PrismaClient();
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
 
+// URL бэкенда для формирования ссылок на баннеры из static/banners/
+const BASE_URL = (process.env.MINI_APP_URL ?? 'http://localhost:4000').replace(
+  /\/$/,
+  '',
+);
+const bannerUrl = (filename: string): string =>
+  `${BASE_URL}/api/static/banners/${encodeURIComponent(filename)}`;
+
 // Фиксированные UUID — гарантируют идемпотентность при повторном запуске
 const CLUB_IDS = {
   sport: '00000000-0000-0000-0000-000000000101',
@@ -128,11 +136,12 @@ async function main(): Promise<void> {
   // ── 3. Клубы ─────────────────────────────────────────────────────────────
   const clubSport = await prisma.club.upsert({
     where: { id: CLUB_IDS.sport },
-    update: {},
+    update: { coverUrl: bannerUrl('padel.jpg') },
     create: {
       id: CLUB_IDS.sport,
       creatorUserId: users[0].id,
       title: 'Morning Runners',
+      coverUrl: bannerUrl('padel.jpg'),
       description:
         'Еженедельные пробежки и спортивные активности для всех уровней подготовки. Бегаем вместе — веселее!',
       categoryCode: 'Спорт',
@@ -170,11 +179,12 @@ async function main(): Promise<void> {
 
   const clubMusic = await prisma.club.upsert({
     where: { id: CLUB_IDS.music },
-    update: {},
+    update: { coverUrl: bannerUrl('club night.jpg') },
     create: {
       id: CLUB_IDS.music,
       creatorUserId: users[2].id,
       title: 'Sound Wave',
+      coverUrl: bannerUrl('club night.jpg'),
       description:
         'Клуб любителей музыки: джемы, разборы альбомов, живые концерты и музыкальные эксперименты.',
       categoryCode: 'Музыка',
@@ -207,11 +217,12 @@ async function main(): Promise<void> {
 
   const clubFood = await prisma.club.upsert({
     where: { id: CLUB_IDS.food },
-    update: {},
+    update: { coverUrl: bannerUrl('picnic.jpg') },
     create: {
       id: CLUB_IDS.food,
       creatorUserId: users[4].id,
       title: 'Gastro Club',
+      coverUrl: bannerUrl('picnic.jpg'),
       description:
         'Кулинарные мастер-классы, дегустации и походы по ресторанам. Готовим и едим вместе!',
       categoryCode: 'Еда',
@@ -227,11 +238,12 @@ async function main(): Promise<void> {
 
   const clubBooks = await prisma.club.upsert({
     where: { id: CLUB_IDS.books },
-    update: {},
+    update: { coverUrl: bannerUrl('dungeons & dragons.jpeg') },
     create: {
       id: CLUB_IDS.books,
       creatorUserId: users[5].id,
       title: 'Book Nerds',
+      coverUrl: bannerUrl('dungeons & dragons.jpeg'),
       description:
         'Книжный клуб: обсуждения, авторские встречи, читательские марафоны. Одна книга в месяц.',
       categoryCode: 'Образование',
@@ -326,12 +338,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now - 3 * DAY),
       endsAtUtc: new Date(now - 3 * DAY + 2 * HOUR),
+      coverUrl: bannerUrl('padel.jpg'),
     },
     create: {
       id: EVENT_IDS.pastRun,
       clubId: clubSport.id,
       creatorUserId: users[0].id,
       title: 'Утренняя пробежка — Воробьёвы горы',
+      coverUrl: bannerUrl('padel.jpg'),
       description:
         'Пробежка 8 км по набережной. Сбор у смотровой площадки. Темп 5:30/км.',
       locationOrLink: 'Воробьёвы горы, смотровая площадка',
@@ -369,12 +383,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now - 5 * DAY),
       endsAtUtc: new Date(now - 5 * DAY + HOUR),
+      coverUrl: bannerUrl('picnic.jpg'),
     },
     create: {
       id: EVENT_IDS.pastYoga,
       clubId: clubSport.id,
       creatorUserId: users[3].id,
       title: 'Йога в парке',
+      coverUrl: bannerUrl('picnic.jpg'),
       description:
         'Утренняя йога на свежем воздухе. Уровень: начинающий и средний. Коврик взять с собой.',
       locationOrLink: 'Парк Сокольники, поляна у главного входа',
@@ -414,12 +430,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now - 4 * DAY),
       endsAtUtc: new Date(now - 4 * DAY + 2 * HOUR),
+      coverUrl: bannerUrl('club night.jpg'),
     },
     create: {
       id: EVENT_IDS.pastConcert,
       clubId: clubMusic.id,
       creatorUserId: users[2].id,
       title: 'Acoustic Evening',
+      coverUrl: bannerUrl('club night.jpg'),
       description:
         'Акустический вечер участников клуба. Гитара, бас, перкуссия. Вход свободный.',
       locationOrLink: 'Арт-пространство "Цех", Берсеневская набережная 2',
@@ -456,12 +474,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now - 2 * DAY),
       endsAtUtc: new Date(now - 2 * DAY + 3 * HOUR),
+      coverUrl: bannerUrl('picnic.jpg'),
     },
     create: {
       id: EVENT_IDS.pastCooking,
       clubId: clubFood.id,
       creatorUserId: users[4].id,
       title: 'Мастер-класс: итальянская паста',
+      coverUrl: bannerUrl('picnic.jpg'),
       description:
         'Учимся готовить три вида пасты с нуля: тальятелле, равиоли и паппарделле.',
       locationOrLink: 'Кулинарная студия "Culinaryon", ул. Садовническая 9',
@@ -478,12 +498,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now - 8 * DAY),
       endsAtUtc: new Date(now - 8 * DAY + 2 * HOUR),
+      coverUrl: bannerUrl('dangeons n dragons.jpg'),
     },
     create: {
       id: EVENT_IDS.pastBookclub,
       clubId: clubBooks.id,
       creatorUserId: users[5].id,
       title: 'Обсуждение: "Мастер и Маргарита"',
+      coverUrl: bannerUrl('dangeons n dragons.jpg'),
       description:
         'Разбираем роман Булгакова: структура, символизм, актуальность. Книгу прочитать заранее.',
       locationOrLink: 'Антикафе "Циолковский", ул. Бауманская 35',
@@ -523,12 +545,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now - HOUR),
       endsAtUtc: new Date(now + HOUR),
+      coverUrl: bannerUrl('боулинг.jpg'),
     },
     create: {
       id: EVENT_IDS.ongoingSport,
       clubId: clubSport.id,
       creatorUserId: users[0].id,
       title: 'Интервальная тренировка на стадионе',
+      coverUrl: bannerUrl('боулинг.jpg'),
       description:
         '8×400м интервалы + разминка и заминка. Приносите шиповки или кроссовки.',
       locationOrLink: 'Стадион Лужники, тренировочный манеж',
@@ -545,12 +569,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now + 2 * DAY),
       endsAtUtc: new Date(now + 2 * DAY + 2 * HOUR),
+      coverUrl: bannerUrl('лодки и море.jpg'),
     },
     create: {
       id: EVENT_IDS.upcomingBike,
       clubId: clubSport.id,
       creatorUserId: users[0].id,
       title: 'Велопрогулка — парк Горького',
+      coverUrl: bannerUrl('лодки и море.jpg'),
       description:
         'Маршрут 20 км по парку и набережной. Берите велосипеды и хорошее настроение!',
       locationOrLink: 'ЦПКиО им. Горького, главный вход',
@@ -567,12 +593,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now + 5 * DAY),
       endsAtUtc: new Date(now + 5 * DAY + 3 * HOUR),
+      coverUrl: bannerUrl('club night.jpg'),
     },
     create: {
       id: EVENT_IDS.upcomingJazz,
       clubId: clubMusic.id,
       creatorUserId: users[2].id,
       title: 'Jazz Jam Session',
+      coverUrl: bannerUrl('club night.jpg'),
       description:
         'Открытая джазовая сессия. Приносите инструменты или просто слушайте.',
       locationOrLink: 'Бар "Синяя птица", Малая Дмитровка 23',
@@ -588,12 +616,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now + DAY),
       endsAtUtc: new Date(now + DAY + 2 * HOUR),
+      coverUrl: bannerUrl('picnic.jpg'),
     },
     create: {
       id: EVENT_IDS.upcomingFood,
       clubId: clubFood.id,
       creatorUserId: users[4].id,
       title: 'Дегустация грузинских вин',
+      coverUrl: bannerUrl('picnic.jpg'),
       description:
         'Сомелье проведёт дегустацию 6 грузинских вин с закусками. Количество мест ограничено.',
       locationOrLink: 'Ресторан "Казбек", Малая Грузинская 5',
@@ -610,12 +640,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now + 6 * DAY),
       endsAtUtc: new Date(now + 6 * DAY + 2 * HOUR),
+      coverUrl: bannerUrl('dungeons & dragons.jpeg'),
     },
     create: {
       id: EVENT_IDS.upcomingBooks,
       clubId: clubBooks.id,
       creatorUserId: users[5].id,
       title: 'Обсуждение: "Атлант расправил плечи"',
+      coverUrl: bannerUrl('dungeons & dragons.jpeg'),
       description:
         'Разбираем философию объективизма Айн Рэнд. Читаем только части I и II.',
       locationOrLink: 'Антикафе "Циолковский", ул. Бауманская 35',
@@ -673,12 +705,14 @@ async function main(): Promise<void> {
     update: {
       startsAtUtc: new Date(now + 7 * DAY),
       endsAtUtc: new Date(now + 7 * DAY + 2 * HOUR),
+      coverUrl: bannerUrl('padel.jpg'),
     },
     create: {
       id: EVENT_IDS.upcomingSport2,
       clubId: clubSport.id,
       creatorUserId: users[4].id,
       title: 'Полумарафон: тренировочный забег',
+      coverUrl: bannerUrl('padel.jpg'),
       description:
         'Подготовительный забег 10 км перед городским полумарафоном. Темп свободный.',
       locationOrLink: 'Набережная Москвы-реки, старт у Крымского моста',
@@ -722,12 +756,14 @@ async function main(): Promise<void> {
       startsAtUtc: new Date(now + 14 * DAY),
       endsAtUtc: new Date(now + 14 * DAY + 5 * HOUR),
       minLevel: 3,
+      coverUrl: bannerUrl('лодки и море.jpg'),
     },
     create: {
       id: EVENT_IDS.upcomingFarSport,
       clubId: clubSport.id,
       creatorUserId: users[0].id,
       title: 'Трейлран: Подмосковные леса',
+      coverUrl: bannerUrl('лодки и море.jpg'),
       description:
         'Трейловый забег 25 км по лесным тропам Подмосковья. Обязательна регистрация заранее.',
       locationOrLink: 'Ст. м. Бунинская аллея, парковка',
@@ -767,12 +803,13 @@ async function main(): Promise<void> {
   // ── Отменённые (2) ────────────────────────────────────────────────────────
   await prisma.event.upsert({
     where: { id: EVENT_IDS.cancelledFootball },
-    update: {},
+    update: { coverUrl: bannerUrl('боулинг.jpg') },
     create: {
       id: EVENT_IDS.cancelledFootball,
       clubId: clubSport.id,
       creatorUserId: users[0].id,
       title: 'Футбольный турнир 5×5',
+      coverUrl: bannerUrl('боулинг.jpg'),
       description:
         'Отменено из-за плохих погодных условий. Перенос дата уточняется.',
       locationOrLink: 'Стадион "Локомотив", малое поле',
