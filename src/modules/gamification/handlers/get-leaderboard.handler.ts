@@ -3,6 +3,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PAGINATION } from '@shared/constants';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
+import { computeRank } from '@shared/utils/compute-rank';
 import { getPeriodRange } from '@shared/utils/period-range';
 
 import { LeaderboardEntryResDto, LeaderboardResDto } from '../dto/response';
@@ -56,8 +57,9 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
         return a.userId.localeCompare(b.userId);
       });
 
-    const ranked: LeaderboardEntryResDto[] = sorted.map((row, index) => ({
-      rank: index + 1,
+    // Временные записи с position для определения currentUser
+    const ranked = sorted.map((row, index) => ({
+      position: index + 1,
       userId: row.userId,
       fullName: row.fullName,
       points: row.points,
@@ -65,18 +67,18 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
 
     const top = ranked.slice(0, PAGINATION.LEADERBOARD_TOP_SIZE);
 
-    let currentUser: LeaderboardEntryResDto | null = null;
+    let currentUserBase: (typeof ranked)[number] | null = null;
     if (user) {
       const mine = ranked.find((r) => r.userId === user.id);
       if (mine) {
-        currentUser = mine;
+        currentUserBase = mine;
       } else {
         const userRecord = await this.prisma.user.findUnique({
           where: { id: user.id },
           select: { fullName: true },
         });
-        currentUser = {
-          rank: 0,
+        currentUserBase = {
+          position: 0,
           userId: user.id,
           fullName: userRecord?.fullName ?? 'Unknown',
           points: 0,
@@ -84,9 +86,40 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
       }
     }
 
+    // Батч-запрос lifetime очков для top + currentUser — нужны для ранга
+    const relevantIds = [
+      ...new Set([
+        ...top.map((r) => r.userId),
+        ...(currentUserBase ? [currentUserBase.userId] : []),
+      ]),
+    ];
+    const lifetimeRows =
+      relevantIds.length > 0
+        ? await this.prisma.pointsLedger.groupBy({
+            by: ['userId'],
+            _sum: { deltaPoints: true },
+            where: { userId: { in: relevantIds } },
+          })
+        : [];
+    const lifetimeMap = new Map(
+      lifetimeRows.map((r) => [r.userId, r._sum.deltaPoints ?? 0]),
+    );
+
+    const topWithRank: LeaderboardEntryResDto[] = top.map((entry) => ({
+      ...entry,
+      rankInfo: computeRank(lifetimeMap.get(entry.userId) ?? 0),
+    }));
+
+    const currentUser: LeaderboardResDto['currentUser'] = currentUserBase
+      ? {
+          ...currentUserBase,
+          rankInfo: computeRank(lifetimeMap.get(currentUserBase.userId) ?? 0),
+        }
+      : null;
+
     return {
       period,
-      top,
+      top: topWithRank,
       currentUser,
     };
   }

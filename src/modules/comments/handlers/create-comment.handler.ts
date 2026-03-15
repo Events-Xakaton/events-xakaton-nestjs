@@ -1,6 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
+import { PointsService } from '@points/points.service';
+import { POINTS } from '@shared/constants';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { IdResDto } from '@shared/types';
@@ -15,6 +17,7 @@ export class CreateCommentHandler implements ICommandHandler<CreateCommentComman
     private readonly prisma: PrismaService,
     private readonly userContextService: UserContextService,
     private readonly commentEntityService: CommentEntityService,
+    private readonly pointsService: PointsService,
   ) {}
 
   async execute(
@@ -65,6 +68,13 @@ export class CreateCommentHandler implements ICommandHandler<CreateCommentComman
         text: trimmed,
       },
       select: { id: true },
+    });
+
+    void this.pointsService.award({
+      userId: user.id,
+      ruleCode: 'comment_create',
+      deltaPoints: POINTS.COMMENT_CREATE,
+      referenceId: `comment_${comment.id}`,
     });
 
     return {

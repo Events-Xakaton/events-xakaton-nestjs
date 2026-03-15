@@ -173,6 +173,7 @@ model Event {
   endsAtUtc       DateTime
   coverSeed       String?
   maxParticipants Int?
+  minLevel        Int?
   status          EventStatus    @default(upcoming)
   isDeleted       Boolean        @default(false)
   deletedAt       DateTime?

@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -168,9 +169,10 @@ export class EventsController {
   join(
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
+    @Query('lucky') lucky?: string,
   ): Promise<StatusResDto> {
     return this.commandBus.execute(
-      new JoinEventCommand(req.telegramUserId, eventId),
+      new JoinEventCommand(req.telegramUserId, eventId, lucky === 'true'),
     );
   }
 

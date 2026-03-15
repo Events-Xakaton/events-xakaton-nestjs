@@ -2,6 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
+import { computeRank } from '@shared/utils/compute-rank';
 import { getPeriodRange } from '@shared/utils/period-range';
 
 import { PointsBalanceResDto } from '../dto/response';
@@ -45,10 +46,13 @@ export class GetPointsBalanceHandler implements IQueryHandler<GetPointsBalanceQu
       }),
     ]);
 
+    const lifetimePoints = lifetime._sum.deltaPoints ?? 0;
+
     return {
-      lifetime: lifetime._sum.deltaPoints ?? 0,
+      lifetime: lifetimePoints,
       weekly: weekly._sum.deltaPoints ?? 0,
       monthly: monthly._sum.deltaPoints ?? 0,
+      rank: computeRank(lifetimePoints),
     };
   }
 }

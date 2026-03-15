@@ -6,6 +6,7 @@ import { EventParticipationStatus } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
+import { computeRank } from '@shared/utils/compute-rank';
 
 import { EventParticipantResDto } from '../dto/response';
 import { ListEventParticipantsQuery } from '../queries';
@@ -52,9 +53,18 @@ export class ListEventParticipantsHandler implements IQueryHandler<ListEventPart
     });
 
     const participantIds = participants.map((p) => p.user.id);
-    const followedSet = await this.userContextService.getFollowedSet(
-      user.id,
-      participantIds,
+
+    const [followedSet, lifetimeRows] = await Promise.all([
+      this.userContextService.getFollowedSet(user.id, participantIds),
+      this.prisma.pointsLedger.groupBy({
+        by: ['userId'],
+        _sum: { deltaPoints: true },
+        where: { userId: { in: participantIds } },
+      }),
+    ]);
+
+    const lifetimeMap = new Map(
+      lifetimeRows.map((r) => [r.userId, r._sum.deltaPoints ?? 0]),
     );
 
     const items = participants.map(
@@ -64,6 +74,7 @@ export class ListEventParticipantsHandler implements IQueryHandler<ListEventPart
           fullName: p.user.fullName,
           avatarUrl: p.user.avatarUrl ?? null,
           followedByMe: followedSet.has(p.user.id),
+          rankInfo: computeRank(lifetimeMap.get(p.user.id) ?? 0),
         }),
     );
 

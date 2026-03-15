@@ -5,10 +5,11 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { PointsService } from '@points/points.service';
-import { POINTS } from '@shared/constants';
+import { POINTS, RANKS } from '@shared/constants';
 import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { computeRank } from '@shared/utils/compute-rank';
 import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
@@ -74,6 +75,37 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
       });
     }
 
+    if (event.minLevel !== null) {
+      // Lucky Wheel — проверяем использование механики сегодня, ценз снимается
+      const isLuckyBypass =
+        command.lucky &&
+        (await this.prisma.luckyWheelUsage.findUnique({
+          where: {
+            userId_dayKey: {
+              userId: user.id,
+              dayKey: new Date().toISOString().slice(0, 10),
+            },
+          },
+        })) !== null;
+
+      if (!isLuckyBypass) {
+        const ledger = await this.prisma.pointsLedger.aggregate({
+          where: { userId: user.id },
+          _sum: { deltaPoints: true },
+        });
+        const lifetimePoints = ledger._sum.deltaPoints ?? 0;
+        const userLevel = computeRank(lifetimePoints).level;
+
+        if (userLevel < event.minLevel) {
+          const requiredRank = RANKS.find((r) => r.level === event.minLevel);
+          throw new AppException({
+            statusCode: HttpStatus.FORBIDDEN,
+            message: `Для записи на это событие нужен уровень ${event.minLevel} · ${requiredRank?.title ?? ''}`,
+          });
+        }
+      }
+    }
+
     await this.prisma.eventParticipation.upsert({
       where: { eventId_userId: { eventId, userId: user.id } },
       update: { status: EventParticipationStatus.Joined },
@@ -89,6 +121,15 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
       ruleCode: 'event_join',
       deltaPoints: POINTS.EVENT_JOIN,
       referenceId: `event_join_${eventId}_${user.id}`,
+      eventId,
+    });
+
+    // Бонус за первое в жизни событие — идемпотентен по фиксированному referenceId
+    void this.pointsService.award({
+      userId: user.id,
+      ruleCode: 'first_event_join',
+      deltaPoints: POINTS.FIRST_EVENT_JOIN,
+      referenceId: `first_event_join_${user.id}`,
       eventId,
     });
 

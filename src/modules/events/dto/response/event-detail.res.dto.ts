@@ -11,6 +11,7 @@ export class EventDetailResDto {
   @ApiProperty() readonly startsAtUtc: Date;
   @ApiProperty() readonly endsAtUtc: Date;
   @ApiProperty({ nullable: true }) readonly maxParticipants: number | null;
+  @ApiProperty({ nullable: true, description: 'Минимальный уровень участника (null — без ограничений)' }) readonly minLevel: number | null;
   @ApiProperty() readonly participantsCount: number;
   @ApiProperty({ nullable: true }) readonly freeSpots: number | null;
   @ApiProperty() readonly creatorTelegramUserId: string;
@@ -33,6 +34,7 @@ export class EventDetailResDto {
     startsAtUtc: Date;
     endsAtUtc: Date;
     maxParticipants: number | null;
+    minLevel: number | null;
     participantsCount: number;
     freeSpots: number | null;
     creatorTelegramUserId: string;
@@ -53,6 +55,7 @@ export class EventDetailResDto {
     this.startsAtUtc = data.startsAtUtc;
     this.endsAtUtc = data.endsAtUtc;
     this.maxParticipants = data.maxParticipants;
+    this.minLevel = data.minLevel;
     this.participantsCount = data.participantsCount;
     this.freeSpots = data.freeSpots;
     this.creatorTelegramUserId = data.creatorTelegramUserId;

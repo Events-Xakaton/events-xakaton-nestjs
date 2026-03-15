@@ -6,6 +6,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -48,6 +49,17 @@ export class CreateEventReqDto {
   @IsInt()
   @Min(1)
   maxParticipants?: number;
+
+  @ApiPropertyOptional({
+    description: 'Минимальный уровень участника (1–10). null — без ограничений.',
+    minimum: 1,
+    maximum: 10,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(10)
+  minLevel?: number;
 
   @ApiProperty({ description: 'Код категории' })
   @IsString()

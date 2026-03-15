@@ -57,6 +57,7 @@ export class ListEventsHandler implements IQueryHandler<ListEventsQuery> {
           participantsCount,
           freeSpots,
           coverSeed: event.coverSeed ?? null,
+          minLevel: event.minLevel ?? null,
           joinedByMe: event.participations.some((p) => p.userId === user.id),
           isOrganizer: event.creatorUserId === user.id,
         });

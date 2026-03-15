@@ -6,6 +6,7 @@ import { ClubMembershipStatus } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
+import { computeRank } from '@shared/utils/compute-rank';
 
 import { ClubMemberResDto } from '../dto/response';
 import { ListClubMembersQuery } from '../queries';
@@ -53,9 +54,18 @@ export class ListClubMembersHandler implements IQueryHandler<ListClubMembersQuer
     });
 
     const memberIds = members.map((m) => m.user.id);
-    const followedSet = await this.userContextService.getFollowedSet(
-      user.id,
-      memberIds,
+
+    const [followedSet, lifetimeRows] = await Promise.all([
+      this.userContextService.getFollowedSet(user.id, memberIds),
+      this.prisma.pointsLedger.groupBy({
+        by: ['userId'],
+        _sum: { deltaPoints: true },
+        where: { userId: { in: memberIds } },
+      }),
+    ]);
+
+    const lifetimeMap = new Map(
+      lifetimeRows.map((r) => [r.userId, r._sum.deltaPoints ?? 0]),
     );
 
     const items = members.map(
@@ -66,6 +76,7 @@ export class ListClubMembersHandler implements IQueryHandler<ListClubMembersQuer
           avatarUrl: m.user.avatarUrl ?? null,
           followedByMe: followedSet.has(m.user.id),
           role: m.role,
+          rankInfo: computeRank(lifetimeMap.get(m.user.id) ?? 0),
         }),
     );
 

@@ -78,6 +78,7 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
       startsAtUtc: event.startsAtUtc,
       endsAtUtc: event.endsAtUtc,
       maxParticipants: event.maxParticipants ?? null,
+      minLevel: event.minLevel ?? null,
       participantsCount,
       freeSpots,
       creatorTelegramUserId: event.creator.telegramUserId.toString(),

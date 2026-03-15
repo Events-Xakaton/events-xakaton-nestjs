@@ -30,6 +30,7 @@ export type EventChangedJobPayload = {
     changedFields: string[];
     nextStartsAtUtc: string | null;
     nextLocationOrLink: string | null;
+    nextMinLevel: number | null | undefined;
   };
 };
 

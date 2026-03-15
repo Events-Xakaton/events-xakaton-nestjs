@@ -8,7 +8,9 @@ import { parse, validate } from '@telegram-apps/init-data-node';
 import { NextFunction, Request, Response } from 'express';
 
 import { AppConfigService, EnvVariableName } from '@shared/config';
+import { POINTS } from '@shared/constants';
 import { PrismaService } from '@shared/prisma';
+import { PointsService } from '@points/points.service';
 
 /**
  * Middleware для валидации Telegram initData.
@@ -25,6 +27,7 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
     @Inject(AppConfigService)
     private readonly appConfigService: AppConfigService,
     @Inject(PrismaService) private readonly prisma: PrismaService,
+    private readonly pointsService: PointsService,
   ) {}
 
   async use(req: Request, _res: Response, next: NextFunction): Promise<void> {
@@ -113,7 +116,13 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
       user.username?.trim() ||
       `tg-${user.id}`;
 
-    await this.prisma.user.upsert({
+    // Получаем текущий аватар до upsert, чтобы определить первую установку
+    const existing = await this.prisma.user.findUnique({
+      where: { telegramUserId },
+      select: { id: true, avatarUrl: true },
+    });
+
+    const upserted = await this.prisma.user.upsert({
       where: { telegramUserId },
       update: {
         fullName,
@@ -128,5 +137,15 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
       },
       select: { id: true },
     });
+
+    // Начисляем очки за заполнение профиля (аватар) — один раз в жизни
+    if (user.photoUrl && !existing?.avatarUrl) {
+      void this.pointsService.award({
+        userId: upserted.id,
+        ruleCode: 'profile_complete',
+        deltaPoints: POINTS.PROFILE_COMPLETE,
+        referenceId: `profile_complete_${upserted.id}`,
+      });
+    }
   }
 }

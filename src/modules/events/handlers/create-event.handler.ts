@@ -78,6 +78,7 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
         endsAtUtc: endsAt,
         coverSeed: dto.coverSeed,
         maxParticipants: dto.maxParticipants,
+        minLevel: dto.minLevel ?? null,
         status: EventStatus.Upcoming,
         tags: { create: tags.map((tag) => ({ tag })) },
       },

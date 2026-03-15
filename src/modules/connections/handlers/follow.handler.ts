@@ -3,6 +3,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { NotificationsService } from '@modules/notifications/notifications.service';
+import { PointsService } from '@points/points.service';
+import { POINTS } from '@shared/constants';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { StatusResDto } from '@shared/types';
@@ -17,6 +19,7 @@ export class FollowHandler implements ICommandHandler<FollowCommand> {
     private readonly userContextService: UserContextService,
     private readonly notificationsService: NotificationsService,
     private readonly analyticsService: AnalyticsService,
+    private readonly pointsService: PointsService,
   ) {}
 
   async execute(
@@ -43,7 +46,7 @@ export class FollowHandler implements ICommandHandler<FollowCommand> {
       });
     }
 
-    // Проверяем существующую подписку для решения об отправке уведомления
+    // Проверяем существующую подписку для решения об отправке уведомления и очков
     const existing = await this.prisma.connection.findUnique({
       where: {
         followerUserId_followedUserId: {
@@ -71,6 +74,14 @@ export class FollowHandler implements ICommandHandler<FollowCommand> {
         type: 'new_follower',
         title: 'Новый подписчик',
         body: 'На вас подписался новый пользователь',
+      });
+
+      // Начисляем очки тому, на кого подписались
+      void this.pointsService.award({
+        userId: target.id,
+        ruleCode: 'follower_gained',
+        deltaPoints: POINTS.FOLLOWER_GAINED,
+        referenceId: `follower_gained_${user.id}_${target.id}`,
       });
     }
 

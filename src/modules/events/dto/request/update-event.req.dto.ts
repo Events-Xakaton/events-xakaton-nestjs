@@ -4,6 +4,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   Min,
   ValidateIf,
@@ -54,6 +55,18 @@ export class UpdateEventReqDto {
   @IsString()
   @MaxLength(100)
   coverSeed?: string;
+
+  @ApiPropertyOptional({
+    description: 'Минимальный уровень участника (1–10). null — снять ограничение.',
+    minimum: 1,
+    maximum: 10,
+    nullable: true,
+  })
+  @ValidateIf((_, value) => value !== null && value !== undefined)
+  @IsInt()
+  @Min(1)
+  @Max(10)
+  minLevel?: number | null;
 
   @ApiPropertyOptional({
     description: 'ID клуба (null — отвязать от клуба)',

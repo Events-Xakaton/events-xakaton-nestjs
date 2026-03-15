@@ -119,6 +119,9 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
       Object.prototype.hasOwnProperty.call(dto, 'locationOrLink') &&
       typeof dto.locationOrLink === 'string' &&
       dto.locationOrLink !== event.locationOrLink;
+    const isMinLevelChanged =
+      Object.prototype.hasOwnProperty.call(dto, 'minLevel') &&
+      (dto.minLevel ?? null) !== (event.minLevel ?? null);
 
     await this.prisma.event.update({
       where: { id: eventId },
@@ -131,14 +134,16 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
         maxParticipants: dto.maxParticipants ?? undefined,
         coverSeed: dto.coverSeed ?? undefined,
         clubId: nextClubId,
+        ...(Object.prototype.hasOwnProperty.call(dto, 'minLevel') && { minLevel: dto.minLevel ?? null }),
       },
     });
 
-    // Уведомляем участников при смене времени или места
-    if (isStartsAtChanged || isLocationChanged) {
+    // Уведомляем участников при смене времени, места или ценза уровня
+    if (isStartsAtChanged || isLocationChanged || isMinLevelChanged) {
       const changedFields = [
         ...(isStartsAtChanged ? ['startsAtUtc'] : []),
         ...(isLocationChanged ? ['locationOrLink'] : []),
+        ...(isMinLevelChanged ? ['minLevel'] : []),
       ];
       const participants = event.participations
         .filter((p) => p.userId !== user.id)
@@ -158,6 +163,7 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
             nextLocationOrLink: isLocationChanged
               ? (dto.locationOrLink ?? null)
               : null,
+            nextMinLevel: isMinLevelChanged ? (dto.minLevel ?? null) : undefined,
           },
         },
         `event_changed_${eventId}_${Date.now()}`,

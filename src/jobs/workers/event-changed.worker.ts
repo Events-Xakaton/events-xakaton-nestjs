@@ -44,6 +44,7 @@ export class EventChangedWorker implements OnModuleInit, OnModuleDestroy {
         changedFields,
         nextStartsAtUtc,
         nextLocationOrLink,
+        nextMinLevel,
       }) => {
         if (!eventId || participantIds.length === 0) {
           return;
@@ -54,7 +55,8 @@ export class EventChangedWorker implements OnModuleInit, OnModuleDestroy {
         const hasLocation =
           changedFields.includes('locationOrLink') &&
           Boolean(nextLocationOrLink);
-        if (!hasStartsAt && !hasLocation) {
+        const hasMinLevel = changedFields.includes('minLevel');
+        if (!hasStartsAt && !hasLocation && !hasMinLevel) {
           return;
         }
 
@@ -64,6 +66,13 @@ export class EventChangedWorker implements OnModuleInit, OnModuleDestroy {
         }
         if (hasLocation) {
           bodySegments.push(`Новая локация: **${nextLocationOrLink}**`);
+        }
+        if (hasMinLevel) {
+          const levelText =
+            nextMinLevel === null
+              ? 'снят (открыто для всех)'
+              : `Ур. ${nextMinLevel}`;
+          bodySegments.push(`Новый ценз уровня: **${levelText}**`);
         }
         const body = `**${eventTitle}**:\n${bodySegments.join('\n')}`;
 

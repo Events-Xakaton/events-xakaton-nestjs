@@ -100,6 +100,7 @@ export class ListClubEventsHandler implements IQueryHandler<ListClubEventsQuery>
         endsAtUtc: event.endsAtUtc,
         participantsCount,
         freeSpots,
+        minLevel: event.minLevel ?? null,
       });
     });
 

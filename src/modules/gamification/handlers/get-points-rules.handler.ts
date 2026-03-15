@@ -15,6 +15,10 @@ export class GetPointsRulesHandler implements IQueryHandler<GetPointsRulesQuery>
       { rule: 'event_join', points: POINTS.EVENT_JOIN },
       { rule: 'attendance_feedback', points: POINTS.ATTENDANCE_FEEDBACK },
       { rule: 'club_new_member_bonus', points: POINTS.CLUB_NEW_MEMBER_BONUS },
+      { rule: 'comment_create', points: POINTS.COMMENT_CREATE },
+      { rule: 'follower_gained', points: POINTS.FOLLOWER_GAINED },
+      { rule: 'first_event_join', points: POINTS.FIRST_EVENT_JOIN },
+      { rule: 'profile_complete', points: POINTS.PROFILE_COMPLETE },
     ];
     return Promise.resolve(rules);
   }
