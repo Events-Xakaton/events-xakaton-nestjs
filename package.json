@@ -17,6 +17,8 @@
     "prisma:migrate": "prisma migrate dev --schema=src/prisma/schema.prisma",
     "prisma:deploy": "prisma migrate deploy --schema=src/prisma/schema.prisma",
     "prisma:push": "prisma db push --schema=src/prisma/schema.prisma",
+    "prisma:reset": "prisma migrate reset --schema=src/prisma/schema.prisma --force",
+    "db:fresh": "npm run prisma:reset && npm run seed",
     "seed": "ts-node src/prisma/seed.ts",
     "docs": "compodoc -p tsconfig.json",
     "docs:serve": "compodoc -p tsconfig.json -s -r 8080"

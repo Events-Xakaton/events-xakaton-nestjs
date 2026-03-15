@@ -24,7 +24,7 @@ URL иконок: `GET /static/achievements/<filename>`.
 
 ```dockerfile
 # после COPY --from=build dist/ dist/
-COPY static/ static/
+COPY ../../static static/
 ```
 
 ### 1.3 Структура папки `static/achievements/`

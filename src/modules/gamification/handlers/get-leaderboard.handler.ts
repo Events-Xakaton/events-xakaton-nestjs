@@ -83,7 +83,9 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
 
     const top = ranked.slice(0, PAGINATION.LEADERBOARD_TOP_SIZE);
 
-    let currentUserBase: (typeof ranked)[number] | null = null;
+    type RankedEntry = (typeof ranked)[number];
+    type CurrentUserBase = Omit<RankedEntry, 'position'> & { position: number | null };
+    let currentUserBase: CurrentUserBase | null = null;
     if (user) {
       const mine = ranked.find((r) => r.userId === user.id);
       if (mine) {
@@ -98,7 +100,7 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
           },
         });
         currentUserBase = {
-          position: 0,
+          position: null,
           userId: user.id,
           fullName: userRecord?.fullName ?? 'Unknown',
           avatarUrl: userRecord ? resolveAvatarUrl(userRecord, baseUrl) : null,

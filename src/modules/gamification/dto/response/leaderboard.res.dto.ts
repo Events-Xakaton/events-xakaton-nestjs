@@ -3,8 +3,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { RankInfoDto } from './rank-info.res.dto';
 
 export class LeaderboardEntryResDto {
-  @ApiProperty({ description: 'Порядковая позиция в рейтинге' })
-  declare position: number;
+  @ApiProperty({
+    nullable: true,
+    description: 'Позиция в рейтинге. null — если нет очков за период',
+  })
+  declare position: number | null;
 
   @ApiProperty({ description: 'UUID пользователя' })
   declare userId: string;
