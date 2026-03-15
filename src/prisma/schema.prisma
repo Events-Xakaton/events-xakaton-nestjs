@@ -73,6 +73,9 @@ model User {
   comments          Comment[]              @relation("CommentAuthor")
   luckyWheelUsages       LuckyWheelUsage[]
   attendanceConfirmations AttendanceConfirmation[]
+  loginStreak            LoginStreak?
+  freeSpinBalance        FreeSpinBalance?
+  freeSpinGrants         FreeSpinGrant[]
 }
 
 model IdentityBinding {
@@ -306,11 +309,34 @@ model AttendanceConfirmation {
 model LuckyWheelUsage {
   id        String   @id @default(uuid())
   userId    String
-  dayKey    String
+  weekKey   String                          // "YYYY-MM-DD" UTC-понедельника недели
   usedAtUtc DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, dayKey])
+  @@unique([userId, weekKey])
+  @@index([userId])
+}
+
+model LoginStreak {
+  userId        String   @id
+  currentStreak Int      @default(1)
+  lastLoginDay  String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FreeSpinBalance {
+  userId   String @id
+  balance  Int    @default(0)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FreeSpinGrant {
+  id          String   @id @default(uuid())
+  userId      String
+  referenceId String   @unique
+  grantedAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }
 

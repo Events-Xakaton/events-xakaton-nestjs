@@ -10,6 +10,7 @@ import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
 import { computeRank } from '@shared/utils/compute-rank';
+import { getWeekKey } from '@shared/utils/week-key';
 import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
@@ -76,14 +77,14 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
     }
 
     if (event.minLevel !== null) {
-      // Lucky Wheel — проверяем использование механики сегодня, ценз снимается
+      // Lucky Wheel — проверяем использование механики на этой неделе, ценз снимается
       const isLuckyBypass =
         command.lucky &&
         (await this.prisma.luckyWheelUsage.findUnique({
           where: {
-            userId_dayKey: {
+            userId_weekKey: {
               userId: user.id,
-              dayKey: new Date().toISOString().slice(0, 10),
+              weekKey: getWeekKey(),
             },
           },
         })) !== null;

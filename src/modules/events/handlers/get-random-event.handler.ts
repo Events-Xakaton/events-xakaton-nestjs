@@ -5,8 +5,10 @@ import { AnalyticsService } from '@analytics/analytics.service';
 import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
-import { IdResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
+import { getWeekKey } from '@shared/utils/week-key';
+
+import { RandomEventResDto } from '../dto/response';
 
 import { EventStatusService } from '../event-status.service';
 import { GetRandomEventQuery } from '../queries';
@@ -25,28 +27,42 @@ export class GetRandomEventHandler
     private readonly analyticsService: AnalyticsService,
   ) {}
 
-  async execute(query: GetRandomEventQuery): Promise<IdResDto> {
+  async execute(query: GetRandomEventQuery): Promise<RandomEventResDto> {
     const { telegramUserId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
 
-    // Граница дня — 00:00 UTC, не скользящие 24 часа
-    const dayKey = new Date().toISOString().slice(0, 10);
+    // Граница недели — UTC-понедельник; 1 стандартный спин в неделю
+    const weekKey = getWeekKey();
 
     const existingUsage = await this.prisma.luckyWheelUsage.findUnique({
-      where: { userId_dayKey: { userId: user.id, dayKey } },
+      where: { userId_weekKey: { userId: user.id, weekKey } },
     });
 
+    let usedFreeSpin = false;
+
     if (existingUsage) {
-      void this.analyticsService.track({
-        eventName: 'event.random_open_denied',
-        userId: user.id,
-        context: { reason: 'DAILY_LIMIT_REACHED', dayKey },
+      // Стандартный спин уже использован — проверяем баланс фри-спинов
+      const freeSpinBalance = await this.prisma.freeSpinBalance.findUnique({
+        where: { userId: user.id },
       });
-      throw new AppException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'DAILY_LIMIT_REACHED',
+      if (!freeSpinBalance || freeSpinBalance.balance <= 0) {
+        void this.analyticsService.track({
+          eventName: 'event.random_open_denied',
+          userId: user.id,
+          context: { reason: 'DAILY_LIMIT_REACHED', weekKey },
+        });
+        throw new AppException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'DAILY_LIMIT_REACHED',
+        });
+      }
+      // Тратим фри-спин
+      await this.prisma.freeSpinBalance.update({
+        where: { userId: user.id },
+        data: { balance: { decrement: 1 } },
       });
+      usedFreeSpin = true;
     }
 
     const events = await this.prisma.event.findMany({
@@ -89,7 +105,7 @@ export class GetRandomEventHandler
       void this.analyticsService.track({
         eventName: 'event.random_open_denied',
         userId: user.id,
-        context: { reason: 'NO_ELIGIBLE_EVENTS', dayKey },
+        context: { reason: 'NO_ELIGIBLE_EVENTS', weekKey },
       });
       throw new AppException({
         statusCode: HttpStatus.NOT_FOUND,
@@ -104,19 +120,24 @@ export class GetRandomEventHandler
     const nearestWindow = sorted.slice(0, K_NEAREST);
     const pick = nearestWindow[Math.floor(Math.random() * nearestWindow.length)];
 
-    // Фиксируем использование механики на текущий UTC-день
-    await this.prisma.luckyWheelUsage.create({
-      data: { userId: user.id, dayKey },
-    });
+    // Фиксируем стандартный недельный спин (фри-спин LuckyWheelUsage не создаёт)
+    if (!usedFreeSpin) {
+      await this.prisma.luckyWheelUsage.create({
+        data: { userId: user.id, weekKey },
+      });
+    }
 
     void this.analyticsService.track({
       eventName: 'event.random_open',
       userId: user.id,
       entityType: 'event',
       entityId: pick.id,
-      context: { candidatesCount: eligible.length, windowSize: nearestWindow.length },
+      context: { candidatesCount: eligible.length, windowSize: nearestWindow.length, usedFreeSpin, weekKey },
     });
 
-    return { id: pick.id };
+    const result = new RandomEventResDto();
+    result.id = pick.id;
+    result.usedFreeSpin = usedFreeSpin;
+    return result;
   }
 }

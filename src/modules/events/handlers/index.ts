@@ -2,6 +2,7 @@ export { CancelEventHandler } from './cancel-event.handler';
 export { ConfirmAttendanceHandler } from './confirm-attendance.handler';
 export { CreateEventHandler } from './create-event.handler';
 export { GetEventHandler } from './get-event.handler';
+export { GetLuckyWheelStreakHandler } from './get-lucky-wheel-streak.handler';
 export { GetRandomEventHandler } from './get-random-event.handler';
 export { JoinEventHandler } from './join-event.handler';
 export { ListEventParticipantsHandler } from './list-event-participants.handler';

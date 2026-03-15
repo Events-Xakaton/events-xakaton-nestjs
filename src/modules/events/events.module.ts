@@ -15,6 +15,7 @@ import {
   ConfirmAttendanceHandler,
   CreateEventHandler,
   GetEventHandler,
+  GetLuckyWheelStreakHandler,
   GetRandomEventHandler,
   JoinEventHandler,
   ListEventParticipantsHandler,
@@ -36,6 +37,7 @@ const handlers = [
   GetEventHandler,
   ListEventParticipantsHandler,
   GetRandomEventHandler,
+  GetLuckyWheelStreakHandler,
 ];
 
 @Module({

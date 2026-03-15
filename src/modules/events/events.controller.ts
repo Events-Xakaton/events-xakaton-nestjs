@@ -35,9 +35,12 @@ import {
   EventDetailResDto,
   EventListItemResDto,
   EventParticipantResDto,
+  LuckyWheelStreakResDto,
+  RandomEventResDto,
 } from './dto/response';
 import {
   GetEventQuery,
+  GetLuckyWheelStreakQuery,
   GetRandomEventQuery,
   ListEventParticipantsQuery,
   ListEventsQuery,
@@ -71,12 +74,12 @@ export class EventsController {
     description:
       'Выбирает одно доступное upcoming-событие из окна ближайших K=5. ' +
       'Пользователь не должен быть участником, должны быть свободные места. ' +
-      'Лимит: 1 запуск в UTC-день.',
+      'Лимит: 1 стандартный запуск в UTC-день + накопленные фри-спины.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: IdResDto,
-    description: 'ID выбранного события',
+    type: RandomEventResDto,
+    description: 'ID выбранного события + флаг usedFreeSpin',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -84,12 +87,25 @@ export class EventsController {
       'Нет доступных событий или исчерпан дневной лимит. ' +
       'Поле `message` содержит машиночитаемый код: ' +
       '`NO_ELIGIBLE_EVENTS` — нет подходящих событий; ' +
-      '`DAILY_LIMIT_REACHED` — лимит 1 запуск/день исчерпан.',
+      '`DAILY_LIMIT_REACHED` — лимит исчерпан и фри-спинов нет.',
   })
   random(
     @Req() req: Request & { telegramUserId?: string },
-  ): Promise<IdResDto> {
+  ): Promise<RandomEventResDto> {
     return this.queryBus.execute(new GetRandomEventQuery(req.telegramUserId));
+  }
+
+  @Get('lucky-wheel/streak')
+  @ApiOperation({ summary: 'Серия входов и баланс фри-спинов текущего пользователя' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: LuckyWheelStreakResDto,
+    description: 'Текущая серия, дней до следующего фри-спина, баланс',
+  })
+  getLuckyWheelStreak(
+    @Req() req: Request & { telegramUserId?: string },
+  ): Promise<LuckyWheelStreakResDto> {
+    return this.queryBus.execute(new GetLuckyWheelStreakQuery(req.telegramUserId));
   }
 
   @Get(':eventId')

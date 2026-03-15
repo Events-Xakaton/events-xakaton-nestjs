@@ -11,6 +11,7 @@ import { AppConfigService, EnvVariableName } from '@shared/config';
 import { POINTS } from '@shared/constants';
 import { PrismaService } from '@shared/prisma';
 import { PointsService } from '@points/points.service';
+import { AnalyticsService } from '@analytics/analytics.service';
 
 /**
  * Middleware для валидации Telegram initData.
@@ -28,6 +29,7 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
     private readonly appConfigService: AppConfigService,
     @Inject(PrismaService) private readonly prisma: PrismaService,
     private readonly pointsService: PointsService,
+    private readonly analyticsService: AnalyticsService,
   ) {}
 
   async use(req: Request, _res: Response, next: NextFunction): Promise<void> {
@@ -146,6 +148,61 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
         deltaPoints: POINTS.PROFILE_COMPLETE,
         referenceId: `profile_complete_${upserted.id}`,
       });
+    }
+
+    void this.syncLoginStreak(upserted.id);
+  }
+
+  /**
+   * Обновляет серию ежедневных входов пользователя.
+   * Идемпотентен: повторные вызовы в тот же UTC-день игнорируются.
+   * При каждом кратном 3 дне начисляет один фри-спин на Lucky Wheel.
+   */
+  private async syncLoginStreak(userId: string): Promise<void> {
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+
+    const streak = await this.prisma.loginStreak.findUnique({ where: { userId } });
+
+    if (streak?.lastLoginDay === today) return;
+
+    const prevStreak = streak?.currentStreak ?? 0;
+    const isConsecutive = streak?.lastLoginDay === yesterday;
+    const newStreak = isConsecutive ? prevStreak + 1 : 1;
+
+    await this.prisma.loginStreak.upsert({
+      where: { userId },
+      update: { currentStreak: newStreak, lastLoginDay: today },
+      create: { userId, currentStreak: newStreak, lastLoginDay: today },
+    });
+
+    void this.analyticsService.track({
+      eventName: 'user.streak_updated',
+      userId,
+      context: { newStreak, isConsecutive },
+    });
+
+    // Каждые 3 дня подряд — фри-спин (идемпотентно по referenceId)
+    if (newStreak % 3 === 0) {
+      const referenceId = `free_spin_streak_${userId}_${today}`;
+      const alreadyGranted = await this.prisma.freeSpinGrant.findUnique({
+        where: { referenceId },
+      });
+      if (!alreadyGranted) {
+        await this.prisma.$transaction([
+          this.prisma.freeSpinGrant.create({ data: { userId, referenceId } }),
+          this.prisma.freeSpinBalance.upsert({
+            where: { userId },
+            update: { balance: { increment: 1 } },
+            create: { userId, balance: 1 },
+          }),
+        ]);
+        void this.analyticsService.track({
+          eventName: 'user.free_spin_granted',
+          userId,
+          context: { streak: newStreak, dayKey: today },
+        });
+      }
     }
   }
 }
