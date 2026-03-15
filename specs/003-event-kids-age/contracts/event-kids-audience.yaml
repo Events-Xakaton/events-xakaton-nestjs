@@ -1,0 +1,192 @@
+openapi: 3.0.3
+info:
+  title: Event Kids Audience Contract
+  version: 1.0.0
+paths:
+  /events:
+    get:
+      summary: List active events with audience metadata
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [id, title, status, startsAtUtc, participantsCount, isForKids, kidsMinAge]
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    title:
+                      type: string
+                    status:
+                      type: string
+                    startsAtUtc:
+                      type: string
+                      format: date-time
+                    participantsCount:
+                      type: integer
+                    isForKids:
+                      type: boolean
+                    kidsMinAge:
+                      type: integer
+                      nullable: true
+    post:
+      summary: Create event with audience metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                [title, description, locationOrLink, startsAtUtc, endsAtUtc, categoryCode]
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                locationOrLink:
+                  type: string
+                startsAtUtc:
+                  type: string
+                  format: date-time
+                endsAtUtc:
+                  type: string
+                  format: date-time
+                categoryCode:
+                  type: string
+                isForKids:
+                  type: boolean
+                  default: false
+                kidsMinAge:
+                  type: integer
+                  minimum: 0
+                  maximum: 17
+                  nullable: true
+      responses:
+        '201':
+          description: Event created
+        '400':
+          description: Validation error
+  /events/{eventId}:
+    get:
+      summary: Get event details with audience metadata
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Event details
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, title, isForKids, kidsMinAge]
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  title:
+                    type: string
+                  isForKids:
+                    type: boolean
+                  kidsMinAge:
+                    type: integer
+                    nullable: true
+        '404':
+          description: Event not found
+    patch:
+      summary: Update event audience metadata
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isForKids:
+                  type: boolean
+                kidsMinAge:
+                  type: integer
+                  minimum: 0
+                  maximum: 17
+                  nullable: true
+      responses:
+        '200':
+          description: Event updated
+        '400':
+          description: Validation error
+        '403':
+          description: No permission
+        '404':
+          description: Event not found
+  /clubs/{clubId}/events:
+    get:
+      summary: Club events list includes audience metadata
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Club events page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [bucket, page, limit, hasMore, total, items]
+                properties:
+                  bucket:
+                    type: string
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+                  hasMore:
+                    type: boolean
+                  total:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, title, status, startsAtUtc, endsAtUtc, participantsCount, isForKids, kidsMinAge]
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        title:
+                          type: string
+                        status:
+                          type: string
+                        startsAtUtc:
+                          type: string
+                          format: date-time
+                        endsAtUtc:
+                          type: string
+                          format: date-time
+                        participantsCount:
+                          type: integer
+                        isForKids:
+                          type: boolean
+                        kidsMinAge:
+                          type: integer
+                          nullable: true

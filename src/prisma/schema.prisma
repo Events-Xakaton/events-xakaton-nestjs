@@ -182,6 +182,8 @@ model Event {
   coverSeed       String?
   maxParticipants Int?
   minLevel        Int?
+  isForKids       Boolean        @default(false)
+  kidsMinAge      Int?
   status          EventStatus    @default(upcoming)
   isDeleted       Boolean        @default(false)
   deletedAt       DateTime?

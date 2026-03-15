@@ -88,6 +88,8 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
       tags: event.tags.map((t) => t.tag),
       coverUrl: event.coverUrl ?? null,
       coverSeed: event.coverSeed ?? null,
+      isForKids: event.isForKids,
+      kidsMinAge: event.kidsMinAge ?? null,
       joinedByMe,
       canManage,
       attendanceConfirmed: attendanceConfirmedCount > 0,

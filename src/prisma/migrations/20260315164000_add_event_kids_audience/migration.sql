@@ -1,0 +1,3 @@
+ALTER TABLE "Event"
+  ADD COLUMN "isForKids" BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN "kidsMinAge" INTEGER;

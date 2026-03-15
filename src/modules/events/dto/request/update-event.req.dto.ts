@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsDateString,
   IsInt,
   IsOptional,
@@ -77,6 +78,26 @@ export class UpdateEventReqDto {
   @Min(1)
   @Max(10)
   minLevel?: number | null;
+
+  @ApiPropertyOptional({
+    description: 'Признак детского ивента',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isForKids?: boolean;
+
+  @ApiPropertyOptional({
+    description:
+      'Минимальный возраст ребенка (N+). null — убрать возрастной порог.',
+    minimum: 0,
+    maximum: 17,
+    nullable: true,
+  })
+  @ValidateIf((_, value) => value !== null && value !== undefined)
+  @IsInt()
+  @Min(0)
+  @Max(17)
+  kidsMinAge?: number | null;
 
   @ApiPropertyOptional({
     description: 'ID клуба (null — отвязать от клуба)',

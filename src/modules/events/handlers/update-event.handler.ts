@@ -82,6 +82,17 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
     const nextEnds = dto.endsAtUtc ? new Date(dto.endsAtUtc) : event.endsAtUtc;
     this.eventStatusService.assertEndsAfterStarts(nextStarts, nextEnds);
 
+    const hasIsForKids = Object.prototype.hasOwnProperty.call(dto, 'isForKids');
+    const hasKidsMinAge = Object.prototype.hasOwnProperty.call(
+      dto,
+      'kidsMinAge',
+    );
+    const nextIsForKids = hasIsForKids
+      ? Boolean(dto.isForKids)
+      : event.isForKids;
+    const shouldResetKidsMinAge =
+      !nextIsForKids && (hasIsForKids || hasKidsMinAge);
+
     let nextClubId: string | null | undefined;
     if (Object.prototype.hasOwnProperty.call(dto, 'clubId')) {
       if (dto.clubId === null) {
@@ -149,6 +160,16 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
         ...(Object.prototype.hasOwnProperty.call(dto, 'minLevel') && {
           minLevel: dto.minLevel ?? null,
         }),
+        ...(hasIsForKids && {
+          isForKids: nextIsForKids,
+        }),
+        ...(shouldResetKidsMinAge && {
+          kidsMinAge: null,
+        }),
+        ...(nextIsForKids &&
+          hasKidsMinAge && {
+            kidsMinAge: dto.kidsMinAge ?? null,
+          }),
       },
     });
 

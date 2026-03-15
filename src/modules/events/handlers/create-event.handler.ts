@@ -66,6 +66,8 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
         message: 'Слишком много тегов',
       });
     }
+    const isForKids = dto.isForKids ?? false;
+    const kidsMinAge = isForKids ? (dto.kidsMinAge ?? null) : null;
 
     const event = await this.prisma.event.create({
       data: {
@@ -80,6 +82,8 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
         coverSeed: dto.coverSeed,
         maxParticipants: dto.maxParticipants,
         minLevel: dto.minLevel ?? null,
+        isForKids,
+        kidsMinAge,
         status: EventStatus.Upcoming,
         tags: { create: tags.map((tag) => ({ tag })) },
       },

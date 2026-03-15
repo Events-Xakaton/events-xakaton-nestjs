@@ -1,4 +1,3 @@
-import { HttpStatus } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { PAGINATION } from '@shared/constants';
@@ -57,6 +56,8 @@ export class ListEventsHandler implements IQueryHandler<ListEventsQuery> {
           coverUrl: event.coverUrl ?? null,
           coverSeed: event.coverSeed ?? null,
           minLevel: event.minLevel ?? null,
+          isForKids: event.isForKids,
+          kidsMinAge: event.kidsMinAge ?? null,
           joinedByMe: event.participations.some((p) => p.userId === user.id),
           isOrganizer: event.creatorUserId === user.id,
         });

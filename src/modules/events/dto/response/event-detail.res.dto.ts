@@ -25,6 +25,16 @@ export class EventDetailResDto {
   @ApiProperty({ type: [String] }) readonly tags: string[];
   @ApiProperty({ nullable: true }) readonly coverUrl: string | null;
   @ApiProperty({ nullable: true }) readonly coverSeed: string | null;
+  @ApiProperty({
+    description: 'Ивент подходит для посещения с детьми',
+  })
+  readonly isForKids: boolean;
+  @ApiProperty({
+    nullable: true,
+    description:
+      'Минимальный возраст ребенка (N+). null — без уточнения возраста.',
+  })
+  readonly kidsMinAge: number | null;
   @ApiProperty() readonly joinedByMe: boolean;
   @ApiProperty() readonly canManage: boolean;
   @ApiProperty({
@@ -51,6 +61,8 @@ export class EventDetailResDto {
     tags: string[];
     coverUrl: string | null;
     coverSeed: string | null;
+    isForKids: boolean;
+    kidsMinAge: number | null;
     joinedByMe: boolean;
     canManage: boolean;
     attendanceConfirmed: boolean;
@@ -73,6 +85,8 @@ export class EventDetailResDto {
     this.tags = data.tags;
     this.coverUrl = data.coverUrl;
     this.coverSeed = data.coverSeed;
+    this.isForKids = data.isForKids;
+    this.kidsMinAge = data.kidsMinAge;
     this.joinedByMe = data.joinedByMe;
     this.canManage = data.canManage;
     this.attendanceConfirmed = data.attendanceConfirmed;

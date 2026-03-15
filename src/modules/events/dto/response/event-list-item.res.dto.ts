@@ -12,6 +12,16 @@ export class EventListItemResDto {
   @ApiProperty({ nullable: true }) readonly minLevel: number | null;
   @ApiProperty({ nullable: true }) readonly coverUrl: string | null;
   @ApiProperty({ nullable: true }) readonly coverSeed: string | null;
+  @ApiProperty({
+    description: 'Ивент подходит для посещения с детьми',
+  })
+  readonly isForKids: boolean;
+  @ApiProperty({
+    nullable: true,
+    description:
+      'Минимальный возраст ребенка (N+). null — без уточнения возраста.',
+  })
+  readonly kidsMinAge: number | null;
   @ApiProperty() readonly joinedByMe: boolean;
   @ApiProperty() readonly isOrganizer: boolean;
 
@@ -25,6 +35,8 @@ export class EventListItemResDto {
     minLevel: number | null;
     coverUrl: string | null;
     coverSeed: string | null;
+    isForKids: boolean;
+    kidsMinAge: number | null;
     joinedByMe: boolean;
     isOrganizer: boolean;
   }) {
@@ -37,6 +49,8 @@ export class EventListItemResDto {
     this.minLevel = data.minLevel;
     this.coverUrl = data.coverUrl;
     this.coverSeed = data.coverSeed;
+    this.isForKids = data.isForKids;
+    this.kidsMinAge = data.kidsMinAge;
     this.joinedByMe = data.joinedByMe;
     this.isOrganizer = data.isOrganizer;
   }

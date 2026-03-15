@@ -99,6 +99,8 @@ export class ListClubEventsHandler implements IQueryHandler<ListClubEventsQuery>
         participantsCount,
         freeSpots,
         minLevel: event.minLevel ?? null,
+        isForKids: event.isForKids,
+        kidsMinAge: event.kidsMinAge ?? null,
       });
     });
 

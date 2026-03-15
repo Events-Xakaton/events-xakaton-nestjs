@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayMaxSize,
   IsArray,
+  IsBoolean,
   IsDateString,
   IsInt,
   IsOptional,
@@ -10,6 +11,7 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateEventReqDto {
@@ -62,6 +64,27 @@ export class CreateEventReqDto {
   @Min(1)
   @Max(10)
   minLevel?: number;
+
+  @ApiPropertyOptional({
+    description: 'Признак детского ивента',
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isForKids?: boolean;
+
+  @ApiPropertyOptional({
+    description:
+      'Минимальный возраст ребенка (N+). null/undefined — без уточнения.',
+    minimum: 0,
+    maximum: 17,
+    nullable: true,
+  })
+  @ValidateIf((_, value) => value !== null && value !== undefined)
+  @IsInt()
+  @Min(0)
+  @Max(17)
+  kidsMinAge?: number | null;
 
   @ApiProperty({ description: 'Код категории' })
   @IsString()
