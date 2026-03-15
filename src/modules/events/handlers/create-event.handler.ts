@@ -2,15 +2,16 @@ import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
+import { AchievementCheckerService } from '@modules/achievements/achievement-checker.service';
 import { PointsService } from '@points/points.service';
 import { PAGINATION, POINTS } from '@shared/constants';
 import { EventStatus } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
-import { IdResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { CreateEventCommand } from '../commands';
+import { CreateEventResDto } from '../dto/response';
 import { EventStatusService } from '../event-status.service';
 
 @CommandHandler(CreateEventCommand)
@@ -21,11 +22,10 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
     private readonly pointsService: PointsService,
     private readonly analyticsService: AnalyticsService,
     private readonly eventStatusService: EventStatusService,
+    private readonly achievementChecker: AchievementCheckerService,
   ) {}
 
-  async execute(
-    command: CreateEventCommand,
-  ): Promise<IdResDto> {
+  async execute(command: CreateEventCommand): Promise<CreateEventResDto> {
     const { telegramUserId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -100,8 +100,11 @@ export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
       entityId: event.id,
     });
 
-    return {
-      id: event.id,
-    };
+    const unlockedAchievements =
+      await this.achievementChecker.checkOnEventCreate(user.id, {
+        maxParticipants: dto.maxParticipants ?? null,
+      });
+
+    return { id: event.id, unlockedAchievements };
   }
 }

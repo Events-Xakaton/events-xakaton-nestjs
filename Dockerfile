@@ -47,6 +47,9 @@ COPY --from=build /app/tsconfig.json ./tsconfig.json
 # package.json нужен для npm run prisma:deploy и npm run seed
 COPY --from=build /app/package.json ./package.json
 
+# Статические файлы (иконки достижений)
+COPY static/ static/
+
 COPY entrypoint.sh ./entrypoint.sh
 # Убираем Windows CRLF → LF, иначе #!/bin/sh не распознаётся на Linux
 RUN sed -i 's/\r$//' ./entrypoint.sh && chmod +x ./entrypoint.sh

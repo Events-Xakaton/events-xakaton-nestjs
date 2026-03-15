@@ -15,9 +15,7 @@ export class GetPointsBalanceHandler implements IQueryHandler<GetPointsBalanceQu
     private readonly userContextService: UserContextService,
   ) {}
 
-  async execute(
-    query: GetPointsBalanceQuery,
-  ): Promise<PointsBalanceResDto> {
+  async execute(query: GetPointsBalanceQuery): Promise<PointsBalanceResDto> {
     const user = await this.userContextService.requireUserByTelegram(
       query.telegramUserId,
     );

@@ -51,7 +51,8 @@ export class CreateEventReqDto {
   maxParticipants?: number;
 
   @ApiPropertyOptional({
-    description: 'Минимальный уровень участника (1–10). null — без ограничений.',
+    description:
+      'Минимальный уровень участника (1–10). null — без ограничений.',
     minimum: 1,
     maximum: 10,
   })

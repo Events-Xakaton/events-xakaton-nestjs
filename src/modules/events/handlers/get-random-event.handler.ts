@@ -9,7 +9,6 @@ import { UserContextService } from '@shared/user-context';
 import { getWeekKey } from '@shared/utils/week-key';
 
 import { RandomEventResDto } from '../dto/response';
-
 import { EventStatusService } from '../event-status.service';
 import { GetRandomEventQuery } from '../queries';
 
@@ -17,9 +16,7 @@ import { GetRandomEventQuery } from '../queries';
 const K_NEAREST = 5;
 
 @QueryHandler(GetRandomEventQuery)
-export class GetRandomEventHandler
-  implements IQueryHandler<GetRandomEventQuery>
-{
+export class GetRandomEventHandler implements IQueryHandler<GetRandomEventQuery> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userContextService: UserContextService,
@@ -118,7 +115,8 @@ export class GetRandomEventHandler
       (a, b) => a.startsAtUtc.getTime() - b.startsAtUtc.getTime(),
     );
     const nearestWindow = sorted.slice(0, K_NEAREST);
-    const pick = nearestWindow[Math.floor(Math.random() * nearestWindow.length)];
+    const pick =
+      nearestWindow[Math.floor(Math.random() * nearestWindow.length)];
 
     // Фиксируем стандартный недельный спин (фри-спин LuckyWheelUsage не создаёт)
     if (!usedFreeSpin) {
@@ -132,7 +130,12 @@ export class GetRandomEventHandler
       userId: user.id,
       entityType: 'event',
       entityId: pick.id,
-      context: { candidatesCount: eligible.length, windowSize: nearestWindow.length, usedFreeSpin, weekKey },
+      context: {
+        candidatesCount: eligible.length,
+        windowSize: nearestWindow.length,
+        usedFreeSpin,
+        weekKey,
+      },
     });
 
     const result = new RandomEventResDto();

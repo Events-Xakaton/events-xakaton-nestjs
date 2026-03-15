@@ -22,9 +22,7 @@ export class UnjoinEventHandler implements ICommandHandler<UnjoinEventCommand> {
     private readonly reminderScheduler: ReminderSchedulerService,
   ) {}
 
-  async execute(
-    command: UnjoinEventCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: UnjoinEventCommand): Promise<StatusResDto> {
     const { telegramUserId, eventId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

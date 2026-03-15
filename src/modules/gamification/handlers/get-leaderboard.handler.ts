@@ -1,6 +1,9 @@
+import { ConfigService } from '@nestjs/config';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
+import { EnvVariableName } from '@shared/config';
 import { PAGINATION } from '@shared/constants';
+import { resolveAvatarUrl } from '@shared/helpers/resolve-avatar.helper';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 import { computeRank } from '@shared/utils/compute-rank';
@@ -14,11 +17,10 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
   constructor(
     private readonly prisma: PrismaService,
     private readonly userContextService: UserContextService,
+    private readonly config: ConfigService,
   ) {}
 
-  async execute(
-    query: GetLeaderboardQuery,
-  ): Promise<LeaderboardResDto> {
+  async execute(query: GetLeaderboardQuery): Promise<LeaderboardResDto> {
     const { period, telegramUserId } = query;
     const user = telegramUserId
       ? await this.userContextService.requireUserByTelegram(telegramUserId)
@@ -40,16 +42,29 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
     const userIds = aggregated.map((r) => r.userId);
     const users = await this.prisma.user.findMany({
       where: { id: { in: userIds } },
-      select: { id: true, fullName: true },
+      select: {
+        id: true,
+        fullName: true,
+        avatarUrl: true,
+        activeAchievement: { select: { iconPath: true } },
+      },
     });
-    const userMap = new Map(users.map((u) => [u.id, u.fullName]));
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
+    const baseUrl =
+      this.config.get<string>(EnvVariableName.APP_BASE_URL) ??
+      'http://localhost:4000';
 
     const sorted = aggregated
-      .map((r) => ({
-        userId: r.userId,
-        points: r.points,
-        fullName: userMap.get(r.userId) ?? 'Unknown',
-      }))
+      .map((r) => {
+        const u = userMap.get(r.userId);
+        return {
+          userId: r.userId,
+          points: r.points,
+          fullName: u?.fullName ?? 'Unknown',
+          avatarUrl: u ? resolveAvatarUrl(u, baseUrl) : null,
+        };
+      })
       .sort((a, b) => {
         if (b.points !== a.points) return b.points - a.points;
         const byName = a.fullName.localeCompare(b.fullName, 'ru');
@@ -62,6 +77,7 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
       position: index + 1,
       userId: row.userId,
       fullName: row.fullName,
+      avatarUrl: row.avatarUrl,
       points: row.points,
     }));
 
@@ -75,12 +91,17 @@ export class GetLeaderboardHandler implements IQueryHandler<GetLeaderboardQuery>
       } else {
         const userRecord = await this.prisma.user.findUnique({
           where: { id: user.id },
-          select: { fullName: true },
+          select: {
+            fullName: true,
+            avatarUrl: true,
+            activeAchievement: { select: { iconPath: true } },
+          },
         });
         currentUserBase = {
           position: 0,
           userId: user.id,
           fullName: userRecord?.fullName ?? 'Unknown',
+          avatarUrl: userRecord ? resolveAvatarUrl(userRecord, baseUrl) : null,
           points: 0,
         };
       }

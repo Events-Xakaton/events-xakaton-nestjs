@@ -4,6 +4,9 @@ export class RandomEventResDto {
   @ApiProperty({ description: 'UUID выбранного события' })
   declare id: string;
 
-  @ApiProperty({ description: 'true — использован фри-спин, false — стандартный суточный спин' })
+  @ApiProperty({
+    description:
+      'true — использован фри-спин, false — стандартный суточный спин',
+  })
   declare usedFreeSpin: boolean;
 }

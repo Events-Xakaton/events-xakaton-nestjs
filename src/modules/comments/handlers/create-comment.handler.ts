@@ -20,9 +20,7 @@ export class CreateCommentHandler implements ICommandHandler<CreateCommentComman
     private readonly pointsService: PointsService,
   ) {}
 
-  async execute(
-    command: CreateCommentCommand,
-  ): Promise<IdResDto> {
+  async execute(command: CreateCommentCommand): Promise<IdResDto> {
     const { telegramUserId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

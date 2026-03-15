@@ -12,9 +12,7 @@ import { GetAdminUserQuery } from '../queries';
 export class GetAdminUserHandler implements IQueryHandler<GetAdminUserQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(
-    query: GetAdminUserQuery,
-  ): Promise<AdminUserResDto> {
+  async execute(query: GetAdminUserQuery): Promise<AdminUserResDto> {
     const user = await this.prisma.user.findUnique({
       where: { telegramUserId: BigInt(query.targetTelegramUserId) },
       include: { roles: { include: { role: { select: { code: true } } } } },

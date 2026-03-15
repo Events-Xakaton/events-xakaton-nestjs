@@ -17,9 +17,7 @@ export class UpdateClubHandler implements ICommandHandler<UpdateClubCommand> {
     private readonly analyticsService: AnalyticsService,
   ) {}
 
-  async execute(
-    command: UpdateClubCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: UpdateClubCommand): Promise<StatusResDto> {
     const { telegramUserId, clubId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

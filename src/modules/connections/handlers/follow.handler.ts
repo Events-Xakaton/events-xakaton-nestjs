@@ -22,9 +22,7 @@ export class FollowHandler implements ICommandHandler<FollowCommand> {
     private readonly pointsService: PointsService,
   ) {}
 
-  async execute(
-    command: FollowCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: FollowCommand): Promise<StatusResDto> {
     const { telegramUserId, targetTelegramUserId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

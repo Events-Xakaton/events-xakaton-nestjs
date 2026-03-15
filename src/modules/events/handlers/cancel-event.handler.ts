@@ -24,9 +24,7 @@ export class CancelEventHandler implements ICommandHandler<CancelEventCommand> {
     private readonly reminderScheduler: ReminderSchedulerService,
   ) {}
 
-  async execute(
-    command: CancelEventCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: CancelEventCommand): Promise<StatusResDto> {
     const { telegramUserId, eventId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

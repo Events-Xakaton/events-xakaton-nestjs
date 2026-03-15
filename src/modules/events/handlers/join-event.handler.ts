@@ -3,18 +3,19 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { AnalyticsService } from '@analytics/analytics.service';
 import { ReminderSchedulerService } from '@jobs/reminders/reminder.scheduler.service';
+import { AchievementCheckerService } from '@modules/achievements/achievement-checker.service';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { PointsService } from '@points/points.service';
 import { POINTS, RANKS } from '@shared/constants';
 import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
+import { UserContextService } from '@shared/user-context';
 import { computeRank } from '@shared/utils/compute-rank';
 import { getWeekKey } from '@shared/utils/week-key';
-import { StatusResDto } from '@shared/types';
-import { UserContextService } from '@shared/user-context';
 
 import { JoinEventCommand } from '../commands';
+import { JoinEventResDto } from '../dto/response';
 import { EventStatusService } from '../event-status.service';
 
 @CommandHandler(JoinEventCommand)
@@ -27,11 +28,10 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
     private readonly analyticsService: AnalyticsService,
     private readonly eventStatusService: EventStatusService,
     private readonly reminderScheduler: ReminderSchedulerService,
+    private readonly achievementChecker: AchievementCheckerService,
   ) {}
 
-  async execute(
-    command: JoinEventCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: JoinEventCommand): Promise<JoinEventResDto> {
     const { telegramUserId, eventId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -162,8 +162,11 @@ export class JoinEventHandler implements ICommandHandler<JoinEventCommand> {
       entityId: eventId,
     });
 
-    return {
-      status: EventParticipationStatus.Joined,
-    };
+    const unlockedAchievements = await this.achievementChecker.checkOnEventJoin(
+      user.id,
+      eventId,
+    );
+
+    return { status: EventParticipationStatus.Joined, unlockedAchievements };
   }
 }

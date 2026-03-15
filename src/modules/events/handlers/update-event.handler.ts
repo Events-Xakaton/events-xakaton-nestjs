@@ -134,7 +134,9 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
         maxParticipants: dto.maxParticipants ?? undefined,
         coverSeed: dto.coverSeed ?? undefined,
         clubId: nextClubId,
-        ...(Object.prototype.hasOwnProperty.call(dto, 'minLevel') && { minLevel: dto.minLevel ?? null }),
+        ...(Object.prototype.hasOwnProperty.call(dto, 'minLevel') && {
+          minLevel: dto.minLevel ?? null,
+        }),
       },
     });
 
@@ -163,7 +165,9 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
             nextLocationOrLink: isLocationChanged
               ? (dto.locationOrLink ?? null)
               : null,
-            nextMinLevel: isMinLevelChanged ? (dto.minLevel ?? null) : undefined,
+            nextMinLevel: isMinLevelChanged
+              ? (dto.minLevel ?? null)
+              : undefined,
           },
         },
         `event_changed_${eventId}_${Date.now()}`,

@@ -12,10 +12,19 @@ export class LeaderboardEntryResDto {
   @ApiProperty({ description: 'Полное имя пользователя' })
   declare fullName: string;
 
+  @ApiProperty({
+    nullable: true,
+    description: 'URL аватара (иконка достижения, если применена)',
+  })
+  declare avatarUrl: string | null;
+
   @ApiProperty({ description: 'Количество очков за период' })
   declare points: number;
 
-  @ApiProperty({ type: RankInfoDto, description: 'Ранг пользователя (по lifetime очкам)' })
+  @ApiProperty({
+    type: RankInfoDto,
+    description: 'Ранг пользователя (по lifetime очкам)',
+  })
   declare rankInfo: RankInfoDto;
 }
 
@@ -23,7 +32,10 @@ export class LeaderboardResDto {
   @ApiProperty({ enum: ['weekly', 'monthly'], description: 'Период рейтинга' })
   declare period: 'weekly' | 'monthly';
 
-  @ApiProperty({ type: [LeaderboardEntryResDto], description: 'Топ участников' })
+  @ApiProperty({
+    type: [LeaderboardEntryResDto],
+    description: 'Топ участников',
+  })
   declare top: LeaderboardEntryResDto[];
 
   @ApiProperty({

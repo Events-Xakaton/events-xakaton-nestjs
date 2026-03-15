@@ -14,7 +14,7 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AppRole, Roles } from '@shared/auth';
-import { IdResDto, StatusResDto } from '@shared/types';
+import { StatusResDto } from '@shared/types';
 
 import {
   CancelEventCommand,
@@ -32,9 +32,12 @@ import {
   UpdateEventReqDto,
 } from './dto/request';
 import {
+  ConfirmAttendanceResDto,
+  CreateEventResDto,
   EventDetailResDto,
   EventListItemResDto,
   EventParticipantResDto,
+  JoinEventResDto,
   LuckyWheelStreakResDto,
   RandomEventResDto,
 } from './dto/response';
@@ -96,7 +99,9 @@ export class EventsController {
   }
 
   @Get('lucky-wheel/streak')
-  @ApiOperation({ summary: 'Серия входов и баланс фри-спинов текущего пользователя' })
+  @ApiOperation({
+    summary: 'Серия входов и баланс фри-спинов текущего пользователя',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: LuckyWheelStreakResDto,
@@ -105,7 +110,9 @@ export class EventsController {
   getLuckyWheelStreak(
     @Req() req: Request & { telegramUserId?: string },
   ): Promise<LuckyWheelStreakResDto> {
-    return this.queryBus.execute(new GetLuckyWheelStreakQuery(req.telegramUserId));
+    return this.queryBus.execute(
+      new GetLuckyWheelStreakQuery(req.telegramUserId),
+    );
   }
 
   @Get(':eventId')
@@ -150,8 +157,8 @@ export class EventsController {
   @ApiOperation({ summary: 'Создать событие' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: IdResDto,
-    description: 'ID созданного события',
+    type: CreateEventResDto,
+    description: 'ID созданного события и разблокированные достижения',
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
@@ -160,7 +167,7 @@ export class EventsController {
   create(
     @Req() req: Request & { telegramUserId?: string },
     @Body() dto: CreateEventReqDto,
-  ): Promise<IdResDto> {
+  ): Promise<CreateEventResDto> {
     return this.commandBus.execute(
       new CreateEventCommand(req.telegramUserId, dto),
     );
@@ -171,8 +178,8 @@ export class EventsController {
   @ApiParam({ name: 'eventId', description: 'UUID события' })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: StatusResDto,
-    description: 'Успешная запись на событие',
+    type: JoinEventResDto,
+    description: 'Успешная запись на событие и разблокированные достижения',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -186,7 +193,7 @@ export class EventsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
     @Query('lucky') lucky?: string,
-  ): Promise<StatusResDto> {
+  ): Promise<JoinEventResDto> {
     return this.commandBus.execute(
       new JoinEventCommand(req.telegramUserId, eventId, lucky === 'true'),
     );
@@ -270,12 +277,14 @@ export class EventsController {
   }
 
   @Post(':eventId/attendance')
-  @ApiOperation({ summary: 'Подтвердить присутствие участников и выставить оценки' })
+  @ApiOperation({
+    summary: 'Подтвердить присутствие участников и выставить оценки',
+  })
   @ApiParam({ name: 'eventId', description: 'UUID события' })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: StatusResDto,
-    description: 'Подтверждения применены',
+    type: ConfirmAttendanceResDto,
+    description: 'Подтверждения применены и разблокированные достижения',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -297,7 +306,7 @@ export class EventsController {
     @Req() req: Request & { telegramUserId?: string },
     @Param('eventId') eventId: string,
     @Body() dto: ConfirmAttendanceReqDto,
-  ): Promise<StatusResDto> {
+  ): Promise<ConfirmAttendanceResDto> {
     return this.commandBus.execute(
       new ConfirmAttendanceCommand(req.telegramUserId, eventId, dto),
     );

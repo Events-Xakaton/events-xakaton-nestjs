@@ -19,9 +19,7 @@ export class VerifyCodeHandler implements ICommandHandler<VerifyCodeCommand> {
     private readonly analyticsService: AnalyticsService,
   ) {}
 
-  async execute(
-    command: VerifyCodeCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: VerifyCodeCommand): Promise<StatusResDto> {
     const { telegramUserId, reddyUserKey, code } = command;
 
     const user = await this.prisma.user.findUnique({

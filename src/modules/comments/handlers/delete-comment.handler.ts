@@ -15,9 +15,7 @@ export class DeleteCommentHandler implements ICommandHandler<DeleteCommentComman
     private readonly userContextService: UserContextService,
   ) {}
 
-  async execute(
-    command: DeleteCommentCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: DeleteCommentCommand): Promise<StatusResDto> {
     const { telegramUserId, commentId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

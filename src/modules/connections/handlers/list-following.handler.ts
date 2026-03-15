@@ -15,9 +15,7 @@ export class ListFollowingHandler implements IQueryHandler<ListFollowingQuery> {
     private readonly userContextService: UserContextService,
   ) {}
 
-  async execute(
-    query: ListFollowingQuery,
-  ): Promise<FollowingItemResDto[]> {
+  async execute(query: ListFollowingQuery): Promise<FollowingItemResDto[]> {
     const user = await this.userContextService.requireUserByTelegram(
       query.telegramUserId,
     );
@@ -26,7 +24,9 @@ export class ListFollowingHandler implements IQueryHandler<ListFollowingQuery> {
       where: { followerUserId: user.id },
       orderBy: { createdAt: 'desc' },
       include: {
-        followed: { select: { id: true, telegramUserId: true, fullName: true } },
+        followed: {
+          select: { id: true, telegramUserId: true, fullName: true },
+        },
       },
       take: PAGINATION.FOLLOWING_LIST_LIMIT,
     });

@@ -21,9 +21,7 @@ export class CreateClubHandler implements ICommandHandler<CreateClubCommand> {
     private readonly analyticsService: AnalyticsService,
   ) {}
 
-  async execute(
-    command: CreateClubCommand,
-  ): Promise<IdResDto> {
+  async execute(command: CreateClubCommand): Promise<IdResDto> {
     const { telegramUserId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

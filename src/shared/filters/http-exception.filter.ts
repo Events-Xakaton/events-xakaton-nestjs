@@ -31,7 +31,10 @@ export class GeneralExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     // Фильтр обрабатывает только HTTP-контекст; Telegraf-апдейты — пропускаем
     if (host.getType() !== 'http') {
-      this.logger.error({ err: exception }, 'Unhandled exception in non-HTTP context');
+      this.logger.error(
+        { err: exception },
+        'Unhandled exception in non-HTTP context',
+      );
       return;
     }
 

@@ -20,9 +20,7 @@ export class SubmitEventFeedbackHandler implements ICommandHandler<SubmitEventFe
     private readonly analyticsService: AnalyticsService,
   ) {}
 
-  async execute(
-    command: SubmitEventFeedbackCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: SubmitEventFeedbackCommand): Promise<StatusResDto> {
     const { telegramUserId, eventId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

@@ -18,9 +18,7 @@ export class ListClubEventsHandler implements IQueryHandler<ListClubEventsQuery>
     private readonly userContextService: UserContextService,
   ) {}
 
-  async execute(
-    query: ListClubEventsQuery,
-  ): Promise<ClubEventsPageResDto> {
+  async execute(query: ListClubEventsQuery): Promise<ClubEventsPageResDto> {
     const { telegramUserId, clubId } = query;
     const bucket = query.bucket ?? EventStatus.Upcoming;
     const page = Math.max(query.page ?? 1, 1);

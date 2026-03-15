@@ -17,9 +17,7 @@ export class UnfollowHandler implements ICommandHandler<UnfollowCommand> {
     private readonly analyticsService: AnalyticsService,
   ) {}
 
-  async execute(
-    command: UnfollowCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: UnfollowCommand): Promise<StatusResDto> {
     const { telegramUserId, targetTelegramUserId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

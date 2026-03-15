@@ -20,9 +20,7 @@ export class DeleteClubHandler implements ICommandHandler<DeleteClubCommand> {
     private readonly analyticsService: AnalyticsService,
   ) {}
 
-  async execute(
-    command: DeleteClubCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: DeleteClubCommand): Promise<StatusResDto> {
     const { telegramUserId, clubId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

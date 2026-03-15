@@ -11,15 +11,15 @@ import { GetLuckyWheelStreakQuery } from '../queries';
 const STREAK_THRESHOLD = 3;
 
 @QueryHandler(GetLuckyWheelStreakQuery)
-export class GetLuckyWheelStreakHandler
-  implements IQueryHandler<GetLuckyWheelStreakQuery>
-{
+export class GetLuckyWheelStreakHandler implements IQueryHandler<GetLuckyWheelStreakQuery> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userContextService: UserContextService,
   ) {}
 
-  async execute(query: GetLuckyWheelStreakQuery): Promise<LuckyWheelStreakResDto> {
+  async execute(
+    query: GetLuckyWheelStreakQuery,
+  ): Promise<LuckyWheelStreakResDto> {
     const user = await this.userContextService.requireUserByTelegram(
       query.telegramUserId,
     );

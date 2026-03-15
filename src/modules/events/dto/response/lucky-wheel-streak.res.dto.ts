@@ -10,11 +10,14 @@ export class LuckyWheelStreakResDto {
   @ApiProperty({ description: 'Накопленный баланс фри-спинов' })
   declare freeSpinBalance: number;
 
-  @ApiProperty({ description: 'Стандартный (недельный) спин уже использован на этой неделе' })
+  @ApiProperty({
+    description: 'Стандартный (недельный) спин уже использован на этой неделе',
+  })
   declare hasUsedWeeklySpin: boolean;
 
   @ApiProperty({
-    description: 'Дата UTC-понедельника следующей недели — когда разблокируется стандартный спин',
+    description:
+      'Дата UTC-понедельника следующей недели — когда разблокируется стандартный спин',
     example: '2026-03-16',
   })
   declare nextWeekKey: string;

@@ -18,9 +18,7 @@ export class ListEventsHandler implements IQueryHandler<ListEventsQuery> {
     private readonly eventStatusService: EventStatusService,
   ) {}
 
-  async execute(
-    query: ListEventsQuery,
-  ): Promise<EventListItemResDto[]> {
+  async execute(query: ListEventsQuery): Promise<EventListItemResDto[]> {
     const { telegramUserId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

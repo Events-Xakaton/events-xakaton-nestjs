@@ -23,9 +23,7 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
     private readonly eventStatusService: EventStatusService,
   ) {}
 
-  async execute(
-    query: GetEventQuery,
-  ): Promise<EventDetailResDto> {
+  async execute(query: GetEventQuery): Promise<EventDetailResDto> {
     const { telegramUserId, eventId } = query;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);
@@ -34,7 +32,9 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
       this.prisma.event.findFirst({
         where: { id: eventId, isDeleted: false },
         include: {
-          creator: { select: { id: true, telegramUserId: true, fullName: true } },
+          creator: {
+            select: { id: true, telegramUserId: true, fullName: true },
+          },
           club: { select: { id: true, title: true } },
           tags: { select: { tag: true } },
           participations: {

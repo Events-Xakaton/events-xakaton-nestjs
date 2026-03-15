@@ -1,9 +1,12 @@
 import { HttpStatus } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
+import { EnvVariableName } from '@shared/config';
 import { PAGINATION } from '@shared/constants';
 import { EventParticipationStatus } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
+import { resolveAvatarUrl } from '@shared/helpers/resolve-avatar.helper';
 import { PrismaService } from '@shared/prisma';
 import { UserContextService } from '@shared/user-context';
 import { computeRank } from '@shared/utils/compute-rank';
@@ -16,6 +19,7 @@ export class ListEventParticipantsHandler implements IQueryHandler<ListEventPart
   constructor(
     private readonly prisma: PrismaService,
     private readonly userContextService: UserContextService,
+    private readonly config: ConfigService,
   ) {}
 
   async execute(
@@ -45,6 +49,7 @@ export class ListEventParticipantsHandler implements IQueryHandler<ListEventPart
             telegramUserId: true,
             fullName: true,
             avatarUrl: true,
+            activeAchievement: { select: { iconPath: true } },
           },
         },
       },
@@ -76,12 +81,16 @@ export class ListEventParticipantsHandler implements IQueryHandler<ListEventPart
       confirmations.map((c) => [c.userId, c.rating ?? null]),
     );
 
+    const baseUrl =
+      this.config.get<string>(EnvVariableName.APP_BASE_URL) ??
+      'http://localhost:4000';
+
     const items = participants.map(
       (p) =>
         new EventParticipantResDto({
           telegramUserId: p.user.telegramUserId.toString(),
           fullName: p.user.fullName,
-          avatarUrl: p.user.avatarUrl ?? null,
+          avatarUrl: resolveAvatarUrl(p.user, baseUrl),
           followedByMe: followedSet.has(p.user.id),
           rankInfo: computeRank(lifetimeMap.get(p.user.id) ?? 0),
           rating: confirmationMap.has(p.user.id)

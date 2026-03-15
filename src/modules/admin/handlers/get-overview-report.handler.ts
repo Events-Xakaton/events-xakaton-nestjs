@@ -11,9 +11,7 @@ import { GetOverviewReportQuery } from '../queries';
 export class GetOverviewReportHandler implements IQueryHandler<GetOverviewReportQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(
-    query: GetOverviewReportQuery,
-  ): Promise<OverviewReportResDto> {
+  async execute(query: GetOverviewReportQuery): Promise<OverviewReportResDto> {
     const fromUtc = query.range.fromUtc
       ? new Date(query.range.fromUtc)
       : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

@@ -5,7 +5,10 @@ import { UserContextService } from '@shared/user-context';
 
 import { ListNotificationsDto } from './dto/list-notifications.dto';
 
-export type ApiNotificationType = 'event_changed' | 'member_joined';
+export type ApiNotificationType =
+  | 'event_changed'
+  | 'member_joined'
+  | 'achievement_unlocked';
 export type ApiNotificationTargetType = 'club' | 'event';
 
 /**
@@ -24,7 +27,11 @@ export class NotificationsService {
   /** Создаёт in-app уведомление. Вызывается из clubs, events, connections, workers. */
   async createInAppNotification(params: {
     userId: string;
-    type: 'new_follower' | 'event_changed' | 'reminder';
+    type:
+      | 'new_follower'
+      | 'event_changed'
+      | 'reminder'
+      | 'achievement_unlocked';
     title: string;
     body: string;
     targetType?: 'club' | 'event';
@@ -75,6 +82,7 @@ export class NotificationsService {
         OR: [
           { type: 'event_changed' },
           { type: 'new_follower', targetType: { in: ['event', 'club'] } },
+          { type: 'achievement_unlocked' },
         ],
         createdAt: cursorDate ? { lt: cursorDate } : undefined,
       },

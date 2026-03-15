@@ -11,7 +11,8 @@ export class EventParticipantResDto {
 
   @ApiProperty({
     nullable: true,
-    description: 'Оценка от организатора (1–5). null — не выставлена или посещение не подтверждено',
+    description:
+      'Оценка от организатора (1–5). null — не выставлена или посещение не подтверждено',
   })
   readonly rating: number | null;
 

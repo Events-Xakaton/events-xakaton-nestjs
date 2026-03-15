@@ -10,9 +10,7 @@ import { ListCommentsQuery } from '../queries';
 export class ListCommentsHandler implements IQueryHandler<ListCommentsQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(
-    query: ListCommentsQuery,
-  ): Promise<CommentItemResDto[]> {
+  async execute(query: ListCommentsQuery): Promise<CommentItemResDto[]> {
     const { entityType, entityId } = query;
 
     const comments = await this.prisma.comment.findMany({

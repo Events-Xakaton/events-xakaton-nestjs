@@ -4,6 +4,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { AnalyticsModule } from '@analytics/analytics.module';
 import { JobsModule } from '@jobs/jobs.module';
 import { EventChangedWorker } from '@jobs/workers/event-changed.worker';
+import { AchievementsModule } from '@modules/achievements/achievements.module';
 import { ReddyModule } from '@reddy/reddy.module';
 
 import { BotModule } from '../bot/bot.module';
@@ -46,6 +47,7 @@ const handlers = [
     JobsModule,
     BotModule,
     NotificationsModule,
+    AchievementsModule,
     ReddyModule,
     AnalyticsModule,
   ],

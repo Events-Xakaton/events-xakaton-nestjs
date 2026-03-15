@@ -17,9 +17,7 @@ export class UpdateCommentHandler implements ICommandHandler<UpdateCommentComman
     private readonly commentEntityService: CommentEntityService,
   ) {}
 
-  async execute(
-    command: UpdateCommentCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: UpdateCommentCommand): Promise<StatusResDto> {
     const { telegramUserId, commentId, dto } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

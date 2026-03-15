@@ -20,9 +20,7 @@ export class LeaveClubHandler implements ICommandHandler<LeaveClubCommand> {
     private readonly analyticsService: AnalyticsService,
   ) {}
 
-  async execute(
-    command: LeaveClubCommand,
-  ): Promise<StatusResDto> {
+  async execute(command: LeaveClubCommand): Promise<StatusResDto> {
     const { telegramUserId, clubId } = command;
     const user =
       await this.userContextService.requireUserByTelegram(telegramUserId);

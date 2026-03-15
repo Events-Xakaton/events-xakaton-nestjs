@@ -7,11 +7,11 @@ import {
 import { parse, validate } from '@telegram-apps/init-data-node';
 import { NextFunction, Request, Response } from 'express';
 
+import { AnalyticsService } from '@analytics/analytics.service';
+import { PointsService } from '@points/points.service';
 import { AppConfigService, EnvVariableName } from '@shared/config';
 import { POINTS } from '@shared/constants';
 import { PrismaService } from '@shared/prisma';
-import { PointsService } from '@points/points.service';
-import { AnalyticsService } from '@analytics/analytics.service';
 
 /**
  * Middleware для валидации Telegram initData.
@@ -160,9 +160,13 @@ export class TelegramInitDataMiddleware implements NestMiddleware {
    */
   private async syncLoginStreak(userId: string): Promise<void> {
     const today = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86_400_000)
+      .toISOString()
+      .slice(0, 10);
 
-    const streak = await this.prisma.loginStreak.findUnique({ where: { userId } });
+    const streak = await this.prisma.loginStreak.findUnique({
+      where: { userId },
+    });
 
     if (streak?.lastLoginDay === today) return;
 

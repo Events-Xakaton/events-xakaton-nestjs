@@ -57,7 +57,8 @@ export class UpdateEventReqDto {
   coverSeed?: string;
 
   @ApiPropertyOptional({
-    description: 'Минимальный уровень участника (1–10). null — снять ограничение.',
+    description:
+      'Минимальный уровень участника (1–10). null — снять ограничение.',
     minimum: 1,
     maximum: 10,
     nullable: true,

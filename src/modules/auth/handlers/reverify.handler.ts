@@ -16,9 +16,7 @@ export class ReverifyHandler implements ICommandHandler<ReverifyCommand> {
     private readonly commandBus: CommandBus,
   ) {}
 
-  async execute(
-    command: ReverifyCommand,
-  ): Promise<OtpRequestedResDto> {
+  async execute(command: ReverifyCommand): Promise<OtpRequestedResDto> {
     const { telegramUserId } = command;
 
     const user = await this.prisma.user.findUnique({

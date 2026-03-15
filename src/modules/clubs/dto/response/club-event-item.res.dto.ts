@@ -9,7 +9,11 @@ export class ClubEventItemResDto {
   @ApiProperty() readonly endsAtUtc: Date;
   @ApiProperty() readonly participantsCount: number;
   @ApiProperty({ nullable: true }) readonly freeSpots: number | null;
-  @ApiProperty({ nullable: true, description: 'Минимальный уровень участника (null — без ограничений)' }) readonly minLevel: number | null;
+  @ApiProperty({
+    nullable: true,
+    description: 'Минимальный уровень участника (null — без ограничений)',
+  })
+  readonly minLevel: number | null;
 
   constructor(data: {
     id: string;

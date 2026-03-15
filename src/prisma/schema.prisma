@@ -50,6 +50,7 @@ enum NotificationType {
   event_changed
   reminder
   start_reminder
+  achievement_unlocked
 }
 
 model User {
@@ -62,6 +63,8 @@ model User {
   isVerified        Boolean                @default(false)
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @updatedAt
+  activeAchievementId   String?
+  activeAchievement     Achievement?           @relation("ActiveAchievement", fields: [activeAchievementId], references: [id])
   identityBinding   IdentityBinding?
   roles             UserRole[]
   clubsCreated      Club[]                 @relation("ClubCreator")
@@ -76,6 +79,7 @@ model User {
   loginStreak            LoginStreak?
   freeSpinBalance        FreeSpinBalance?
   freeSpinGrants         FreeSpinGrant[]
+  achievements           UserAchievement[]
 }
 
 model IdentityBinding {
@@ -337,6 +341,28 @@ model FreeSpinGrant {
   grantedAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+}
+
+model Achievement {
+  id               String            @id @default(uuid())
+  code             String            @unique
+  name             String
+  description      String
+  iconPath         String            // путь относительно /static/, напр. "achievements/captain-america.jpg"
+  userAchievements UserAchievement[]
+  activeForUsers   User[]            @relation("ActiveAchievement")
+}
+
+model UserAchievement {
+  id            String      @id @default(uuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
   @@index([userId])
 }
 

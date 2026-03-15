@@ -1,8 +1,10 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
 import { Logger } from 'nestjs-pino';
+import { join } from 'path';
 import 'reflect-metadata';
 
 import { EnvVariableName } from '@shared/config';
@@ -17,7 +19,9 @@ async function bootstrap(): Promise<void> {
 
   // bufferLogs: true — буферизует логи NestJS до подключения Pino-логгера,
   // чтобы не потерять сообщения во время инициализации модулей
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+  });
 
   // Заменяем встроенный NestJS-логгер на Pino (pino-pretty в dev, JSON в prod)
   app.useLogger(app.get(Logger));
@@ -82,6 +86,9 @@ async function bootstrap(): Promise<void> {
 
   // enableShutdownHooks позволяет NestJS перехватывать SIGTERM/SIGINT и корректно
   // вызывать onModuleDestroy у воркеров BullMQ, закрывать Prisma и Redis-соединения
+  // Раздача статических файлов из папки static/ (иконки достижений и др.)
+  app.useStaticAssets(join(__dirname, '..', 'static'), { prefix: '/static' });
+
   app.enableShutdownHooks();
 
   const port = process.env[EnvVariableName.PORT]

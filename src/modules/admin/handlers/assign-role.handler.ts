@@ -9,9 +9,7 @@ import { AssignRoleCommand } from '../commands';
 export class AssignRoleHandler implements ICommandHandler<AssignRoleCommand> {
   constructor(private readonly userContextService: UserContextService) {}
 
-  async execute(
-    command: AssignRoleCommand,
-  ): Promise<OkStatusResDto> {
+  async execute(command: AssignRoleCommand): Promise<OkStatusResDto> {
     await this.userContextService.assignRoleByTelegramUserId(
       command.targetTelegramUserId,
       command.role,

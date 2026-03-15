@@ -15,9 +15,7 @@ export class MarkNotificationReadHandler implements ICommandHandler<MarkNotifica
     private readonly userContextService: UserContextService,
   ) {}
 
-  async execute(
-    command: MarkNotificationReadCommand,
-  ): Promise<OkStatusResDto> {
+  async execute(command: MarkNotificationReadCommand): Promise<OkStatusResDto> {
     const user = await this.userContextService.requireUserByTelegram(
       command.telegramUserId,
     );

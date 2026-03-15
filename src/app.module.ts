@@ -12,9 +12,10 @@ import { LoggerModule } from 'nestjs-pino';
 import { AnalyticsModule } from '@analytics/analytics.module';
 import { HealthModule } from '@health/health.module';
 import { JobsModule } from '@jobs/jobs.module';
+import { AchievementsModule } from '@modules/achievements/achievements.module';
 import { AdminModule } from '@modules/admin';
-import { BotModule } from '@modules/bot/bot.module';
 import { AuthModule } from '@modules/auth';
+import { BotModule } from '@modules/bot/bot.module';
 import { ClubsModule } from '@modules/clubs';
 import { CommentsModule } from '@modules/comments/';
 import { ConnectionsModule } from '@modules/connections';
@@ -87,6 +88,7 @@ import { UserContextModule } from '@shared/user-context';
     JobsModule,
     ReddyModule,
     AnalyticsModule,
+    AchievementsModule,
     AuthModule,
     ClubsModule,
     CommentsModule,

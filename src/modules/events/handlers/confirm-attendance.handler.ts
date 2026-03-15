@@ -1,30 +1,32 @@
 import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
+import { AchievementCheckerService } from '@modules/achievements/achievement-checker.service';
 import { TelegramNotificationService } from '@modules/bot/telegram-notification.service';
 import { PointsService } from '@points/points.service';
 import { EventParticipationStatus, EventStatus } from '@shared/domain';
 import { AppException } from '@shared/exceptions';
 import { PrismaService } from '@shared/prisma';
-import { StatusResDto } from '@shared/types';
 import { UserContextService } from '@shared/user-context';
 
 import { ConfirmAttendanceCommand } from '../commands';
+import { ConfirmAttendanceResDto } from '../dto/response';
 import { EventStatusService } from '../event-status.service';
 
 @CommandHandler(ConfirmAttendanceCommand)
-export class ConfirmAttendanceHandler
-  implements ICommandHandler<ConfirmAttendanceCommand>
-{
+export class ConfirmAttendanceHandler implements ICommandHandler<ConfirmAttendanceCommand> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userContextService: UserContextService,
     private readonly eventStatusService: EventStatusService,
     private readonly pointsService: PointsService,
     private readonly telegramNotification: TelegramNotificationService,
+    private readonly achievementChecker: AchievementCheckerService,
   ) {}
 
-  async execute(command: ConfirmAttendanceCommand): Promise<StatusResDto> {
+  async execute(
+    command: ConfirmAttendanceCommand,
+  ): Promise<ConfirmAttendanceResDto> {
     const { telegramUserId, eventId, dto } = command;
 
     const user =
@@ -65,7 +67,8 @@ export class ConfirmAttendanceHandler
     if (computedStatus !== EventStatus.Past) {
       throw new AppException({
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Подтверждение присутствия доступно только для завершённых событий',
+        message:
+          'Подтверждение присутствия доступно только для завершённых событий',
       });
     }
 
@@ -94,9 +97,11 @@ export class ConfirmAttendanceHandler
       joinedParticipants.map((p) => [p.userId, p.user.telegramUserId]),
     );
 
+    let confirmedCount = 0;
     for (const item of dto.attendances) {
       // Игнорируем userId, которые не являются участниками события
       if (!joinedUserIds.has(item.userId)) continue;
+      confirmedCount++;
 
       await this.prisma.attendanceConfirmation.create({
         data: {
@@ -127,6 +132,12 @@ export class ConfirmAttendanceHandler
       }
     }
 
-    return { status: 'ok' };
+    const unlockedAchievements =
+      await this.achievementChecker.checkOnConfirmAttendance(
+        user.id,
+        confirmedCount,
+      );
+
+    return { status: 'ok', unlockedAchievements };
   }
 }
